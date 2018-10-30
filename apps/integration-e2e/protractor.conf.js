@@ -64,7 +64,7 @@ const config = {
 
 //if (process.env.TRAVIS) {
 if (argv.base === 'SauceLabs') {
-  console.log('BrowserStack');
+  console.log('SauceLabs');
   config.sauceUser = process.env.SAUCE_USERNAME;
   config.sauceKey = process.env.SAUCE_ACCESS_KEY;
 }

@@ -9,26 +9,25 @@ exports.customDesktopLaunchers = [
     browserName: 'firefox',
     version: 'latest'
   },
-  {
-    base: 'SauceLabs',
-    browserName: 'safari',
-    platform: 'OS X 10.12',
-    version: '10.0'
-  },
+  // {
+  //   base: 'SauceLabs',
+  //   browserName: 'safari',
+  //   version: 'latest'
+  // },
   {
     base: 'BrowserStack',
     browserName: 'Edge',
     browser_version: '17.0',
     os: 'Windows',
     os_version: '10'
-  },
-  {
-    base: 'BrowserStack',
-    browserName: 'IE',
-    browser_version: '11.0',
-    os: 'Windows',
-    os_version: '10'
   }
+  // {
+  //   base: 'BrowserStack',
+  //   browserName: 'IE',
+  //   browser_version: '11.0',
+  //   os: 'Windows',
+  //   os_version: '10'
+  // }
 ];
 exports.androidLaunchers = [
   {
