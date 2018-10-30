@@ -4,6 +4,7 @@
 const argv = require('yargs').argv;
 const path = require('path');
 const remoteBrowsers = require('./remote-browsers');
+const browserstack = require('browserstack-local');
 const basePath = './apps/integration-e2e/';
 
 const config = {
@@ -61,10 +62,42 @@ const config = {
   ignoreUncaughtExceptions: true
 };
 
-if (process.env.TRAVIS) {
+//if (process.env.TRAVIS) {
+if (argv.base === 'SauceLabs') {
+  console.log('BrowserStack');
   config.sauceUser = process.env.SAUCE_USERNAME;
   config.sauceKey = process.env.SAUCE_ACCESS_KEY;
 }
+if (argv.base === 'BrowserStack') {
+  console.log('BrowserStack');
+  config.browserstackUser = process.env.BROWSERSTACK_USERNAME;
+  config.browserstackKey = process.env.BROWSERSTACK_ACCESS_KEY;
+  (config.commonCapabilities = {
+    project: 'ngx-mime',
+    'browserstack.local': true,
+    'browserstack.debug': 'true'
+  }),
+    (config.beforeLaunch = function() {
+      return new Promise(function(resolve, reject) {
+        exports.bs_local = new browserstack.Local();
+        exports.bs_local.start(
+          { key: exports.config['browserstackKey'] },
+          function(error) {
+            if (error) return reject(error);
+            console.log('Connected. Now testing...');
+
+            resolve();
+          }
+        );
+      });
+    }),
+    (config.afterLaunch = function() {
+      return new Promise(function(resolve, reject) {
+        exports.bs_local.stop(resolve);
+      });
+    });
+}
+//}
 
 config.maxSessions = process.env.TRAVIS ? 5 : 10;
 
@@ -80,7 +113,6 @@ function getMultiCapabilities() {
 
   if (argv.browser) {
     const cap = browsers.find(l => l.browserName === argv.browser);
-    console.log('cap', cap);
     capabilities = {
       browserName: cap.browserName,
       version: cap.version,
@@ -103,31 +135,27 @@ function getMultiCapabilities() {
     multiCapabilities.push(capabilities);
   } else {
     if (argv.device === 'desktop') {
-      browsers = remoteBrowsers.customDesktopLaunchers;
+      browsers = remoteBrowsers.customDesktopLaunchers.filter(
+        l => l.base === argv.base
+      );
     } else if (argv.device === 'android') {
-      browsers = remoteBrowsers.androidLaunchers;
+      browsers = remoteBrowsers.androidLaunchers.filter(
+        l => l.base === argv.base
+      );
     } else if (argv.device === 'iphone') {
-      browsers = remoteBrowsers.iphoneLaunchers;
+      browsers = remoteBrowsers.iphoneLaunchers.filter(
+        l => l.base === argv.base
+      );
     }
     for (const cap of browsers) {
       const capability = {
-        browserName: cap.browserName,
-        version: cap.version,
-        platform: cap.platform,
-        platformName: cap.platformName,
-        platformVersion: cap.platformVersion,
-        deviceName: cap.deviceName,
+        ...cap,
         name: 'Mime E2E Tests',
         shardTestFiles: true,
         build: process.env.TRAVIS_JOB_NUMBER,
         tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
         maxInstances: 5
       };
-
-      if (process.env.TRAVIS) {
-        capability.build = process.env.TRAVIS_JOB_NUMBER;
-        capability.tunnelIdentifier = process.env.TRAVIS_JOB_NUMBER;
-      }
       multiCapabilities.push(capability);
     }
   }
@@ -164,3 +192,8 @@ function getFeatureFiles() {
 }
 
 exports.config = config;
+
+exports.config.multiCapabilities.forEach(function(caps) {
+  for (var i in exports.config.commonCapabilities)
+    caps[i] = caps[i] || exports.config.commonCapabilities[i];
+});
