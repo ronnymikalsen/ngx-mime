@@ -40,7 +40,7 @@
               "libs/ngx-mime/tsconfig.lib.json",
               "libs/ngx-mime/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!libs/ngx-mime/**"]
+            "exclude": ["**/node_modules/**", "!libs/ngx-mime/**/*"]
           }
         }
       }
@@ -52,7 +52,7 @@
       "prefix": "nationallibraryofnorway",
       "schematics": {
         "@schematics/angular:component": {
-          "styleext": "scss"
+          "style": "scss"
         }
       },
       "architect": {
@@ -87,7 +87,6 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
               "aot": true,
@@ -167,7 +166,7 @@
       "prefix": "nationallibraryofnorway",
       "schematics": {
         "@schematics/angular:component": {
-          "styleext": "scss"
+          "style": "scss"
         }
       },
       "architect": {
@@ -208,7 +207,6 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
               "extractCss": true,
               "namedChunks": false,
               "aot": true,
@@ -287,7 +285,6 @@
   },
   "cli": {
     "warnings": {
-      "typescriptMismatch": false,
       "versionMismatch": false,
       "packageManager": "yarn"
     },
