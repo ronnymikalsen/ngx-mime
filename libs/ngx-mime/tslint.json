@@ -1,8 +1,18 @@
 {
   "extends": "../../tslint.json",
   "rules": {
-    "directive-selector": [true, "attribute", "mime", "camelCase"],
-    "component-selector": [true, "element", "mime", "kebab-case"]
+    "directive-selector": [
+      true,
+      "attribute",
+      "nationallibraryofnorway",
+      "camelCase"
+    ],
+    "component-selector": [
+      true,
+      "element",
+      "nationallibraryofnorway",
+      "kebab-case"
+    ]
   },
   "linterOptions": {
     "exclude": ["!**/*"]

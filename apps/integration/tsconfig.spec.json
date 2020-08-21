@@ -1,15 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "outDir": "../../dist/out-tsc",
-    "types": ["jasmine", "node"],
-    "paths": {
-      "@nationallibraryofnorway/ngx-mime": [
-        "../../dist/libs/@nationallibraryofnorway/ngx-mime"
-      ]
-    }
+    "module": "commonjs",
+    "types": ["jest", "node"]
   },
-  "files": ["src/test.ts", "src/polyfills.ts"],
+  "files": ["src/test-setup.ts"],
   "include": ["**/*.spec.ts", "**/*.d.ts"]
 }

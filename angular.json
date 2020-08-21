@@ -1,7 +1,5 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
-  "newProjectRoot": "",
   "projects": {
     "ngx-mime": {
       "root": "libs/ngx-mime",
@@ -22,15 +20,12 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@nrwl/jest:jest",
           "options": {
-            "main": "libs/ngx-mime/src/test.ts",
+            "jestConfig": "libs/ngx-mime/jest.config.js",
             "tsConfig": "libs/ngx-mime/tsconfig.spec.json",
-            "karmaConfig": "libs/ngx-mime/karma.conf.js",
-            "scripts": [
-              "./node_modules/openseadragon/build/openseadragon/openseadragon.min.js",
-              "./node_modules/hammerjs/hammer.min.js"
-            ]
+            "passWithNoTests": true,
+            "setupFile": "libs/ngx-mime/src/test-setup.ts"
           }
         },
         "lint": {
@@ -69,7 +64,10 @@
             "styles": ["apps/demo/src/styles.scss", "apps/demo/src/theme.scss"],
             "scripts": [
               "./node_modules/openseadragon/build/openseadragon/openseadragon.min.js"
-            ]
+            ],
+            "allowedCommonJsDependencies": [
+              "openseadragon"
+           ]
           },
           "configurations": {
             "production": {
@@ -114,17 +112,12 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@nrwl/jest:jest",
           "options": {
-            "main": "apps/demo/src/test.ts",
-            "polyfills": "apps/demo/src/polyfills.ts",
+            "jestConfig": "apps/demo/jest.config.js",
             "tsConfig": "apps/demo/tsconfig.spec.json",
-            "karmaConfig": "apps/demo/karma.conf.js",
-            "styles": ["apps/demo/src/styles.scss"],
-            "scripts": [
-              "./node_modules/openseadragon/build/openseadragon/openseadragon.min.js"
-            ],
-            "assets": ["apps/demo/src/favicon.ico", "apps/demo/src/assets"]
+            "passWithNoTests": true,
+            "setupFile": "apps/demo/src/test-setup.ts"
           }
         },
         "lint": {
@@ -234,20 +227,12 @@
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@nrwl/jest:jest",
           "options": {
-            "main": "apps/integration/src/test.ts",
-            "polyfills": "apps/integration/src/polyfills.ts",
+            "jestConfig": "apps/integration/jest.config.js",
             "tsConfig": "apps/integration/tsconfig.spec.json",
-            "karmaConfig": "apps/integration/karma.conf.js",
-            "styles": ["apps/integration/src/styles.scss"],
-            "scripts": [
-              "./node_modules/openseadragon/build/openseadragon/openseadragon.min.js"
-            ],
-            "assets": [
-              "apps/integration/src/favicon.ico",
-              "apps/integration/src/assets"
-            ]
+            "passWithNoTests": true,
+            "setupFile": "apps/integration/src/test-setup.ts"
           }
         },
         "lint": {
@@ -284,24 +269,50 @@
     }
   },
   "cli": {
-    "warnings": {
-      "versionMismatch": false,
-      "packageManager": "yarn"
-    },
     "defaultCollection": "@nrwl/angular"
   },
   "defaultProject": "ngx-mime",
   "schematics": {
-    "@nrwl/schematics:library": {
-      "unitTestRunner": "karma",
-      "framework": "angular"
+    "@nrwl/workspace": {
+      "library": {
+        "linter": "tslint"
+      }
     },
-    "@nrwl/schematics:application": {
-      "unitTestRunner": "karma",
-      "e2eTestRunner": "protractor"
+    "@nrwl/cypress": {
+      "cypress-project": {
+        "linter": "tslint"
+      }
     },
-    "@nrwl/schematics:node-application": {
-      "framework": "express"
+    "@nrwl/node": {
+      "application": {
+        "linter": "tslint"
+      },
+      "library": {
+        "linter": "tslint"
+      }
+    },
+    "@nrwl/nest": {
+      "application": {
+        "linter": "tslint"
+      },
+      "library": {
+        "linter": "tslint"
+      }
+    },
+    "@nrwl/express": {
+      "application": {
+        "linter": "tslint"
+      },
+      "library": {
+        "linter": "tslint"
+      }
+    },
+    "@nrwl/angular:application": {
+      "unitTestRunner": "jest",
+      "e2eTestRunner": "cypress"
+    },
+    "@nrwl/angular:library": {
+      "unitTestRunner": "jest"
     }
   }
 }
