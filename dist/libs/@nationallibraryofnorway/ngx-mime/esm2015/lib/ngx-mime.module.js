@@ -1,0 +1,47 @@
+import { __decorate } from "tslib";
+import { NgModule } from '@angular/core';
+import 'd3';
+import 'openseadragon';
+import { AttributionDialogModule } from './attribution-dialog/attribution-dialog.module';
+import { CanvasGroupDialogModule } from './canvas-group-dialog/canvas-group-dialog.module';
+import { ContentSearchDialogModule } from './content-search-dialog/content-search-dialog.module';
+import { HelpDialogModule } from './help-dialog/help-dialog.module';
+import { ContentsDialogModule } from './contents-dialog/contents-dialog.module';
+import { CoreModule } from './core/core.module';
+import { SharedModule } from './shared/shared.module';
+import { OsdToolbarComponent } from './viewer/osd-toolbar/osd-toolbar.component';
+import { CanvasGroupNavigatorComponent } from './viewer/viewer-footer/canvas-group-navigator/canvas-group-navigator.component';
+import { ContentSearchNavigatorComponent } from './viewer/viewer-footer/content-search-navigator/content-search-navigator.component';
+import { ViewerFooterComponent } from './viewer/viewer-footer/viewer-footer.component';
+import { IconComponent } from './viewer/viewer-header/icon/icon.component';
+import { ViewerHeaderComponent } from './viewer/viewer-header/viewer-header.component';
+import { ViewerSpinnerComponent } from './viewer/viewer-spinner/viewer-spinner.component';
+import { ViewerComponent } from './viewer/viewer.component';
+let MimeModule = class MimeModule {
+};
+MimeModule = __decorate([
+    NgModule({
+        declarations: [
+            ViewerComponent,
+            ViewerHeaderComponent,
+            ViewerFooterComponent,
+            OsdToolbarComponent,
+            ContentSearchNavigatorComponent,
+            CanvasGroupNavigatorComponent,
+            ViewerSpinnerComponent,
+            IconComponent
+        ],
+        imports: [
+            CoreModule,
+            SharedModule,
+            ContentsDialogModule,
+            AttributionDialogModule,
+            HelpDialogModule,
+            ContentSearchDialogModule,
+            CanvasGroupDialogModule
+        ],
+        exports: [ViewerComponent]
+    })
+], MimeModule);
+export { MimeModule };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibmd4LW1pbWUubW9kdWxlLmpzIiwic291cmNlUm9vdCI6Im5nOi8vQG5hdGlvbmFsbGlicmFyeW9mbm9yd2F5L25neC1taW1lLyIsInNvdXJjZXMiOlsibGliL25neC1taW1lLm1vZHVsZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQUEsT0FBTyxFQUFFLFFBQVEsRUFBRSxNQUFNLGVBQWUsQ0FBQztBQUN6QyxPQUFPLElBQUksQ0FBQztBQUNaLE9BQU8sZUFBZSxDQUFDO0FBQ3ZCLE9BQU8sRUFBRSx1QkFBdUIsRUFBRSxNQUFNLGdEQUFnRCxDQUFDO0FBQ3pGLE9BQU8sRUFBRSx1QkFBdUIsRUFBRSxNQUFNLGtEQUFrRCxDQUFDO0FBQzNGLE9BQU8sRUFBRSx5QkFBeUIsRUFBRSxNQUFNLHNEQUFzRCxDQUFDO0FBQ2pHLE9BQU8sRUFBRSxnQkFBZ0IsRUFBRSxNQUFNLGtDQUFrQyxDQUFDO0FBQ3BFLE9BQU8sRUFBRSxvQkFBb0IsRUFBRSxNQUFNLDBDQUEwQyxDQUFDO0FBQ2hGLE9BQU8sRUFBRSxVQUFVLEVBQUUsTUFBTSxvQkFBb0IsQ0FBQztBQUNoRCxPQUFPLEVBQUUsWUFBWSxFQUFFLE1BQU0sd0JBQXdCLENBQUM7QUFDdEQsT0FBTyxFQUFFLG1CQUFtQixFQUFFLE1BQU0sNENBQTRDLENBQUM7QUFDakYsT0FBTyxFQUFFLDZCQUE2QixFQUFFLE1BQU0sZ0ZBQWdGLENBQUM7QUFDL0gsT0FBTyxFQUFFLCtCQUErQixFQUFFLE1BQU0sb0ZBQW9GLENBQUM7QUFDckksT0FBTyxFQUFFLHFCQUFxQixFQUFFLE1BQU0sZ0RBQWdELENBQUM7QUFDdkYsT0FBTyxFQUFFLGFBQWEsRUFBRSxNQUFNLDRDQUE0QyxDQUFDO0FBQzNFLE9BQU8sRUFBRSxxQkFBcUIsRUFBRSxNQUFNLGdEQUFnRCxDQUFDO0FBQ3ZGLE9BQU8sRUFBRSxzQkFBc0IsRUFBRSxNQUFNLGtEQUFrRCxDQUFDO0FBQzFGLE9BQU8sRUFBRSxlQUFlLEVBQUUsTUFBTSwyQkFBMkIsQ0FBQztBQXdCNUQsSUFBYSxVQUFVLEdBQXZCLE1BQWEsVUFBVTtDQUFHLENBQUE7QUFBYixVQUFVO0lBdEJ0QixRQUFRLENBQUM7UUFDUixZQUFZLEVBQUU7WUFDWixlQUFlO1lBQ2YscUJBQXFCO1lBQ3JCLHFCQUFxQjtZQUNyQixtQkFBbUI7WUFDbkIsK0JBQStCO1lBQy9CLDZCQUE2QjtZQUM3QixzQkFBc0I7WUFDdEIsYUFBYTtTQUNkO1FBQ0QsT0FBTyxFQUFFO1lBQ1AsVUFBVTtZQUNWLFlBQVk7WUFDWixvQkFBb0I7WUFDcEIsdUJBQXVCO1lBQ3ZCLGdCQUFnQjtZQUNoQix5QkFBeUI7WUFDekIsdUJBQXVCO1NBQ3hCO1FBQ0QsT0FBTyxFQUFFLENBQUMsZUFBZSxDQUFDO0tBQzNCLENBQUM7R0FDVyxVQUFVLENBQUc7U0FBYixVQUFVIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgTmdNb2R1bGUgfSBmcm9tICdAYW5ndWxhci9jb3JlJztcbmltcG9ydCAnZDMnO1xuaW1wb3J0ICdvcGVuc2VhZHJhZ29uJztcbmltcG9ydCB7IEF0dHJpYnV0aW9uRGlhbG9nTW9kdWxlIH0gZnJvbSAnLi9hdHRyaWJ1dGlvbi1kaWFsb2cvYXR0cmlidXRpb24tZGlhbG9nLm1vZHVsZSc7XG5pbXBvcnQgeyBDYW52YXNHcm91cERpYWxvZ01vZHVsZSB9IGZyb20gJy4vY2FudmFzLWdyb3VwLWRpYWxvZy9jYW52YXMtZ3JvdXAtZGlhbG9nLm1vZHVsZSc7XG5pbXBvcnQgeyBDb250ZW50U2VhcmNoRGlhbG9nTW9kdWxlIH0gZnJvbSAnLi9jb250ZW50LXNlYXJjaC1kaWFsb2cvY29udGVudC1zZWFyY2gtZGlhbG9nLm1vZHVsZSc7XG5pbXBvcnQgeyBIZWxwRGlhbG9nTW9kdWxlIH0gZnJvbSAnLi9oZWxwLWRpYWxvZy9oZWxwLWRpYWxvZy5tb2R1bGUnO1xuaW1wb3J0IHsgQ29udGVudHNEaWFsb2dNb2R1bGUgfSBmcm9tICcuL2NvbnRlbnRzLWRpYWxvZy9jb250ZW50cy1kaWFsb2cubW9kdWxlJztcbmltcG9ydCB7IENvcmVNb2R1bGUgfSBmcm9tICcuL2NvcmUvY29yZS5tb2R1bGUnO1xuaW1wb3J0IHsgU2hhcmVkTW9kdWxlIH0gZnJvbSAnLi9zaGFyZWQvc2hhcmVkLm1vZHVsZSc7XG5pbXBvcnQgeyBPc2RUb29sYmFyQ29tcG9uZW50IH0gZnJvbSAnLi92aWV3ZXIvb3NkLXRvb2xiYXIvb3NkLXRvb2xiYXIuY29tcG9uZW50JztcbmltcG9ydCB7IENhbnZhc0dyb3VwTmF2aWdhdG9yQ29tcG9uZW50IH0gZnJvbSAnLi92aWV3ZXIvdmlld2VyLWZvb3Rlci9jYW52YXMtZ3JvdXAtbmF2aWdhdG9yL2NhbnZhcy1ncm91cC1uYXZpZ2F0b3IuY29tcG9uZW50JztcbmltcG9ydCB7IENvbnRlbnRTZWFyY2hOYXZpZ2F0b3JDb21wb25lbnQgfSBmcm9tICcuL3ZpZXdlci92aWV3ZXItZm9vdGVyL2NvbnRlbnQtc2VhcmNoLW5hdmlnYXRvci9jb250ZW50LXNlYXJjaC1uYXZpZ2F0b3IuY29tcG9uZW50JztcbmltcG9ydCB7IFZpZXdlckZvb3RlckNvbXBvbmVudCB9IGZyb20gJy4vdmlld2VyL3ZpZXdlci1mb290ZXIvdmlld2VyLWZvb3Rlci5jb21wb25lbnQnO1xuaW1wb3J0IHsgSWNvbkNvbXBvbmVudCB9IGZyb20gJy4vdmlld2VyL3ZpZXdlci1oZWFkZXIvaWNvbi9pY29uLmNvbXBvbmVudCc7XG5pbXBvcnQgeyBWaWV3ZXJIZWFkZXJDb21wb25lbnQgfSBmcm9tICcuL3ZpZXdlci92aWV3ZXItaGVhZGVyL3ZpZXdlci1oZWFkZXIuY29tcG9uZW50JztcbmltcG9ydCB7IFZpZXdlclNwaW5uZXJDb21wb25lbnQgfSBmcm9tICcuL3ZpZXdlci92aWV3ZXItc3Bpbm5lci92aWV3ZXItc3Bpbm5lci5jb21wb25lbnQnO1xuaW1wb3J0IHsgVmlld2VyQ29tcG9uZW50IH0gZnJvbSAnLi92aWV3ZXIvdmlld2VyLmNvbXBvbmVudCc7XG5cbkBOZ01vZHVsZSh7XG4gIGRlY2xhcmF0aW9uczogW1xuICAgIFZpZXdlckNvbXBvbmVudCxcbiAgICBWaWV3ZXJIZWFkZXJDb21wb25lbnQsXG4gICAgVmlld2VyRm9vdGVyQ29tcG9uZW50LFxuICAgIE9zZFRvb2xiYXJDb21wb25lbnQsXG4gICAgQ29udGVudFNlYXJjaE5hdmlnYXRvckNvbXBvbmVudCxcbiAgICBDYW52YXNHcm91cE5hdmlnYXRvckNvbXBvbmVudCxcbiAgICBWaWV3ZXJTcGlubmVyQ29tcG9uZW50LFxuICAgIEljb25Db21wb25lbnRcbiAgXSxcbiAgaW1wb3J0czogW1xuICAgIENvcmVNb2R1bGUsXG4gICAgU2hhcmVkTW9kdWxlLFxuICAgIENvbnRlbnRzRGlhbG9nTW9kdWxlLFxuICAgIEF0dHJpYnV0aW9uRGlhbG9nTW9kdWxlLFxuICAgIEhlbHBEaWFsb2dNb2R1bGUsXG4gICAgQ29udGVudFNlYXJjaERpYWxvZ01vZHVsZSxcbiAgICBDYW52YXNHcm91cERpYWxvZ01vZHVsZVxuICBdLFxuICBleHBvcnRzOiBbVmlld2VyQ29tcG9uZW50XVxufSlcbmV4cG9ydCBjbGFzcyBNaW1lTW9kdWxlIHt9XG4iXX0=

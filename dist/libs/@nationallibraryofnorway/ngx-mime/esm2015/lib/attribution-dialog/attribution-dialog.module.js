@@ -1,0 +1,23 @@
+import { __decorate } from "tslib";
+import { NgModule } from '@angular/core';
+import { SharedModule } from './../shared/shared.module';
+import { AttributionDialogComponent } from './attribution-dialog.component';
+import { AttributionDialogService } from './attribution-dialog.service';
+import { AttributionDialogResizeService } from './attribution-dialog-resize.service';
+import { MimeDomHelper } from '../core/mime-dom-helper';
+let AttributionDialogModule = class AttributionDialogModule {
+};
+AttributionDialogModule = __decorate([
+    NgModule({
+        imports: [SharedModule],
+        declarations: [AttributionDialogComponent],
+        providers: [
+            AttributionDialogService,
+            AttributionDialogResizeService,
+            MimeDomHelper
+        ],
+        entryComponents: [AttributionDialogComponent]
+    })
+], AttributionDialogModule);
+export { AttributionDialogModule };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXR0cmlidXRpb24tZGlhbG9nLm1vZHVsZS5qcyIsInNvdXJjZVJvb3QiOiJuZzovL0BuYXRpb25hbGxpYnJhcnlvZm5vcndheS9uZ3gtbWltZS8iLCJzb3VyY2VzIjpbImxpYi9hdHRyaWJ1dGlvbi1kaWFsb2cvYXR0cmlidXRpb24tZGlhbG9nLm1vZHVsZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQUEsT0FBTyxFQUFFLFFBQVEsRUFBRSxNQUFNLGVBQWUsQ0FBQztBQUV6QyxPQUFPLEVBQUUsWUFBWSxFQUFFLE1BQU0sMkJBQTJCLENBQUM7QUFDekQsT0FBTyxFQUFFLDBCQUEwQixFQUFFLE1BQU0sZ0NBQWdDLENBQUM7QUFDNUUsT0FBTyxFQUFFLHdCQUF3QixFQUFFLE1BQU0sOEJBQThCLENBQUM7QUFDeEUsT0FBTyxFQUFFLDhCQUE4QixFQUFFLE1BQU0scUNBQXFDLENBQUM7QUFDckYsT0FBTyxFQUFFLGFBQWEsRUFBRSxNQUFNLHlCQUF5QixDQUFDO0FBWXhELElBQWEsdUJBQXVCLEdBQXBDLE1BQWEsdUJBQXVCO0NBQUcsQ0FBQTtBQUExQix1QkFBdUI7SUFWbkMsUUFBUSxDQUFDO1FBQ1IsT0FBTyxFQUFFLENBQUMsWUFBWSxDQUFDO1FBQ3ZCLFlBQVksRUFBRSxDQUFDLDBCQUEwQixDQUFDO1FBQzFDLFNBQVMsRUFBRTtZQUNULHdCQUF3QjtZQUN4Qiw4QkFBOEI7WUFDOUIsYUFBYTtTQUNkO1FBQ0QsZUFBZSxFQUFFLENBQUMsMEJBQTBCLENBQUM7S0FDOUMsQ0FBQztHQUNXLHVCQUF1QixDQUFHO1NBQTFCLHVCQUF1QiIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IE5nTW9kdWxlIH0gZnJvbSAnQGFuZ3VsYXIvY29yZSc7XG5cbmltcG9ydCB7IFNoYXJlZE1vZHVsZSB9IGZyb20gJy4vLi4vc2hhcmVkL3NoYXJlZC5tb2R1bGUnO1xuaW1wb3J0IHsgQXR0cmlidXRpb25EaWFsb2dDb21wb25lbnQgfSBmcm9tICcuL2F0dHJpYnV0aW9uLWRpYWxvZy5jb21wb25lbnQnO1xuaW1wb3J0IHsgQXR0cmlidXRpb25EaWFsb2dTZXJ2aWNlIH0gZnJvbSAnLi9hdHRyaWJ1dGlvbi1kaWFsb2cuc2VydmljZSc7XG5pbXBvcnQgeyBBdHRyaWJ1dGlvbkRpYWxvZ1Jlc2l6ZVNlcnZpY2UgfSBmcm9tICcuL2F0dHJpYnV0aW9uLWRpYWxvZy1yZXNpemUuc2VydmljZSc7XG5pbXBvcnQgeyBNaW1lRG9tSGVscGVyIH0gZnJvbSAnLi4vY29yZS9taW1lLWRvbS1oZWxwZXInO1xuXG5ATmdNb2R1bGUoe1xuICBpbXBvcnRzOiBbU2hhcmVkTW9kdWxlXSxcbiAgZGVjbGFyYXRpb25zOiBbQXR0cmlidXRpb25EaWFsb2dDb21wb25lbnRdLFxuICBwcm92aWRlcnM6IFtcbiAgICBBdHRyaWJ1dGlvbkRpYWxvZ1NlcnZpY2UsXG4gICAgQXR0cmlidXRpb25EaWFsb2dSZXNpemVTZXJ2aWNlLFxuICAgIE1pbWVEb21IZWxwZXJcbiAgXSxcbiAgZW50cnlDb21wb25lbnRzOiBbQXR0cmlidXRpb25EaWFsb2dDb21wb25lbnRdXG59KVxuZXhwb3J0IGNsYXNzIEF0dHJpYnV0aW9uRGlhbG9nTW9kdWxlIHt9XG4iXX0=
