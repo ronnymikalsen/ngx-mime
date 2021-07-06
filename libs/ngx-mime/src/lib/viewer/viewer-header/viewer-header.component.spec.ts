@@ -9,7 +9,9 @@ import {
 } from '@angular/core/testing';
 import { MatDialogHarness } from '@angular/material/dialog/testing';
 import { By } from '@angular/platform-browser';
+import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { ContentSearchDialogModule } from '../../content-search-dialog/content-search-dialog.module';
+import { ContentsDialogComponent } from '../../contents-dialog/contents-dialog.component';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { ClickService } from '../../core/click-service/click.service';
 import { IiifContentSearchService } from '../../core/iiif-content-search-service/iiif-content-search.service';
@@ -55,7 +57,11 @@ describe('ViewerHeaderComponent', () => {
           { provide: FullscreenService, useClass: FullscreenServiceStub },
           { provide: IiifManifestService, useClass: IiifManifestServiceStub },
         ],
-      }).compileComponents();
+      })
+        .overrideModule(BrowserDynamicTestingModule, {
+          set: { entryComponents: [ContentsDialogComponent] },
+        })
+        .compileComponents();
     })
   );
 

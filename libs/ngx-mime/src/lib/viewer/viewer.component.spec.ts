@@ -3,9 +3,11 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
+import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import 'openseadragon';
 import { injectedStub } from '../../testing/injected-stub';
+import { AttributionDialogComponent } from '../attribution-dialog/attribution-dialog.component';
 import { AttributionDialogModule } from '../attribution-dialog/attribution-dialog.module';
 import { ContentsDialogModule } from '../contents-dialog/contents-dialog.module';
 import { AccessKeysService } from '../core/access-keys-handler-service/access-keys.service';
@@ -91,7 +93,13 @@ describe('ViewerComponent', function () {
           ViewerLayoutService,
           ContentSearchNavigationService,
         ],
-      }).compileComponents();
+      })
+        .overrideModule(BrowserDynamicTestingModule, {
+          set: {
+            entryComponents: [AttributionDialogComponent, TestDynamicComponent],
+          },
+        })
+        .compileComponents();
 
       testHostFixture = TestBed.createComponent(TestHostComponent);
       comp = testHostFixture.componentInstance.viewerComponent;
