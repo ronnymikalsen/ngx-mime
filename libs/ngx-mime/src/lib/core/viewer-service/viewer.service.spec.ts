@@ -116,6 +116,8 @@ describe('ViewerService', () => {
 
     let subscription: Subscription;
     subscription = viewerService.onOsdReadyChange.subscribe((state) => {
+      console.log(state);
+
       if (state) {
         subscription.unsubscribe();
         viewerService.rotate();
