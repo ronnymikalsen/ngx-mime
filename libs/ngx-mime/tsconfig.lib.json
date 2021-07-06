@@ -13,7 +13,8 @@
     "src/test.ts",
     "**/*.spec.ts",
     "**/*-test.module.ts",
-    "**/test-*.ts"
+    "**/test-*.ts",
+    "**/stub.ts"
   ],
   "include": ["**/*.ts"]
 }

@@ -2,6 +2,7 @@ import { HttpClient, HttpHandler } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MediaObserver } from '@angular/flex-layout';
+import { Subscription } from 'rxjs';
 import { testManifest } from '../../test/testManifest';
 import { ManifestBuilder } from '../builders/manifest.builder';
 import { ClickService } from '../click-service/click.service';
@@ -113,10 +114,12 @@ describe('ViewerService', () => {
       new MimeViewerConfig()
     );
 
-    viewerService.onOsdReadyChange.subscribe((state) => {
+    let subscription: Subscription;
+    subscription = viewerService.onOsdReadyChange.subscribe((state) => {
       if (state) {
+        subscription.unsubscribe();
         viewerService.rotate();
-        viewerService.destroy();
+        viewerService.destroy(false);
         expect(rotation).toEqual(0);
         done();
       }
