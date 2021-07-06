@@ -46,7 +46,7 @@ import { Manifest } from './../../core/models/manifest';
       state(
         'show',
         style({
-          transform: 'translate(0px, 0px)',
+          transform: 'translate(0, 0)',
         })
       ),
       transition(

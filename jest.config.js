@@ -1,3 +1,7 @@
 module.exports = {
-  projects: [],
+  projects: [
+    '<rootDir>/libs/ngx-mime',
+    '<rootDir>/apps/demo',
+    '<rootDir>/apps/elements',
+  ],
 };

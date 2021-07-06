@@ -41,10 +41,10 @@ describe('ManifestBuilder', () => {
       expect(sequence.canvases?.length).toBe(85);
       sequence.canvases?.forEach((canvas: Canvas) => {
         expect(canvas.type).toBe('sc:Canvas');
-        expect(canvas.label).toBeDefined('Canvas should have label');
-        expect(canvas.thumbnail).toBeDefined('Canvas should have thumbnail');
-        expect(canvas.height).toBeDefined('Canvas should have height');
-        expect(canvas.width).toBeDefined('Canvas should have width');
+        expect(canvas.label).toBeDefined();
+        expect(canvas.thumbnail).toBeDefined();
+        expect(canvas.height).toBeDefined();
+        expect(canvas.width).toBeDefined();
       });
     });
   });
@@ -53,16 +53,14 @@ describe('ManifestBuilder', () => {
     manifest.sequences?.forEach((sequence: Sequence) => {
       sequence.canvases?.forEach((canvas: Canvas) => {
         canvas.images?.forEach((image: Images) => {
-          expect(image.id).toBeDefined('Image should have @id');
+          expect(image.id).toBeDefined();
           expect(image.type).toBe('oa:Annotation');
           expect(image.motivation).toBe('sc:painting');
-          expect(image.resource).toBeDefined('Image should have resource');
+          expect(image.resource).toBeDefined();
           expect(image.id).toContain(image.resource?.id);
-          expect(image.resource?.height).toBeDefined('Image should have height');
-          expect(image.resource?.width).toBeDefined('Image should have width');
-          expect(image.resource?.service).toBeDefined(
-            'image resource should have service'
-          );
+          expect(image.resource?.height).toBeDefined();
+          expect(image.resource?.width).toBeDefined();
+          expect(image.resource?.service).toBeDefined();
           const service = image.resource?.service;
           expect(service).toBeTruthy();
           expect(service?.context).toBe(
@@ -71,9 +69,7 @@ describe('ManifestBuilder', () => {
           expect(service?.id).toBe(
             'https://www.nb.no/services/image/resolver/' + image.resource?.id
           );
-          expect(service?.service).toBeDefined(
-            'Image service should have service'
-          );
+          expect(service?.service).toBeDefined();
         });
       });
     });

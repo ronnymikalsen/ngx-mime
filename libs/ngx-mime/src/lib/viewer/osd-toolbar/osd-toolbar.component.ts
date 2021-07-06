@@ -47,7 +47,7 @@ import { ViewerService } from './../../core/viewer-service/viewer.service';
       state(
         'show',
         style({
-          transform: 'translate(0px, 0px)',
+          transform: 'translate(0, 0)',
           display: 'block',
         })
       ),

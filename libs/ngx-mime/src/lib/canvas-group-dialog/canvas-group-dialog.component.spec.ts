@@ -94,7 +94,7 @@ describe('PageDialogComponent', () => {
       const canvasGroupDoesNotExistsError = await loader.getHarness(
         MatFormFieldHarness
       );
-      expect(await canvasGroupDoesNotExistsError.hasErrors()).toBeTrue();
+      expect(await canvasGroupDoesNotExistsError.hasErrors()).toBeTruthy();
     }));
   });
 });

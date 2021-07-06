@@ -11,7 +11,7 @@
 
 .mat-dialog-content {
   padding: 8px;
-  margin: 0px;
+  margin: 0;
 }
 
 ::ng-deep .attribution-panel {
@@ -21,7 +21,7 @@
 ::ng-deep .attribution-panel > .mat-dialog-container {
   background: transparent !important;
   font-size: 11px;
-  padding: 0px;
+  padding: 0;
 }
 
 ::ng-deep .attribution-toolbar > .mat-toolbar-layout > .mat-toolbar-row {
