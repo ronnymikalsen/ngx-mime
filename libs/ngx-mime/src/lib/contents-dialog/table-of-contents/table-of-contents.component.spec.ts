@@ -97,21 +97,23 @@ describe('TocComponent', () => {
   });
 
   it('should display the correct label', () => {
+    fixture.detectChanges();
+
     const labels: DebugElement[] = fixture.debugElement.queryAll(
       By.css('.label')
     );
-    expect(labels[0].nativeElement.innerText).toEqual('Forside');
-    expect(labels[1].nativeElement.innerText).toEqual('Tittelside');
-    expect(labels[2].nativeElement.innerText).toEqual('Bakside');
+    expect(labels[0].nativeElement.textContent).toEqual('Forside');
+    expect(labels[1].nativeElement.textContent).toEqual('Tittelside');
+    expect(labels[2].nativeElement.textContent).toEqual('Bakside');
   });
 
   it('should display the correct canvas group index', () => {
     const canvasGroupNumbers: DebugElement[] = fixture.debugElement.queryAll(
       By.css('.canvasGroupIndex')
     );
-    expect(canvasGroupNumbers[0].nativeElement.innerText).toEqual('1');
-    expect(canvasGroupNumbers[1].nativeElement.innerText).toEqual('2');
-    expect(canvasGroupNumbers[2].nativeElement.innerText).toEqual('5');
+    expect(canvasGroupNumbers[0].nativeElement.textContent).toEqual('1');
+    expect(canvasGroupNumbers[1].nativeElement.textContent).toEqual('2');
+    expect(canvasGroupNumbers[2].nativeElement.textContent).toEqual('5');
   });
 
   it('should go to canvas group when selecting a canvas group in TOC', () => {

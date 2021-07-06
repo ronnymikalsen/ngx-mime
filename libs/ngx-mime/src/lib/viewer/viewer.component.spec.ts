@@ -448,12 +448,12 @@ describe('ViewerComponent', function () {
       currentCanvasIndex = canvasIndex;
     });
 
-    testHostComponent.canvasIndex = 12;
+    testHostComponent.canvasIndex = 11;
     testHostFixture.detectChanges();
-    setTimeout(() => {
-      expect(currentCanvasIndex).toBe(12);
+    testHostFixture.whenStable().then(() => {
+      expect(currentCanvasIndex).toBe(11);
       done();
-    }, osdAnimationTime);
+    });
   });
 
   it('should create dynamic component to start of header', () => {

@@ -67,7 +67,7 @@ describe('MetadataComponent', () => {
     const attribution: DebugElement = fixture.debugElement.query(
       By.css('.attribution')
     );
-    expect(attribution.nativeElement.innerText).toBe(
+    expect(attribution.nativeElement.textContent).toBe(
       'This is a test attribution'
     );
   });
@@ -83,7 +83,7 @@ describe('MetadataComponent', () => {
     const attribution: DebugElement = fixture.debugElement.query(
       By.css('.license')
     );
-    expect(attribution.nativeElement.innerText).toBe(
+    expect(attribution.nativeElement.textContent).toBe(
       'https://wiki.creativecommons.org/wiki/CC0'
     );
   });
