@@ -6,6 +6,7 @@ import { By } from '@angular/platform-browser';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import 'openseadragon';
+import { start } from 'repl';
 import { injectedStub } from '../../testing/injected-stub';
 import { AttributionDialogComponent } from '../attribution-dialog/attribution-dialog.component';
 import { AttributionDialogModule } from '../attribution-dialog/attribution-dialog.module';
