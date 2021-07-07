@@ -38,7 +38,7 @@ describe('ManifestBuilder', () => {
 
   it('should test manifest canvas after build', () => {
     manifest.sequences?.forEach((sequence: Sequence) => {
-      expect(sequence.canvases?.length).toBe(85);
+      expect(sequence.canvases?.length).toBe(13);
       sequence.canvases?.forEach((canvas: Canvas) => {
         expect(canvas.type).toBe('sc:Canvas');
         expect(canvas.label).toBeDefined();
