@@ -132,7 +132,7 @@
     "eslint-plugin-cypress": "^2.10.3",
     "eslint-plugin-protractor": "^2.1.1",
     "jasmine-marbles": "0.6.0",
-    "jest": "26.2.2",
+    "jest": "26.5.0",
     "jest-canvas-mock": "^2.3.1",
     "jest-matchmedia-mock": "^1.1.0",
     "jest-preset-angular": "8.4.0",

@@ -16,9 +16,9 @@ import { AppComponent } from './app.component';
     HttpClientModule,
     AppRoutingModule,
     FlexLayoutModule,
-    NxModule.forRoot()
+    NxModule.forRoot(),
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

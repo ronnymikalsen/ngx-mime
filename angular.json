@@ -235,7 +235,8 @@
 						],
 						"scripts": [
 							"dist/apps/elements/scripts.js",
-							"dist/apps/elements/main-es5.js"
+							"dist/apps/elements/main-es5.js",
+              "./node_modules/openseadragon/build/openseadragon/openseadragon.min.js"
 						]
 					},
 					"configurations": {
