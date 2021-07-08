@@ -684,7 +684,7 @@ export class ViewerService {
    * @param target
    */
   isCanvasGroupHit(target: HTMLElement): boolean {
-    return target instanceof SVGRectElement;
+    return target instanceof SVGRectElement || target instanceof SVGElement;
   }
 
   /**

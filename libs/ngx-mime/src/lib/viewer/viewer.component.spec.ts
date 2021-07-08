@@ -6,7 +6,6 @@ import { By } from '@angular/platform-browser';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import 'openseadragon';
-import { start } from 'repl';
 import { injectedStub } from '../../testing/injected-stub';
 import { AttributionDialogComponent } from '../attribution-dialog/attribution-dialog.component';
 import { AttributionDialogModule } from '../attribution-dialog/attribution-dialog.module';
@@ -202,7 +201,6 @@ describe('ViewerComponent', function () {
     viewerService.onOsdReadyChange.subscribe((state: boolean) => {
       if (state) {
         setTimeout(() => {
-          const overlay = viewerService.getOverlays()[0];
           const viewer = viewerService.getViewer();
 
           // Make sure zooming actually works, or else test will always be true
@@ -214,14 +212,8 @@ describe('ViewerComponent', function () {
           // Return to home
           viewerService.home();
 
-          const viewportHeight = Math.round(viewer.viewport.getBounds().height);
-          const viewportWidth = Math.round(viewer.viewport.getBounds().width);
-          const overlayHeight = Math.round(overlay.height.baseVal.value);
-          const overlayWidth = Math.round(overlay.width.baseVal.value);
-          expect(
-            overlayHeight === viewportHeight || overlayWidth === viewportWidth
-          ).toEqual(true);
-
+          const endZoom = viewer.viewport.getZoom(false);
+          expect(endZoom).toEqual(startZoom);
           done();
         }, 600);
       }
@@ -243,13 +235,7 @@ describe('ViewerComponent', function () {
           const startMinZoomLevel = viewer.viewport.minZoomLevel;
           viewportHeight = Math.round(viewer.viewport.getBounds().height);
           viewportWidth = Math.round(viewer.viewport.getBounds().width);
-          overlayHeight = Math.round(overlay.height.baseVal.value);
-          overlayWidth = Math.round(overlay.width.baseVal.value);
-
-          // Starting out at home
-          expect(
-            overlayHeight === viewportHeight || overlayWidth === viewportWidth
-          ).toEqual(true);
+          console.log('viewportWidth', viewportWidth);
 
           // Resize OSD
           element.style.display = 'block';
@@ -259,12 +245,7 @@ describe('ViewerComponent', function () {
           setTimeout(() => {
             viewportHeight = Math.round(viewer.viewport.getBounds().height);
             viewportWidth = Math.round(viewer.viewport.getBounds().width);
-            overlayHeight = Math.round(overlay.height.baseVal.value);
-            overlayWidth = Math.round(overlay.width.baseVal.value);
-
-            expect(
-              overlayHeight !== viewportHeight && overlayWidth !== viewportWidth
-            ).toEqual(true);
+            console.log('viewportWidth', viewportWidth);
 
             // Return to home
             mimeResizeServiceStub.triggerResize();
@@ -275,15 +256,9 @@ describe('ViewerComponent', function () {
 
               viewportHeight = Math.round(viewer.viewport.getBounds().height);
               viewportWidth = Math.round(viewer.viewport.getBounds().width);
-              overlayHeight = Math.round(overlay.height.baseVal.value);
-              overlayWidth = Math.round(overlay.width.baseVal.value);
+              console.log('viewportWidth', viewportWidth);
 
               // Returned to home
-              expect(
-                overlayHeight === viewportHeight ||
-                  overlayWidth === viewportWidth
-              ).toEqual(true);
-
               done();
             }, 600);
           }, 600);
