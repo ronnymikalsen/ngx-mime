@@ -21,10 +21,18 @@ export interface PrintSpace {
 export interface TextBlock {
   textLines: TextLine[];
   textStyle?: TextStyle;
+  dimensions: Dimension;
 }
 
 export interface TextLine {
   strings: String[];
+}
+
+export interface Dimension {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export interface String {

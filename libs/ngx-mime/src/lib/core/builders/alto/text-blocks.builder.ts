@@ -33,6 +33,12 @@ export class TextBlocksBuilder {
             textStyle: {
               fontStyle: textStyle?.fontStyle,
             },
+            dimension: {
+              x: textBlock.$.HPOS,
+              y: textBlock.$.VPOS,
+              width: textBlock.$.WIDTH,
+              height: textBlock.$.HEIGHT,
+            }
           };
         })
       : [];
