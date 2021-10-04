@@ -32,6 +32,6 @@ import { ViewerService } from './viewer-service/viewer.service';
     ContentSearchNavigationService,
     StyleService,
     AltoService,
-  ],
+  ]
 })
 export class CoreModule {}

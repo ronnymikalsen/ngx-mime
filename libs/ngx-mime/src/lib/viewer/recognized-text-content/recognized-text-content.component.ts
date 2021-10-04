@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { Alto, TextBlock } from '../../core/alto-service/alto.model';
 import { AltoService } from '../../core/alto-service/alto.service';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
@@ -23,8 +24,8 @@ import { MimeViewerIntl } from '../../core/intl/viewer-intl';
 export class RecognizedTextContentComponent implements OnInit, OnDestroy {
   @ViewChild('recognizedTextContentContainer', { read: ElementRef })
   recognizedTextContentContainer!: ElementRef;
-  firstCanvasRecognizedTextContent: SafeHtml | undefined;
-  secondCanvasRecognizedTextContent: SafeHtml | undefined;
+  firstCanvasRecognizedTextContent: TextBlock[] | undefined;
+  secondCanvasRecognizedTextContent: TextBlock[] | undefined;
   isLoading = false;
   error: string | undefined = undefined;
 
@@ -74,9 +75,14 @@ export class RecognizedTextContentComponent implements OnInit, OnDestroy {
     this.altoService.destroy();
   }
 
+  highlight() {
+    console.log('highlight');
+
+  }
+
   private clearRecognizedText() {
-    this.firstCanvasRecognizedTextContent = '';
-    this.secondCanvasRecognizedTextContent = '';
+    this.firstCanvasRecognizedTextContent = undefined;
+    this.secondCanvasRecognizedTextContent = undefined
   }
 
   private scrollToTop() {

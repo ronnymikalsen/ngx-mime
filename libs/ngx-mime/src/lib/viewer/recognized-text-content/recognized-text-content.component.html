@@ -1,8 +1,28 @@
-<div #recognizedTextContentContainer class="recognized-text-content-container" aria-live="polite">
+<div
+  #recognizedTextContentContainer
+  class="recognized-text-content-container"
+  aria-live="polite"
+>
   <div *ngIf="error" data-test-id="error">{{ error }}</div>
   <div *ngIf="!isLoading">
-    <div *ngIf="firstCanvasRecognizedTextContent" data-test-id="firstCanvasRecognizedTextContent" [innerHTML]="firstCanvasRecognizedTextContent"> </div>
-    <div *ngIf="secondCanvasRecognizedTextContent" data-test-id="secondCanvasRecognizedTextContent" [innerHTML]="secondCanvasRecognizedTextContent"> </div>
+    <div
+      fxLayout="column"
+      fxLayoutAlign="space-around start"
+      fxLayoutGap="8px"
+      *ngIf="firstCanvasRecognizedTextContent"
+      data-test-id="firstCanvasRecognizedTextContent"
+    >
+      <section *ngFor="let textBlock of firstCanvasRecognizedTextContent">
+        <button mat-button>Basic</button>
+        <button
+          mat-button
+          class="text-block"
+          [innerHTML]="textBlock | recognizedTextContent"
+          (click)="highlight()"
+        >
+        </button>
+      </section>
+    </div>
   </div>
-  <div *ngIf="isLoading">{{intl.loading}}</div>
+  <div *ngIf="isLoading">{{ intl.loading }}</div>
 </div>

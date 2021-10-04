@@ -3,6 +3,13 @@
   overflow: auto;
 
   & > div {
-    padding: 1em 1em;
+    padding-top: 1em;
+  }
+
+  .text-block {
+    white-space: normal;
+    line-height: normal;
+    text-align: left;
+    font-weight: 400;
   }
 }

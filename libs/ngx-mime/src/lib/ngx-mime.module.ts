@@ -6,6 +6,7 @@ import { CanvasGroupDialogModule } from './canvas-group-dialog/canvas-group-dial
 import { ContentSearchDialogModule } from './content-search-dialog/content-search-dialog.module';
 import { ContentsDialogModule } from './contents-dialog/contents-dialog.module';
 import { CoreModule } from './core/core.module';
+import { RecognizedTextContentPipe } from './core/pipes/recognized-text-content.pipe';
 import { HelpDialogModule } from './help-dialog/help-dialog.module';
 import { SharedModule } from './shared/shared.module';
 import { OsdToolbarComponent } from './viewer/osd-toolbar/osd-toolbar.component';
@@ -29,6 +30,7 @@ import { ViewerComponent } from './viewer/viewer.component';
     ViewerSpinnerComponent,
     IconComponent,
     RecognizedTextContentComponent,
+    RecognizedTextContentPipe
   ],
   imports: [
     CoreModule,

@@ -17,14 +17,14 @@ import { CanvasService } from '../canvas-service/canvas-service';
 import { IiifManifestService } from '../iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../intl/viewer-intl';
 import { Manifest } from '../models/manifest';
-import { Alto } from './alto.model';
+import { Alto, TextBlock } from './alto.model';
 import { HtmlFormatter } from './html.formatter';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AltoService {
-  private altos: SafeHtml[] = [];
+  private altos: TextBlock[][] = [];
   private recognizedTextContentToggle = new BehaviorSubject(false);
   private isLoading = new BehaviorSubject(false);
   private textContentReady = new Subject<void>();
@@ -114,7 +114,7 @@ export class AltoService {
     this.onRecognizedTextContentToggle = !this.recognizedTextContentToggle.getValue();
   }
 
-  getHtml(index: number): SafeHtml | undefined {
+  getHtml(index: number): TextBlock[] | undefined {
     return this.altos && this.altos.length >= index + 1
       ? this.altos[index]
       : undefined;
@@ -146,7 +146,7 @@ export class AltoService {
     });
   }
 
-  private isInCache(index: number) {
+  private isInCache(index: number): TextBlock[] {
     return this.altos[index];
   }
 
@@ -167,7 +167,23 @@ export class AltoService {
               const alto = this.altoBuilder.withAltoXml(result.alto).build();
               console.log('alto', alto);
 
-              this.addToCache(index, alto);
+
+              const page = alto.layout.page;
+              let textBlocks: TextBlock[] = [];
+              if (page.topMargin.textBlocks) {
+                textBlocks = [...textBlocks, ...page.topMargin.textBlocks];
+              }
+              if (page.leftMargin.textBlocks) {
+                textBlocks = [...textBlocks, ...page.leftMargin.textBlocks];
+              }
+              if (page.printSpace.textBlocks) {
+                textBlocks = [...textBlocks, ...page.printSpace.textBlocks];
+              }
+              if (page.bottomMargin.textBlocks) {
+                textBlocks = [...textBlocks, ...page.bottomMargin.textBlocks];
+              }
+
+              this.addToCache(index, textBlocks);
               this.done(observer);
             });
           } else {
@@ -179,8 +195,8 @@ export class AltoService {
       });
   }
 
-  private addToCache(index: number, alto: Alto) {
-    this.altos[index] = this.htmlFormatter.altoToHtml(alto);
+  private addToCache(index: number, textBlocks: TextBlock[]) {
+    this.altos[index] = textBlocks;
   }
 
   private done(observer: Subscriber<void>) {
