@@ -22,6 +22,23 @@
         </button>
       </section>
     </div>
+    <div
+      fxLayout="column"
+      fxLayoutAlign="space-around start"
+      fxLayoutGap="8px"
+      *ngIf="secondCanvasRecognizedTextContent"
+      data-test-id="secondCanvasRecognizedTextContent"
+    >
+      <section *ngFor="let textBlock of secondCanvasRecognizedTextContent">
+        <button
+          mat-button
+          class="text-block"
+          [innerHTML]="textBlock | recognizedTextContent"
+          (click)="highlight(textBlock)"
+        >
+        </button>
+      </section>
+    </div>
   </div>
   <div *ngIf="isLoading">{{ intl.loading }}</div>
 </div>
