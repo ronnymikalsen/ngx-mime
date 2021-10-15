@@ -76,6 +76,13 @@ mat-drawer {
   fill: rgba(255, 225, 0, 0.6);
 }
 
+::ng-deep .viewer-container .text-block {
+  fill: none;
+  stroke: blue;
+  stroke-width: 5;
+  opacity: 1;
+}
+
 .navbar {
   position: absolute;
   width: 100%;

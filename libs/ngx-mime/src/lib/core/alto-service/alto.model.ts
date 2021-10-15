@@ -19,9 +19,10 @@ export interface PrintSpace {
 }
 
 export interface TextBlock {
+  canvasIndex: number;
   textLines: TextLine[];
   textStyle?: TextStyle;
-  dimensions: Dimension;
+  dimension: Dimension;
 }
 
 export interface TextLine {

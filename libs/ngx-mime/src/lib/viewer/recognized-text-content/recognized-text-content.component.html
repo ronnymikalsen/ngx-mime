@@ -13,12 +13,11 @@
       data-test-id="firstCanvasRecognizedTextContent"
     >
       <section *ngFor="let textBlock of firstCanvasRecognizedTextContent">
-        <button mat-button>Basic</button>
         <button
           mat-button
           class="text-block"
           [innerHTML]="textBlock | recognizedTextContent"
-          (click)="highlight()"
+          (click)="highlight(textBlock)"
         >
         </button>
       </section>

@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import {
   BehaviorSubject,
   forkJoin,
@@ -32,7 +32,7 @@ export class AltoService {
   private manifest: Manifest | null = null;
   private subscriptions = new Subscription();
   private altoBuilder = new AltoBuilder();
-  private htmlFormatter: HtmlFormatter;
+  htmlFormatter: HtmlFormatter;
 
   constructor(
     public intl: MimeViewerIntl,
@@ -163,29 +163,39 @@ export class AltoService {
       .subscribe((data: Alto | any) => {
         try {
           if (!data.isError) {
-            parseString(data, { explicitChildren: true, preserveChildrenOrder: true}, (error, result) => {
-              const alto = this.altoBuilder.withAltoXml(result.alto).build();
-              console.log('alto', alto);
+            parseString(
+              data,
+              { explicitChildren: true, preserveChildrenOrder: true },
+              (error, result) => {
+                const altoBuilder = this.altoBuilder
+                  .withCanvasIndex(index)
+                  .withAltoXml(result.alto);
 
+                if (this.manifest) {
+                  altoBuilder.withManifest(this.manifest);
+                }
+                const alto = altoBuilder.build();
+                console.log('alto', alto);
 
-              const page = alto.layout.page;
-              let textBlocks: TextBlock[] = [];
-              if (page.topMargin.textBlocks) {
-                textBlocks = [...textBlocks, ...page.topMargin.textBlocks];
-              }
-              if (page.leftMargin.textBlocks) {
-                textBlocks = [...textBlocks, ...page.leftMargin.textBlocks];
-              }
-              if (page.printSpace.textBlocks) {
-                textBlocks = [...textBlocks, ...page.printSpace.textBlocks];
-              }
-              if (page.bottomMargin.textBlocks) {
-                textBlocks = [...textBlocks, ...page.bottomMargin.textBlocks];
-              }
+                const page = alto.layout.page;
+                let textBlocks: TextBlock[] = [];
+                if (page.topMargin.textBlocks) {
+                  textBlocks = [...textBlocks, ...page.topMargin.textBlocks];
+                }
+                if (page.leftMargin.textBlocks) {
+                  textBlocks = [...textBlocks, ...page.leftMargin.textBlocks];
+                }
+                if (page.printSpace.textBlocks) {
+                  textBlocks = [...textBlocks, ...page.printSpace.textBlocks];
+                }
+                if (page.bottomMargin.textBlocks) {
+                  textBlocks = [...textBlocks, ...page.bottomMargin.textBlocks];
+                }
 
-              this.addToCache(index, textBlocks);
-              this.done(observer);
-            });
+                this.addToCache(index, textBlocks);
+                this.done(observer);
+              }
+            );
           } else {
             throw data.err;
           }

@@ -42,6 +42,7 @@ import { SwipeUtils } from './swipe-utils';
 import { TileSourceStrategyFactory } from './tile-source-strategy-factory';
 import { DefaultZoomStrategy, ZoomStrategy } from './zoom-strategy';
 import { OptionsFactory } from './options.factory';
+import { TextBlock } from '../alto-service/alto.model';
 
 declare const OpenSeadragon: any;
 
@@ -223,7 +224,6 @@ export class ViewerService {
                 height = rect.width;
                 break;
             }
-
             const currentOverlay: SVGRectElement = this.svgNode
               .append('rect')
               .attr('mimeHitIndex', hit.id)
@@ -235,6 +235,28 @@ export class ViewerService {
           }
         }
       }
+    }
+  }
+
+  public highlightTextBlock(textBlock: TextBlock) {
+    console.log('textBlock', textBlock);
+    const canvasRect = this.canvasService.getCanvasRect(textBlock.canvasIndex);
+    console.log('canvasRect', canvasRect);
+
+    const factor = 1.5750179468772434;
+    let x = canvasRect.x;
+    let y = canvasRect.y;
+    x = x + textBlock?.dimension?.x * factor;
+    y = y + textBlock?.dimension?.y * factor;
+
+    if (this.svgNode) {
+      this.svgNode
+        .append('rect')
+        .attr('x', x)
+        .attr('y', y)
+        .attr('width', textBlock?.dimension?.width * factor)
+        .attr('height', textBlock?.dimension?.height * factor)
+        .attr('class', 'text-block');
     }
   }
 

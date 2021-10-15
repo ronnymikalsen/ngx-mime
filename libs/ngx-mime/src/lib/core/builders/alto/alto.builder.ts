@@ -1,10 +1,21 @@
 import { Alto } from '../../alto-service/alto.model';
+import { Manifest } from '../../models/manifest';
 import { LayoutBuilder } from './layout.builder';
 import { StylesBuilder } from './styles.builder';
 
 export class AltoBuilder {
   private layoutBuilder = new LayoutBuilder();
   private altoXml: any | undefined;
+
+  withCanvasIndex(canvasIndex: number) {
+    this.layoutBuilder.withCanvasIndex(canvasIndex);
+    return this;
+  }
+
+  withManifest(manifest: Manifest) {
+    this.layoutBuilder.withManifest(manifest);
+    return this;
+  }
 
   withAltoXml(altoXml: any): AltoBuilder {
     this.altoXml = altoXml;

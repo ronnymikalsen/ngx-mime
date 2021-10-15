@@ -1,9 +1,16 @@
 import { PrintSpace, TextStyle } from '../../alto-service/alto.model';
+import { Manifest } from '../../models/manifest';
 import { TextBlocksBuilder } from './text-blocks.builder';
 
 export class PrintSpaceBuilder {
   private textStyles: Map<string, TextStyle> | undefined;
   private printSpaceXml: any | undefined;
+  private canvasIndex = -1;
+
+  withCanvasIndex(canvasIndex: number) {
+    this.canvasIndex = canvasIndex;
+    return this;
+  }
 
   withPrintSpaceXml(printSpaceXml: any) {
     this.printSpaceXml = printSpaceXml;
@@ -25,6 +32,7 @@ export class PrintSpaceBuilder {
     }
     return {
       textBlocks: new TextBlocksBuilder()
+        .withCanvasIndex(this.canvasIndex)
         .withTextBlocksXml(textBlocks)
         .withTextStyles(this.textStyles)
         .build(),

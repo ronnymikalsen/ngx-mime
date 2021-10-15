@@ -1,9 +1,23 @@
 import { Page, TextStyle } from '../../alto-service/alto.model';
+import { Manifest } from '../../models/manifest';
 import { PrintSpaceBuilder } from './print-space.builder';
 
 export class PageBuilder {
   private printSpaceBuilder = new PrintSpaceBuilder();
   private pageXml: any | undefined;
+  private manifest: Manifest | undefined;
+  private canvasIndex = -1;
+
+  withCanvasIndex(canvasIndex: number) {
+    this.canvasIndex = canvasIndex;
+    this.printSpaceBuilder.withCanvasIndex(canvasIndex);
+    return this;
+  }
+
+  withManifest(manifest: Manifest) {
+    this.manifest = manifest;
+    return this;
+  }
 
   withPageXml(pageXml: any) {
     this.pageXml = pageXml;
@@ -16,6 +30,19 @@ export class PageBuilder {
   }
 
   build(): Page {
+    let factor = 1;
+    if (this.manifest && this.manifest.sequences && this.manifest.sequences.length > 0) {
+      const canvases = this.manifest.sequences[0].canvases;
+      if (canvases) {
+        const canvas = canvases[this.canvasIndex];
+        if (canvas && canvas.width) {
+          factor = canvas.width / parseInt(this.pageXml.$.WIDTH, 10);
+        }
+      }
+    }
+    console.log('factor', factor);
+
+
     return {
       topMargin: this.printSpaceBuilder
         .withPrintSpaceXml(this.pageXml.TopMargin[0])
