@@ -7,6 +7,7 @@ export class TextBlocksBuilder {
   private textStyles: Map<string, TextStyle> | undefined;
   private textBlocksXml: any | undefined;
   private canvasIndex = -1;
+  private factor = 1;
 
   withCanvasIndex(canvasIndex: number) {
     this.canvasIndex = canvasIndex;
@@ -15,6 +16,11 @@ export class TextBlocksBuilder {
 
   withTextBlocksXml(textBlocksXml: any) {
     this.textBlocksXml = textBlocksXml;
+    return this;
+  }
+
+  withfactor(factor: number) {
+    this.factor = factor;
     return this;
   }
 
@@ -28,6 +34,14 @@ export class TextBlocksBuilder {
   build(): TextBlock[] {
     return this.textBlocksXml
       ? this.textBlocksXml.map((textBlock: any) => {
+        console.log({
+          x: parseInt(textBlock.$.HPOS, 10) * this.factor,
+          y: parseInt(textBlock.$.VPOS, 10) * this.factor,
+          width: parseInt(textBlock.$.WIDTH, 10) * this.factor,
+          height: parseInt(textBlock.$.HEIGHT, 10) * this.factor,
+        });
+
+
           const styleRef = textBlock.$.STYLEREFS?.split(' ');
           let textStyle = undefined;
           if (styleRef && this.textStyles) {
@@ -42,10 +56,10 @@ export class TextBlocksBuilder {
               fontStyle: textStyle?.fontStyle,
             },
             dimension: {
-              x: parseInt(textBlock.$.HPOS, 10),
-              y: parseInt(textBlock.$.VPOS, 10),
-              width: parseInt(textBlock.$.WIDTH, 10),
-              height: parseInt(textBlock.$.HEIGHT, 10),
+              x: parseInt(textBlock.$.HPOS, 10) * this.factor,
+              y: parseInt(textBlock.$.VPOS, 10) * this.factor,
+              width: parseInt(textBlock.$.WIDTH, 10) * this.factor,
+              height: parseInt(textBlock.$.HEIGHT, 10) * this.factor,
             }
           };
         })

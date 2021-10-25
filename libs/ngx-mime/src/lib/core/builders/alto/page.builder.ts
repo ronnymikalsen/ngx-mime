@@ -16,6 +16,7 @@ export class PageBuilder {
 
   withManifest(manifest: Manifest) {
     this.manifest = manifest;
+    this.printSpaceBuilder.withManifest(manifest);
     return this;
   }
 
@@ -31,32 +32,41 @@ export class PageBuilder {
 
   build(): Page {
     let factor = 1;
-    if (this.manifest && this.manifest.sequences && this.manifest.sequences.length > 0) {
+    if (
+      this.manifest &&
+      this.manifest.sequences &&
+      this.manifest.sequences.length > 0
+    ) {
       const canvases = this.manifest.sequences[0].canvases;
       if (canvases) {
         const canvas = canvases[this.canvasIndex];
         if (canvas && canvas.width) {
-          factor = canvas.width / parseInt(this.pageXml.$.WIDTH, 10);
+          let w = parseInt(this.pageXml.$.WIDTH, 10);
+          factor = 0.3937008;
         }
       }
     }
     console.log('factor', factor);
 
-
     return {
       topMargin: this.printSpaceBuilder
+        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.TopMargin[0])
         .build(),
       leftMargin: this.printSpaceBuilder
+        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.LeftMargin[0])
         .build(),
       rightMargin: this.printSpaceBuilder
+        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.RightMargin[0])
         .build(),
       bottomMargin: this.printSpaceBuilder
+        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.BottomMargin[0])
         .build(),
       printSpace: this.printSpaceBuilder
+        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.PrintSpace[0])
         .build(),
     };
