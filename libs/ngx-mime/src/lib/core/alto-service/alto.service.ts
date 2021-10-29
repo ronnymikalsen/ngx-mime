@@ -17,14 +17,14 @@ import { CanvasService } from '../canvas-service/canvas-service';
 import { IiifManifestService } from '../iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../intl/viewer-intl';
 import { Manifest } from '../models/manifest';
-import { Alto, TextBlock } from './alto.model';
+import { Alto, Page, TextBlock } from './alto.model';
 import { HtmlFormatter } from './html.formatter';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AltoService {
-  private altos: TextBlock[][] = [];
+  private altos: Page[] = [];
   private recognizedTextContentToggle = new BehaviorSubject(false);
   private isLoading = new BehaviorSubject(false);
   private textContentReady = new Subject<void>();
@@ -114,7 +114,7 @@ export class AltoService {
     this.onRecognizedTextContentToggle = !this.recognizedTextContentToggle.getValue();
   }
 
-  getHtml(index: number): TextBlock[] | undefined {
+  getHtml(index: number): Page | undefined {
     return this.altos && this.altos.length >= index + 1
       ? this.altos[index]
       : undefined;
@@ -146,7 +146,7 @@ export class AltoService {
     });
   }
 
-  private isInCache(index: number): TextBlock[] {
+  private isInCache(index: number): Page {
     return this.altos[index];
   }
 
@@ -167,6 +167,10 @@ export class AltoService {
               data,
               { explicitChildren: true, preserveChildrenOrder: true },
               (error, result) => {
+
+                const canvasRect = this.canvasService.getCanvasRect(index);
+                const pysicalScale = 0.0025;
+
                 const altoBuilder = this.altoBuilder
                   .withCanvasIndex(index)
                   .withAltoXml(result.alto);
@@ -191,8 +195,9 @@ export class AltoService {
                 if (page.bottomMargin.textBlocks) {
                   textBlocks = [...textBlocks, ...page.bottomMargin.textBlocks];
                 }
+                console.log('textBlocks', textBlocks);
 
-                this.addToCache(index, textBlocks);
+                this.addToCache(index, page);
                 this.done(observer);
               }
             );
@@ -205,8 +210,8 @@ export class AltoService {
       });
   }
 
-  private addToCache(index: number, textBlocks: TextBlock[]) {
-    this.altos[index] = textBlocks;
+  private addToCache(index: number, page: Page) {
+    this.altos[index] = page;
   }
 
   private done(observer: Subscriber<void>) {

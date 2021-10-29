@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { TextBlock } from '../../core/alto-service/alto.model';
+import { Page, TextBlock } from '../../core/alto-service/alto.model';
 import { AltoService } from '../../core/alto-service/alto.service';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
@@ -28,6 +28,8 @@ export class RecognizedTextContentComponent implements OnInit, OnDestroy {
   secondCanvasRecognizedTextContent: TextBlock[] | undefined;
   isLoading = false;
   error: string | undefined = undefined;
+  firstPage: Page | undefined;
+  secondPage: Page | undefined;
 
   private subscriptions = new Subscription();
 
@@ -76,8 +78,10 @@ export class RecognizedTextContentComponent implements OnInit, OnDestroy {
     this.altoService.destroy();
   }
 
-  highlight(textBlock: TextBlock) {
-    this.viewerService.highlightTextBlock(textBlock);
+  highlight(page: Page | undefined, textBlock: TextBlock) {
+    if (page && textBlock) {
+      this.viewerService.highlightTextBlock(page, textBlock);
+    }
   }
 
   private clearRecognizedText() {
@@ -93,14 +97,38 @@ export class RecognizedTextContentComponent implements OnInit, OnDestroy {
     const canvases = this.canvasService.getCanvasesPerCanvasGroup(
       this.canvasService.currentCanvasGroupIndex
     );
-    this.firstCanvasRecognizedTextContent = this.altoService.getHtml(
-      canvases[0]
-    );
 
-    if (canvases.length === 2) {
-      this.secondCanvasRecognizedTextContent = this.altoService.getHtml(
-        canvases[1]
+    this.firstPage = this.altoService.getHtml(canvases[0]);
+    if (this.firstPage) {
+      this.firstCanvasRecognizedTextContent = this.extractTextBlocks(
+        this.firstPage
       );
     }
+
+    if (canvases.length === 2) {
+      this.secondPage = this.altoService.getHtml(canvases[1]);
+      if (this.secondPage) {
+        this.secondCanvasRecognizedTextContent = this.extractTextBlocks(
+          this.secondPage
+        );
+      }
+    }
+  }
+
+  private extractTextBlocks(page: Page) {
+    let textBlocks: TextBlock[] = [];
+    if (page.topMargin.textBlocks) {
+      textBlocks = [...textBlocks, ...page.topMargin.textBlocks];
+    }
+    if (page.leftMargin.textBlocks) {
+      textBlocks = [...textBlocks, ...page.leftMargin.textBlocks];
+    }
+    if (page.printSpace.textBlocks) {
+      textBlocks = [...textBlocks, ...page.printSpace.textBlocks];
+    }
+    if (page.bottomMargin.textBlocks) {
+      textBlocks = [...textBlocks, ...page.bottomMargin.textBlocks];
+    }
+    return textBlocks;
   }
 }

@@ -17,7 +17,7 @@
           mat-button
           class="text-block"
           [innerHTML]="textBlock | recognizedTextContent"
-          (click)="highlight(textBlock)"
+          (click)="highlight(firstPage, textBlock)"
         >
         </button>
       </section>
@@ -34,7 +34,7 @@
           mat-button
           class="text-block"
           [innerHTML]="textBlock | recognizedTextContent"
-          (click)="highlight(textBlock)"
+          (click)="highlight(secondPage, textBlock)"
         >
         </button>
       </section>

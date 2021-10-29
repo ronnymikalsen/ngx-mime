@@ -31,7 +31,8 @@ export class PageBuilder {
   }
 
   build(): Page {
-    let factor = 1;
+    let width = 0;
+    let height = 0;
     if (
       this.manifest &&
       this.manifest.sequences &&
@@ -41,32 +42,30 @@ export class PageBuilder {
       if (canvases) {
         const canvas = canvases[this.canvasIndex];
         if (canvas && canvas.width) {
-          let w = parseInt(this.pageXml.$.WIDTH, 10);
-          factor = 0.3937008;
+          width = parseInt(this.pageXml.$.WIDTH, 10);
+        }
+        if (canvas && canvas.height) {
+          height = parseInt(this.pageXml.$.HEIGHT, 10);
         }
       }
     }
-    console.log('factor', factor);
 
     return {
+      width,
+      height,
       topMargin: this.printSpaceBuilder
-        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.TopMargin[0])
         .build(),
       leftMargin: this.printSpaceBuilder
-        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.LeftMargin[0])
         .build(),
       rightMargin: this.printSpaceBuilder
-        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.RightMargin[0])
         .build(),
       bottomMargin: this.printSpaceBuilder
-        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.BottomMargin[0])
         .build(),
       printSpace: this.printSpaceBuilder
-        .withFactor(factor)
         .withPrintSpaceXml(this.pageXml.PrintSpace[0])
         .build(),
     };

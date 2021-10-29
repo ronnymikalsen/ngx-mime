@@ -7,6 +7,8 @@ export interface Layout {
 }
 
 export interface Page {
+  width: number;
+  height: number;
   topMargin: PrintSpace;
   leftMargin: PrintSpace;
   rightMargin: PrintSpace;
