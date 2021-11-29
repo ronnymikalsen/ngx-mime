@@ -168,9 +168,6 @@ export class AltoService {
               { explicitChildren: true, preserveChildrenOrder: true },
               (error, result) => {
 
-                const canvasRect = this.canvasService.getCanvasRect(index);
-                const pysicalScale = 0.0025;
-
                 const altoBuilder = this.altoBuilder
                   .withCanvasIndex(index)
                   .withAltoXml(result.alto);

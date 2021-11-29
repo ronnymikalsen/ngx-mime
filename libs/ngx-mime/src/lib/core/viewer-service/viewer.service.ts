@@ -43,6 +43,7 @@ import { SwipeUtils } from './swipe-utils';
 import { TileSourceStrategyFactory } from './tile-source-strategy-factory';
 import { DefaultZoomStrategy, ZoomStrategy } from './zoom-strategy';
 import { Page, TextBlock } from '../alto-service/alto.model';
+import { Utils } from '../utils';
 
 declare const OpenSeadragon: any;
 
@@ -245,7 +246,7 @@ export class ViewerService {
     const canvasRect = this.canvasService.getCanvasRect(textBlock.canvasIndex);
     console.log('canvasRect', canvasRect);
     //const physicalScale = this.manifest.
-    const factor = ((canvasRect.width / page.width) * 0.0025)*400;
+    const factor = Utils.getScaleFactor(page.);
     console.log('factor', factor);
 
     let x = canvasRect.x;
