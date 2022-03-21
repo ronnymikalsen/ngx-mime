@@ -249,7 +249,7 @@ export class ViewerService {
     const canvasRect = this.canvasService.getCanvasRect(textBlock.canvasIndex);
     console.log('canvasRect', canvasRect);
     //const physicalScale = this.manifest.
-    const factor = Utils.getScaleFactor(page.);
+    const factor = Utils.getScaleFactor(undefined);
     console.log('factor', factor);
 
     let x = canvasRect.x;
