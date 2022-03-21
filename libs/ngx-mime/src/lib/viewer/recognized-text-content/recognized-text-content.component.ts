@@ -11,8 +11,10 @@ import { Subscription } from 'rxjs';
 import { Page, TextBlock } from '../../core/alto-service/alto.model';
 import { AltoService } from '../../core/alto-service/alto.service';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
+import { IiifContentSearchService } from '../../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../../core/intl/viewer-intl';
+import { SearchResult } from '../../core/models/search-result';
 import { ViewerService } from '../../core/viewer-service/viewer.service';
 
 @Component({
@@ -39,14 +41,20 @@ export class RecognizedTextContentComponent implements OnInit, OnDestroy {
     private canvasService: CanvasService,
     private altoService: AltoService,
     private viewerService: ViewerService,
-    private iiifManifestService: IiifManifestService
+    private iiifManifestService: IiifManifestService,
+    private iiifContentSearchService: IiifContentSearchService
   ) {}
 
   ngOnInit(): void {
     this.subscriptions.add(
+      this.iiifContentSearchService.onChange.subscribe((sr: SearchResult) => {
+        this.altoService.initialize(sr.hits);
+      })
+    );
+
+    this.subscriptions.add(
       this.iiifManifestService.currentManifest.subscribe(() => {
         this.clearRecognizedText();
-        this.altoService.initialize();
         this.cdr.detectChanges();
       })
     );
@@ -66,7 +74,7 @@ export class RecognizedTextContentComponent implements OnInit, OnDestroy {
       })
     );
     this.subscriptions.add(
-      this.altoService.hasErrors$.subscribe((error: string) => {
+      this.altoService.hasErrors$.subscribe((error: string | undefined) => {
         this.error = error;
         this.cdr.detectChanges();
       })

@@ -25,7 +25,7 @@ export class CanvasGroups {
     if (point === null) {
       return -1;
     }
-    this.canvasGroupRects.some(function(rect: Rect, index: number) {
+    this.canvasGroupRects.some(function (rect: Rect, index: number) {
       const delta = Math.abs(point.x - rect.centerX);
       if (delta >= lastDelta) {
         return true;
@@ -35,24 +35,6 @@ export class CanvasGroups {
       return false;
     });
     return i;
-  }
-
-  public getMaxHeight(): number {
-    return Math.max.apply(
-      Math,
-      this.canvasGroupRects.map(function(rect) {
-        return rect.height;
-      })
-    );
-  }
-
-  public getMaxWidth(): number {
-    return Math.max.apply(
-      Math,
-      this.canvasGroupRects.map(function(rect) {
-        return rect.width;
-      })
-    );
   }
 
   public length(): number {

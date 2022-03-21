@@ -15,7 +15,8 @@ import { parseString } from 'xml2js';
 import { AltoBuilder } from '../builders/alto';
 import { CanvasService } from '../canvas-service/canvas-service';
 import { IiifManifestService } from '../iiif-manifest-service/iiif-manifest-service';
-import { MimeViewerIntl } from '../intl/viewer-intl';
+import { MimeViewerIntl } from '../intl';
+import { Hit } from '../models/hit';
 import { Manifest } from '../models/manifest';
 import { Alto, Page, TextBlock } from './alto.model';
 import { HtmlFormatter } from './html.formatter';
@@ -28,21 +29,19 @@ export class AltoService {
   private recognizedTextContentToggle = new BehaviorSubject(false);
   private isLoading = new BehaviorSubject(false);
   private textContentReady = new Subject<void>();
-  private textError = new Subject<string>();
+  private textError = new Subject<string | undefined>();
   private manifest: Manifest | null = null;
   private subscriptions = new Subscription();
   private altoBuilder = new AltoBuilder();
-  htmlFormatter: HtmlFormatter;
+  private htmlFormatter!: HtmlFormatter;
 
   constructor(
     public intl: MimeViewerIntl,
     private http: HttpClient,
     private iiifManifestService: IiifManifestService,
     private canvasService: CanvasService,
-    sanitizer: DomSanitizer
-  ) {
-    this.htmlFormatter = new HtmlFormatter(sanitizer);
-  }
+    private sanitizer: DomSanitizer
+  ) {}
 
   get onRecognizedTextContentToggleChange$(): Observable<boolean> {
     return this.recognizedTextContentToggle.asObservable();
@@ -56,7 +55,7 @@ export class AltoService {
     return this.isLoading.asObservable();
   }
 
-  get hasErrors$(): Observable<string> {
+  get hasErrors$(): Observable<string | undefined> {
     return this.textError.asObservable();
   }
 
@@ -68,7 +67,8 @@ export class AltoService {
     this.recognizedTextContentToggle.next(value);
   }
 
-  initialize() {
+  initialize(hits?: Hit[]) {
+    this.htmlFormatter = new HtmlFormatter(this.sanitizer, hits);
     this.subscriptions = new Subscription();
 
     this.subscriptions.add(
@@ -111,7 +111,8 @@ export class AltoService {
   }
 
   toggle() {
-    this.onRecognizedTextContentToggle = !this.recognizedTextContentToggle.getValue();
+    this.onRecognizedTextContentToggle =
+      !this.recognizedTextContentToggle.getValue();
   }
 
   getHtml(index: number): Page | undefined {
@@ -167,7 +168,6 @@ export class AltoService {
               data,
               { explicitChildren: true, preserveChildrenOrder: true },
               (error, result) => {
-
                 const altoBuilder = this.altoBuilder
                   .withCanvasIndex(index)
                   .withAltoXml(result.alto);
