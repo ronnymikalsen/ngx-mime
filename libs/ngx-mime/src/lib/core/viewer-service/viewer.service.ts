@@ -247,10 +247,7 @@ export class ViewerService {
   public highlightTextBlock(page: Page, textBlock: TextBlock) {
     console.log('textBlock', textBlock);
     const canvasRect = this.canvasService.getCanvasRect(textBlock.canvasIndex);
-    console.log('canvasRect', canvasRect);
-    //const physicalScale = this.manifest.
-    const factor = Utils.getScaleFactor(undefined);
-    console.log('factor', factor);
+    const factor = canvasRect.width / page.width;
 
     let x = canvasRect.x;
     let y = canvasRect.y;
