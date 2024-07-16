@@ -22,9 +22,9 @@ $blue-foreground-palette: (
   slider-off-active: rgba(black, 0.38),
 );
 
-$blue-primary: mat.define-palette(mat.$light-blue-palette, 900, 100, 700);
-$blue-accent: mat.define-palette(mat.$light-blue-palette, 900, 100, 700);
-$blue-theme: mat.define-light-theme(
+$blue-primary: mat.m2-define-palette(mat.$m2-light-blue-palette, 900, 100, 700);
+$blue-accent: mat.m2-define-palette(mat.$m2-light-blue-palette, 900, 100, 700);
+$blue-theme: mat.m2-define-light-theme(
   (
     color: (
       primary: $blue-primary,
@@ -34,10 +34,10 @@ $blue-theme: mat.define-light-theme(
 );
 
 // Define an alternate dark theme.
-$dark-primary: mat.define-palette(mat.$light-blue-palette, 900, 100, 700);
-$dark-accent: mat.define-palette(mat.$light-blue-palette, 300, 200, 400);
+$dark-primary: mat.m2-define-palette(mat.$m2-light-blue-palette, 900, 100, 700);
+$dark-accent: mat.m2-define-palette(mat.$m2-light-blue-palette, 300, 200, 400);
 
-$dark-theme: mat.define-dark-theme(
+$dark-theme: mat.m2-define-dark-theme(
   (
     color: (
       primary: $dark-primary,

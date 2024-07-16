@@ -5,14 +5,14 @@
 
   .ngx-mime-metadata-container {
     .title {
-      color: mat.get-color-from-palette($foreground, text);
+      color: mat.m2-get-color-from-palette($foreground, text);
     }
 
     .content {
-      color: mat.get-color-from-palette($foreground, secondary-text);
+      color: mat.m2-get-color-from-palette($foreground, secondary-text);
     }
     a {
-      color: mat.get-color-from-palette($accent);
+      color: mat.m2-get-color-from-palette($accent);
     }
   }
 }
