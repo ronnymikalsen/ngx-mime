@@ -320,6 +320,21 @@ export class ViewerService {
       this.createOverlays();
       this.addEvents();
       this.addSubscriptions();
+
+      console.log('id', manifest.id);
+
+      if (manifest.id?.includes('aa4b7c6b30c0d7963674b6ffaaf622cb')) {
+        console.log('Special manifest - add overlay');
+
+        const currentOverlay: SVGRectElement = this.svgNode
+          .append('rect')
+          .attr('mimeHitIndex', '123')
+          .attr('x', 279714)
+          .attr('y', -3892)
+          .attr('width', 2450)
+          .attr('height', 1550)
+          .attr('style', 'fill:transparent;stroke-width: 50;stroke: blue;');
+      }
     }
   }
 
