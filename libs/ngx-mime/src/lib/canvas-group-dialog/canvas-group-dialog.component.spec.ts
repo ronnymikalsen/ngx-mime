@@ -5,6 +5,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldHarness } from '@angular/material/form-field/testing';
+import { MatInputHarness } from '@angular/material/input/testing';
 import { By } from '@angular/platform-browser';
 import { AltoService } from '../core/alto-service/alto.service';
 import { CanvasService } from '../core/canvas-service/canvas-service';
@@ -71,12 +72,13 @@ describe('CanvasGroupDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should start with an empty numeric page number', () => {
-    const input: HTMLInputElement = fixture.debugElement.query(
-      By.css('.go-to-canvas-group-input'),
-    ).nativeElement;
+  it('should start with an empty numeric page number', async () => {
+    const input = await loader.getHarness(
+      MatInputHarness.with({ selector: '.go-to-canvas-group-input' }),
+    );
 
-    expect(input.value).toBe('');
+    expect(await input.getValue()).toBe('');
+    expect(await input.getType()).toBe('number');
     expect(typeof component.canvasGroupModel().canvasGroup).toBe('number');
     expect(Number.isNaN(component.canvasGroupModel().canvasGroup)).toBe(true);
     expect(component.canvasGroupForm().invalid()).toBe(true);

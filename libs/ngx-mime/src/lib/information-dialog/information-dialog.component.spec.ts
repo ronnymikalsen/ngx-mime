@@ -1,9 +1,12 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { HarnessLoader } from '@angular/cdk/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatTabGroupHarness } from '@angular/material/tabs/testing';
 import { By } from '@angular/platform-browser';
 import { AltoService } from '../core/alto-service/alto.service';
 import { CanvasService } from '../core/canvas-service/canvas-service';
@@ -31,6 +34,7 @@ import { TocComponent } from './table-of-contents/table-of-contents.component';
 describe('InformationDialogComponent', () => {
   let component: InformationDialogComponent;
   let fixture: ComponentFixture<InformationDialogComponent>;
+  let loader: HarnessLoader;
   let breakpointObserver: MockBreakpointObserver;
   let iiifManifestService: IiifManifestServiceStub;
   let intl: MimeViewerIntl;
@@ -67,6 +71,7 @@ describe('InformationDialogComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(InformationDialogComponent);
     component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
     breakpointObserver = TestBed.inject(
       BreakpointObserver,
     ) as MockBreakpointObserver;
@@ -112,12 +117,8 @@ describe('InformationDialogComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const tabs: NodeList =
-      fixture.nativeElement.querySelectorAll('.mat-mdc-tab');
-    const tocTab = Array.from(tabs).find(
-      (t) => t.textContent === intl.tocLabel,
-    );
-    expect(tocTab).toBeDefined();
+    const tabGroup = await loader.getHarness(MatTabGroupHarness);
+    expect(await tabGroup.getTabs({ label: intl.tocLabel })).toHaveLength(1);
   });
 
   it('should hide toc', async () => {
@@ -127,12 +128,8 @@ describe('InformationDialogComponent', () => {
     fixture.detectChanges();
 
     await fixture.whenStable();
-    const tabs: NodeList =
-      fixture.nativeElement.querySelectorAll('.mat-mdc-tab');
-    const tocTab = Array.from(tabs).find(
-      (t) => t.textContent === intl.tocLabel,
-    );
-    expect(tocTab).toBeUndefined();
+    const tabGroup = await loader.getHarness(MatTabGroupHarness);
+    expect(await tabGroup.getTabs({ label: intl.tocLabel })).toHaveLength(0);
   });
 
   it('should close information dialog when selecting a canvas group in TOC when on mobile', () => {

@@ -1,8 +1,11 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { HarnessLoader } from '@angular/cdk/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonToggleHarness } from '@angular/material/button-toggle/testing';
 import { By } from '@angular/platform-browser';
 import { TestManifests } from '../../testing';
 import { AltoService } from '../core/alto-service/alto.service';
@@ -25,6 +28,7 @@ import { ViewDialogComponent } from './view-dialog.component';
 describe('ViewDialogComponent', () => {
   let component: ViewDialogComponent;
   let fixture: ComponentFixture<ViewDialogComponent>;
+  let loader: HarnessLoader;
   let iiifManifestService: IiifManifestServiceStub;
   let breakpointObserver: MockBreakpointObserver;
 
@@ -55,6 +59,7 @@ describe('ViewDialogComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ViewDialogComponent);
     component = fixture.componentInstance;
+    loader = TestbedHarnessEnvironment.loader(fixture);
     iiifManifestService = TestBed.inject<any>(IiifManifestService);
     breakpointObserver = TestBed.inject(
       BreakpointObserver,
@@ -93,10 +98,12 @@ describe('ViewDialogComponent', () => {
 
     await fixture.whenStable();
 
-    const pageLayoutSection = fixture.debugElement.query(
-      By.css('[data-testid="page-layout"]'),
+    const pageLayoutToggle = await loader.getHarnessOrNull(
+      MatButtonToggleHarness.with({
+        selector: '[data-testid="ngx-mime-single-page-view-button"]',
+      }),
     );
-    expect(pageLayoutSection).not.toBeNull();
+    expect(pageLayoutToggle).not.toBeNull();
   });
 
   it('should hide page layout toggle group if manifest is not paged', async () => {
@@ -104,10 +111,12 @@ describe('ViewDialogComponent', () => {
 
     await fixture.whenStable();
 
-    const pageLayoutSection = fixture.debugElement.query(
-      By.css('[data-testid="page-layout"]'),
+    const pageLayoutToggle = await loader.getHarnessOrNull(
+      MatButtonToggleHarness.with({
+        selector: '[data-testid="ngx-mime-single-page-view-button"]',
+      }),
     );
-    expect(pageLayoutSection).toBeNull();
+    expect(pageLayoutToggle).toBeNull();
   });
 
   it('should show digital text toggle group if digital text is available', async () => {
@@ -117,10 +126,13 @@ describe('ViewDialogComponent', () => {
 
     await fixture.whenStable();
 
-    const recognizedTextContentSection = fixture.debugElement.query(
-      By.css('[data-testid="recognized-text-content"]'),
+    const recognizedTextContentToggle = await loader.getHarnessOrNull(
+      MatButtonToggleHarness.with({
+        selector:
+          '[data-testid="ngx-mime-recognized-text-content-close-button"]',
+      }),
     );
-    expect(recognizedTextContentSection).not.toBeNull();
+    expect(recognizedTextContentToggle).not.toBeNull();
   });
 
   it('should hide digital text toggle group if digital text is not available', async () => {
@@ -128,10 +140,13 @@ describe('ViewDialogComponent', () => {
 
     await fixture.whenStable();
 
-    const recognizedTextContentSection = fixture.debugElement.query(
-      By.css('[data-testid="recognized-text-content"]'),
+    const recognizedTextContentToggle = await loader.getHarnessOrNull(
+      MatButtonToggleHarness.with({
+        selector:
+          '[data-testid="ngx-mime-recognized-text-content-close-button"]',
+      }),
     );
-    expect(recognizedTextContentSection).toBeNull();
+    expect(recognizedTextContentToggle).toBeNull();
   });
 
   it('should re-render when the international labels change', async () => {

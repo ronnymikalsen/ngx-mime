@@ -11,7 +11,7 @@ import {
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogHarness } from '@angular/material/dialog/testing';
-import { By } from '@angular/platform-browser';
+import { MatSliderHarness } from '@angular/material/slider/testing';
 import { provideAutoSpy } from 'jest-auto-spies';
 import { CanvasGroupDialogComponent } from '../../../canvas-group-dialog/canvas-group-dialog.component';
 import { CanvasGroupDialogService } from '../../../canvas-group-dialog/canvas-group-dialog.service';
@@ -178,17 +178,14 @@ describe('CanvasGroupNavigatorComponent', () => {
   });
 
   it('should check hotkeys', async () => {
-    const event: KeyboardEvent = new KeyboardEvent('keydown', {
-      code: '70', // 'f'
-    });
     spy = jest.spyOn(component, 'onSliderHotKey');
 
-    await testHostFixture.whenStable();
-    const slider = testHostFixture.debugElement.query(
-      By.css('.navigation-slider'),
+    const slider = await rootLoader.getHarness(
+      MatSliderHarness.with({ selector: '.navigation-slider' }),
     );
-    slider.nativeElement.dispatchEvent(event);
-    await testHostFixture.whenStable();
+    const sliderHost = await slider.host();
+    await sliderHost.sendKeys('f');
+
     expect(spy).toHaveBeenCalled();
   });
 
