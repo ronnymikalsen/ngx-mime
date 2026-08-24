@@ -106,9 +106,7 @@ describe('ViewerHeaderComponent', () => {
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fullscreenServiceSpy = TestBed.inject(
       FullscreenService,
     ) as Spy<FullscreenService>;

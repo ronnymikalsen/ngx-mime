@@ -33,9 +33,6 @@ describe('ContentSearchNavigationService', () => {
         }),
       ],
     });
-  });
-
-  beforeEach(() => {
     jest.clearAllMocks();
     iiifManifestServiceSpy = TestBed.inject(
       IiifManifestService,

@@ -64,9 +64,7 @@ describe('CanvasGroupNavigatorComponent', () => {
         provideAutoSpy(ViewerLayoutService),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     testHostFixture = TestBed.createComponent(TestHostComponent);
     testHostComponent = testHostFixture.componentInstance;
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(testHostFixture);

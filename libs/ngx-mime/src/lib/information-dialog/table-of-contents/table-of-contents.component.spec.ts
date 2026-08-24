@@ -32,9 +32,7 @@ describe('TocComponent', () => {
         { provide: ViewerService, useClass: ViewerServiceStub },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     fixture = TestBed.createComponent(TocComponent);
     component = fixture.componentInstance;
     iiifManifestService = TestBed.inject<any>(IiifManifestService);

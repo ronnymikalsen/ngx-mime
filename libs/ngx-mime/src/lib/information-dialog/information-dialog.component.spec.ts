@@ -66,9 +66,7 @@ describe('InformationDialogComponent', () => {
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(InformationDialogComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);

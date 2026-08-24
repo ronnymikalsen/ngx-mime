@@ -91,9 +91,7 @@ describe('ViewerComponent', () => {
         provideAutoSpy(HelpDialogService),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     testHostFixture = TestBed.createComponent(TestHostComponent);
     comp = testHostFixture.componentInstance.viewerComponent;
     testHostComponent = testHostFixture.componentInstance;

@@ -9,9 +9,7 @@ describe('ViewerComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ViewerComponent],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(ViewerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

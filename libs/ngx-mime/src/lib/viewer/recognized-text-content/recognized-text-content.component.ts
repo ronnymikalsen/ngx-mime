@@ -36,22 +36,6 @@ interface RecognizedTextState {
   updatedCanvasGroupPageCount: number;
 }
 
-const emptyRecognizedTextState = (): RecognizedTextState => ({
-  firstCanvas: '',
-  secondCanvas: '',
-  updatedCanvasGroupLabel: undefined,
-  updatedCanvasGroupPageCount: 0,
-});
-
-const getCanvasGroupLabel = (canvases: number[]): string | undefined => {
-  if (canvases.length === 0) {
-    return undefined;
-  }
-  const firstPage = canvases[0] + 1;
-  const lastPage = canvases[canvases.length - 1] + 1;
-  return firstPage === lastPage ? `${firstPage}` : `${firstPage}–${lastPage}`;
-};
-
 @Component({
   selector: 'mime-recognized-text-content',
   templateUrl: './recognized-text-content.component.html',
@@ -112,8 +96,8 @@ export class RecognizedTextContentComponent {
       );
       if (!canvases?.length) {
         return announceUpdate
-          ? emptyRecognizedTextState()
-          : (previous ?? emptyRecognizedTextState());
+          ? this.emptyRecognizedTextState()
+          : (previous ?? this.emptyRecognizedTextState());
       }
 
       const firstCanvas = altoService.getHtml(canvases[0]);
@@ -127,7 +111,7 @@ export class RecognizedTextContentComponent {
         firstCanvas,
         secondCanvas,
         updatedCanvasGroupLabel: announceUpdate
-          ? getCanvasGroupLabel(updatedCanvases)
+          ? this.getCanvasGroupLabel(updatedCanvases)
           : previous?.updatedCanvasGroupLabel,
         updatedCanvasGroupPageCount: announceUpdate
           ? updatedCanvases.length
@@ -153,7 +137,7 @@ export class RecognizedTextContentComponent {
           (source.hasTextSource === undefined &&
             previous.source.hasTextSource !== undefined)
         ) {
-          return emptyRecognizedTextState();
+          return this.emptyRecognizedTextState();
         }
         if (
           source.textContentRevision !== previous.source.textContentRevision
@@ -201,5 +185,23 @@ export class RecognizedTextContentComponent {
         );
       }
     });
+  }
+
+  private emptyRecognizedTextState(): RecognizedTextState {
+    return {
+      firstCanvas: '',
+      secondCanvas: '',
+      updatedCanvasGroupLabel: undefined,
+      updatedCanvasGroupPageCount: 0,
+    };
+  }
+
+  private getCanvasGroupLabel(canvases: number[]): string | undefined {
+    if (canvases.length === 0) {
+      return undefined;
+    }
+    const firstPage = canvases[0] + 1;
+    const lastPage = canvases[canvases.length - 1] + 1;
+    return firstPage === lastPage ? `${firstPage}` : `${firstPage}–${lastPage}`;
   }
 }

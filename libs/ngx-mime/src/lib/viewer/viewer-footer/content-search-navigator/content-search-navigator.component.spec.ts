@@ -47,9 +47,7 @@ describe('ContentSearchNavigatorComponent', () => {
         }),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     fixture = TestBed.createComponent(ContentSearchNavigatorComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     iiifContentSearchServiceSpy = TestBed.inject(

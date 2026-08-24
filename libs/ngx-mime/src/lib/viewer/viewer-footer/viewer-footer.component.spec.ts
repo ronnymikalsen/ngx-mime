@@ -52,9 +52,7 @@ describe('ViewerFooterComponent', () => {
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     fixture = TestBed.createComponent(ViewerFooterComponent);
     cmp = fixture.componentInstance;
     breakpointObserver = TestBed.inject(

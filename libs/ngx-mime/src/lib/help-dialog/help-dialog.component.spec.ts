@@ -24,9 +24,7 @@ describe('HelpDialogComponent', () => {
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(HelpDialogComponent);
     component = fixture.componentInstance;
     breakpointObserver = TestBed.inject(

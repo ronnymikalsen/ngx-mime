@@ -56,9 +56,7 @@ describe('CanvasGroupDialogComponent', () => {
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     fixture = TestBed.createComponent(CanvasGroupDialogComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);

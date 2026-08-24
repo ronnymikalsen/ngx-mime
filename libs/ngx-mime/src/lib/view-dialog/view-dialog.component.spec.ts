@@ -54,9 +54,7 @@ describe('ViewDialogComponent', () => {
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(ViewDialogComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);

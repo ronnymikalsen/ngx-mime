@@ -62,9 +62,7 @@ describe('ContentSearchDialogComponent', () => {
         provideAutoSpy(ViewerLayoutService),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     fixture = TestBed.createComponent(ContentSearchDialogComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);

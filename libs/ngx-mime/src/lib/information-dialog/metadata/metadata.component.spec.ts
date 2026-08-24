@@ -23,9 +23,7 @@ describe('MetadataComponent', () => {
         }),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     fixture = TestBed.createComponent(MetadataComponent);
     component = fixture.componentInstance;
     iiifManifestServiceSpy = TestBed.inject(

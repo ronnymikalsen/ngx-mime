@@ -50,9 +50,7 @@ describe('OsdToolbarComponent', () => {
         provideAutoSpy(ViewerLayoutService),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(async () => {
     fixture = TestBed.createComponent(OsdToolbarComponent);
     harnessLoader = TestbedHarnessEnvironment.loader(fixture);
     intl = TestBed.inject(MimeViewerIntl);

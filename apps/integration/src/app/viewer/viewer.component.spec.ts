@@ -11,9 +11,7 @@ describe('ViewerComponent', () => {
       imports: [ViewerComponent],
       providers: [provideRouter([{ path: '', component: ViewerComponent }])],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(ViewerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

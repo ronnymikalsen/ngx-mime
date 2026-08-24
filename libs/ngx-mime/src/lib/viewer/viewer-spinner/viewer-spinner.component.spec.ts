@@ -14,9 +14,7 @@ describe('ViewerSpinnerComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [SpinnerService],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(ViewerSpinnerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

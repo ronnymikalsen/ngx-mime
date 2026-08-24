@@ -32,9 +32,7 @@ describe('AttributionDialogComponent', () => {
         provideAutoSpy(AccessKeysService),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(AttributionDialogComponent);
     component = fixture.componentInstance;
     iiifManifestServiceSpy = TestBed.inject(

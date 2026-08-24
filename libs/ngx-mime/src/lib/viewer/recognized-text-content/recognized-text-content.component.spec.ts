@@ -50,9 +50,7 @@ describe('RecognizedTextContentComponent', () => {
         provideAutoSpy(HighlightService, ['highlightSelectedHit']),
       ],
     }).compileComponents();
-  });
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(RecognizedTextContentComponent);
     fixture.componentRef.setInput('viewerId', 'test-viewer');
     component = fixture.componentInstance;

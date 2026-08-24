@@ -9,9 +9,6 @@ describe('MimeResizeService', () => {
     TestBed.configureTestingModule({
       providers: [provideAutoSpy(MimeResizeService)],
     });
-  });
-
-  beforeEach(() => {
     service = TestBed.inject(MimeResizeService);
   });
 
