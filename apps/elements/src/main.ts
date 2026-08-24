@@ -3,7 +3,7 @@ import {
   OverlayContainer,
 } from '@angular/cdk/overlay';
 import { provideHttpClient } from '@angular/common/http';
-import { enableProdMode } from '@angular/core';
+import { enableProdMode, provideZoneChangeDetection } from '@angular/core';
 import { createCustomElement } from '@angular/elements';
 import { createApplication } from '@angular/platform-browser';
 import { MimeViewerIntl } from '@nationallibraryofnorway/ngx-mime';
@@ -18,6 +18,7 @@ if (environment.production) {
   const name = 'app-mime-viewer';
   const applicationRef = await createApplication({
     providers: [
+      provideZoneChangeDetection(),
       provideHttpClient(),
       MimeViewerIntl,
       { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
