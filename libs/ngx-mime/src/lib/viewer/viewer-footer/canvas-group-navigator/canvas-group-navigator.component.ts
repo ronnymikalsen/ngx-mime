@@ -18,7 +18,7 @@ import { IiifManifestService } from '../../../core/iiif-manifest-service/iiif-ma
 import { AccessKeys } from '../../../core/models/AccessKeys';
 import { ViewingDirection } from '../../../core/models/viewing-direction';
 import { CanvasService } from './../../../core/canvas-service/canvas-service';
-import { MimeViewerIntl } from './../../../core/intl';
+import { injectMimeViewerIntlSignal } from './../../../core/intl/viewer-intl.signal';
 import { SearchResult } from './../../../core/models/search-result';
 import { ViewerService } from './../../../core/viewer-service/viewer.service';
 
@@ -39,12 +39,7 @@ import { ViewerService } from './../../../core/viewer-service/viewer.service';
 })
 export class CanvasGroupNavigatorComponent {
   @Input() searchResult!: SearchResult;
-  readonly intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
-      initialValue: intl,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
     initialValue: null,
   });

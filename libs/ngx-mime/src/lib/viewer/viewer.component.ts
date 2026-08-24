@@ -34,7 +34,7 @@ import { CanvasService } from '../core/canvas-service/canvas-service';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../core/iiif-manifest-service/iiif-manifest-utils';
-import { MimeViewerIntl } from '../core/intl';
+import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { MimeViewerConfig } from '../core/mime-viewer-config';
 import { ModeService } from '../core/mode-service/mode.service';
@@ -91,13 +91,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   @Output() recognizedTextContentModeChanged: EventEmitter<RecognizedTextMode> =
     new EventEmitter();
   snackBar = inject(MatSnackBar);
-  intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => intl)), {
-      initialValue: intl,
-      equal: () => false,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly recognizedTextMode = RecognizedTextMode;
   id = 'ngx-mime-mimeViewer';
   openseadragonId = 'openseadragon';

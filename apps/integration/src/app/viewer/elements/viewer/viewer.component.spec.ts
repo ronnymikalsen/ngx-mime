@@ -5,8 +5,8 @@ describe('ViewerComponent', () => {
   let component: ViewerComponent;
   let fixture: ComponentFixture<ViewerComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [ViewerComponent],
     }).compileComponents();
   });

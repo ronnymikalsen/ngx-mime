@@ -18,14 +18,14 @@ import { HighlightService } from '../../core/highlight-service/highlight.service
 import { IiifContentSearchService } from '../../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../../core/iiif-manifest-service/iiif-manifest-utils';
-import { MimeViewerIntl } from '../../core/intl';
+import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
 import { Manifest } from '../../core/models/manifest';
 
 interface RecognizedTextSource {
   manifest: Manifest | null;
   isLoading: boolean;
   hasTextSource: boolean | undefined;
-  textContentVersion: number;
+  textContentRevision: number;
   highlightsRevision: number;
 }
 
@@ -63,12 +63,7 @@ export class RecognizedTextContentComponent {
   readonly recognizedTextContentContainer = viewChild.required<
     ElementRef<HTMLElement>
   >('recognizedTextContentContainer');
-  readonly intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
-      initialValue: intl,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
     initialValue: null,
   });
@@ -86,7 +81,7 @@ export class RecognizedTextContentComponent {
     inject(IiifContentSearchService).onSelected.pipe(map((hit) => hit?.id)),
     { initialValue: undefined },
   );
-  readonly textContentVersion = toSignal(
+  readonly textContentRevision = toSignal(
     inject(AltoService).onTextContentReady$.pipe(
       scan((version) => version + 1, 0),
     ),
@@ -145,7 +140,7 @@ export class RecognizedTextContentComponent {
         manifest: this.manifest(),
         isLoading: this.isLoading(),
         hasTextSource: this.currentCanvasGroupHasTextSource(),
-        textContentVersion: this.textContentVersion(),
+        textContentRevision: this.textContentRevision(),
         highlightsRevision: this.highlightsRevision(),
       }),
       computation: (source, previous) => {
@@ -160,7 +155,9 @@ export class RecognizedTextContentComponent {
         ) {
           return emptyRecognizedTextState();
         }
-        if (source.textContentVersion !== previous.source.textContentVersion) {
+        if (
+          source.textContentRevision !== previous.source.textContentRevision
+        ) {
           return refresh(true, previous.value);
         }
         if (source.highlightsRevision !== previous.source.highlightsRevision) {
@@ -185,12 +182,12 @@ export class RecognizedTextContentComponent {
   private readonly highlightService = inject(HighlightService);
 
   constructor() {
-    let lastScrolledVersion = 0;
+    let lastScrolledRevision = 0;
     afterRenderEffect(() => {
-      const version = this.textContentVersion();
-      if (version > lastScrolledVersion) {
+      const revision = this.textContentRevision();
+      if (revision > lastScrolledRevision) {
         this.recognizedTextContentContainer().nativeElement.scrollTop = 0;
-        lastScrolledVersion = version;
+        lastScrolledRevision = revision;
       }
     });
 

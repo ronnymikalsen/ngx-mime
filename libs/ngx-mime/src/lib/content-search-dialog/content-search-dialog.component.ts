@@ -33,7 +33,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { map } from 'rxjs';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
-import { MimeViewerIntl } from '../core/intl';
+import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { Hit } from '../core/models/hit';
 import { SearchResult } from '../core/models/search-result';
@@ -72,12 +72,7 @@ export class ContentSearchDialogComponent {
   readonly hitList = viewChildren('hitButton', {
     read: ElementRef,
   });
-  readonly intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
-      initialValue: intl,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly isHandsetOrTabletInPortrait = toSignal(
     inject(BreakpointObserver)
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
@@ -123,7 +118,7 @@ export class ContentSearchDialogComponent {
       const searchResult = this.searchResult();
       if (searchResult.size() > 0) {
         this.resultContainer().nativeElement.focus();
-      } else if (searchResult.q.length === 0 || searchResult.size() === 0) {
+      } else {
         this.qEl().nativeElement.focus();
       }
     });
@@ -131,7 +126,7 @@ export class ContentSearchDialogComponent {
     afterRenderEffect(() => {
       const currentHit = this.currentHit();
       if (currentHit !== null) {
-        this.findSelected(currentHit)?.nativeElement.focus();
+        this.hitList()[currentHit.id]?.nativeElement.focus();
       }
     });
   }
@@ -160,12 +155,5 @@ export class ContentSearchDialogComponent {
     if (manifest) {
       this.iiifContentSearchService.search(manifest, query);
     }
-  }
-
-  private findSelected(selectedHit: Hit): ElementRef<HTMLElement> | null {
-    return (
-      this.hitList().find((_, index: number) => index === selectedHit.id) ??
-      null
-    );
   }
 }

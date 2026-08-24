@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
-import { MimeViewerIntl } from '../../core/intl';
+import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
 
 @Component({
   selector: 'mime-metadata',
@@ -11,12 +10,7 @@ import { MimeViewerIntl } from '../../core/intl';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetadataComponent {
-  readonly intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
-      initialValue: intl,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
     initialValue: null,
   });

@@ -1,8 +1,4 @@
-import {
-  BreakpointObserver,
-  Breakpoints,
-  BreakpointState,
-} from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgClass } from '@angular/common';
 import {
   Component,
@@ -43,7 +39,7 @@ export class ViewerFooterComponent {
   readonly isXSmall = toSignal(
     inject(BreakpointObserver)
       .observe([Breakpoints.XSmall])
-      .pipe(map((value: BreakpointState) => value.matches)),
+      .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
   readonly showContentSearchNavigator = computed(

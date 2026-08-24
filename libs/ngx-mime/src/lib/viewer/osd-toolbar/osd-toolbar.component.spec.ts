@@ -32,8 +32,8 @@ describe('OsdToolbarComponent', () => {
   let viewerService: ViewerServiceStub;
   let harnessLoader: HarnessLoader;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [OsdToolbarComponent],
       providers: [
         MimeResizeService,

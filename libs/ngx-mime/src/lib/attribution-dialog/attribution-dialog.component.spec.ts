@@ -15,8 +15,8 @@ describe('AttributionDialogComponent', () => {
   let fixture: ComponentFixture<AttributionDialogComponent>;
   let iiifManifestServiceSpy: Spy<IiifManifestService>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [AttributionDialogComponent],
       providers: [
         provideHttpClient(),

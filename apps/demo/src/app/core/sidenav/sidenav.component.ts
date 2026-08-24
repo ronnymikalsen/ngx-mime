@@ -42,12 +42,9 @@ export class SidenavComponent {
     version: this.queryParamMap().get('v') ?? '3',
   }));
   readonly iiifVersionForm = form(this.iiifVersionModel);
-  readonly manifests = (() => {
-    const manifestService = inject(ManifestService);
-    return computed(() =>
-      manifestService.getManifests(this.iiifVersionModel().version),
-    );
-  })();
+  readonly manifests = computed(() =>
+    this.manifestService.getManifests(this.iiifVersionModel().version),
+  );
   readonly selectedManifest = linkedSignal(() => {
     const manifestUris = this.queryParamMap().getAll('manifestUri');
     return this.manifests().find(

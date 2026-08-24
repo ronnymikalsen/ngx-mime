@@ -71,6 +71,17 @@ describe('CanvasGroupDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should start with an empty numeric page number', () => {
+    const input: HTMLInputElement = fixture.debugElement.query(
+      By.css('.go-to-canvas-group-input'),
+    ).nativeElement;
+
+    expect(input.value).toBe('');
+    expect(typeof component.canvasGroupModel().canvasGroup).toBe('number');
+    expect(Number.isNaN(component.canvasGroupModel().canvasGroup)).toBe(true);
+    expect(component.canvasGroupForm().invalid()).toBe(true);
+  });
+
   it('should re-render when the i18n labels have changed', async () => {
     const title = fixture.debugElement.query(
       By.css('.canvas-group-dialog-title'),

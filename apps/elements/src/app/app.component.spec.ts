@@ -9,8 +9,8 @@ describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [AppComponent],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [provideHttpClient(), provideHttpClientTesting()],

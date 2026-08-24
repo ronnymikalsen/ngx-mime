@@ -8,8 +8,8 @@ describe('ViewerSpinnerComponent', () => {
   let component: ViewerSpinnerComponent;
   let fixture: ComponentFixture<ViewerSpinnerComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [ViewerSpinnerComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [SpinnerService],

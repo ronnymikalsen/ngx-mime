@@ -33,10 +33,10 @@ export class AppComponent {
   });
 
   constructor() {
-    effect(() => this.setTheme(this.theme().name));
-  }
-
-  private setTheme(name: string) {
-    this.overlayContainer.getContainerElement().classList.add(name);
+    effect(() => {
+      const overlayClasses =
+        this.overlayContainer.getContainerElement().classList;
+      overlayClasses.add(this.theme().name);
+    });
   }
 }

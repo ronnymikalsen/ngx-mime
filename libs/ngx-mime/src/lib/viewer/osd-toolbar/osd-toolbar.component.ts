@@ -1,8 +1,4 @@
-import {
-  BreakpointObserver,
-  Breakpoints,
-  BreakpointState,
-} from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,7 +15,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { map } from 'rxjs';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
-import { MimeViewerIntl } from '../../core/intl';
+import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
 import { ModeService } from '../../core/mode-service/mode.service';
 import { ViewingDirection } from '../../core/models/viewing-direction';
 import { ViewerService } from '../../core/viewer-service/viewer.service';
@@ -33,12 +29,7 @@ import { ViewerService } from '../../core/viewer-service/viewer.service';
 })
 export class OsdToolbarComponent {
   @ViewChild('container', { static: true }) container!: ElementRef;
-  readonly intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
-      initialValue: intl,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly isZoomed = (() => {
     const modeService = inject(ModeService);
     return toSignal(
@@ -49,7 +40,7 @@ export class OsdToolbarComponent {
   readonly isWeb = toSignal(
     inject(BreakpointObserver)
       .observe([Breakpoints.Web])
-      .pipe(map((value: BreakpointState) => value.matches)),
+      .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
   readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {

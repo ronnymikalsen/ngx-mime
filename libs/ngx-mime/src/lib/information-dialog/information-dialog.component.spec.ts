@@ -37,8 +37,8 @@ describe('InformationDialogComponent', () => {
   let dialogRef: MatDialogRef<InformationDialogComponent>;
   let viewerService: ViewerService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       imports: [InformationDialogComponent, MetadataComponent, TocComponent],
       providers: [

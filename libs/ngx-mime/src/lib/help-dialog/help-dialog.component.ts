@@ -1,8 +1,4 @@
-import {
-  BreakpointObserver,
-  Breakpoints,
-  BreakpointState,
-} from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgStyle } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -16,7 +12,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { map } from 'rxjs';
-import { MimeViewerIntl } from '../core/intl';
+import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 
 @Component({
@@ -35,16 +31,11 @@ import { MimeResizeService } from '../core/mime-resize-service/mime-resize.servi
   ],
 })
 export class HelpDialogComponent {
-  readonly intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
-      initialValue: intl,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly isHandsetOrTabletInPortrait = toSignal(
     inject(BreakpointObserver)
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
-      .pipe(map((value: BreakpointState) => value.matches)),
+      .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
   readonly mimeHeight = toSignal(

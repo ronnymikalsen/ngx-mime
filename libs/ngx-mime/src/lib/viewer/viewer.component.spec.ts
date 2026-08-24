@@ -54,7 +54,7 @@ describe('ViewerComponent', () => {
   let helpDialogService: HelpDialogService;
   let resizeService: MimeResizeService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     TestBed.overrideComponent(ViewerComponent, {
       set: {
         providers: [],
@@ -69,7 +69,7 @@ describe('ViewerComponent', () => {
     TestBed.overrideProvider(IiifContentSearchService, {
       useValue: new IiifContentSearchServiceStub(),
     });
-    TestBed.configureTestingModule({
+    await TestBed.configureTestingModule({
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [
         TestHostComponent,

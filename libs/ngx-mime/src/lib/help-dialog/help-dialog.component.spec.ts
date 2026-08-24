@@ -13,8 +13,8 @@ describe('HelpDialogComponent', () => {
   let fixture: ComponentFixture<HelpDialogComponent>;
   let breakpointObserver: MockBreakpointObserver;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [HelpDialogComponent],
       providers: [
         MimeViewerIntl,

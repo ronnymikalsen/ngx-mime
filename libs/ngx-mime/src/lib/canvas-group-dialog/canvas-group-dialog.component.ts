@@ -5,7 +5,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import {
   form,
   FormField,
@@ -28,9 +27,8 @@ import {
   MatInput,
   MatLabel,
 } from '@angular/material/input';
-import { map } from 'rxjs';
 import { CanvasService } from '../core/canvas-service/canvas-service';
-import { MimeViewerIntl } from '../core/intl';
+import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { ViewerService } from '../core/viewer-service/viewer.service';
 
 @Component({
@@ -51,14 +49,9 @@ import { ViewerService } from '../core/viewer-service/viewer.service';
   ],
 })
 export class CanvasGroupDialogComponent {
-  readonly intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
-      initialValue: intl,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly numberOfCanvases = inject(CanvasService).numberOfCanvases;
-  readonly canvasGroupModel = signal({ canvasGroup: 0 });
+  readonly canvasGroupModel = signal({ canvasGroup: Number.NaN });
   readonly canvasGroupForm = form(this.canvasGroupModel, (path) => {
     required(path.canvasGroup);
     min(path.canvasGroup, 1);

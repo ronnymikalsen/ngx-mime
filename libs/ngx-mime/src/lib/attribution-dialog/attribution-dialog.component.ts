@@ -16,10 +16,9 @@ import {
 } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
-import { map } from 'rxjs';
 import { AccessKeysService } from '../core/access-keys-handler-service/access-keys.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
-import { MimeViewerIntl } from '../core/intl';
+import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { StyleService } from '../core/style-service/style.service';
 import { AttributionDialogResizeService } from './attribution-dialog-resize.service';
 
@@ -37,12 +36,7 @@ import { AttributionDialogResizeService } from './attribution-dialog-resize.serv
 })
 export class AttributionDialogComponent {
   readonly container = viewChild.required<ElementRef<HTMLElement>>('container');
-  readonly intl = (() => {
-    const intl = inject(MimeViewerIntl);
-    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
-      initialValue: intl,
-    });
-  })();
+  readonly intl = injectMimeViewerIntlSignal();
   readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
     initialValue: null,
   });

@@ -25,8 +25,8 @@ describe('RecognizedTextContentComponent', () => {
   let iiifManifestService: any;
   let intl: MimeViewerIntl;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [RecognizedTextContentComponent],
       providers: [
         provideHttpClient(),

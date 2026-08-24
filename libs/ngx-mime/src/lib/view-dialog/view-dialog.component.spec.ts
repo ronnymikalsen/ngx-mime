@@ -28,8 +28,8 @@ describe('ViewDialogComponent', () => {
   let iiifManifestService: IiifManifestServiceStub;
   let breakpointObserver: MockBreakpointObserver;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       imports: [ViewDialogComponent],
       providers: [

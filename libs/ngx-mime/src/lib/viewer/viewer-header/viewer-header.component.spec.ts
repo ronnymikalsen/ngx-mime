@@ -63,8 +63,8 @@ describe('ViewerHeaderComponent', () => {
   let intl: MimeViewerIntl;
   let breakpointObserver: MockBreakpointObserver;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [
         TestHostComponent,
