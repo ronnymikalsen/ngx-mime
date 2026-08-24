@@ -2,13 +2,7 @@ import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import {
-  ComponentFixture,
-  fakeAsync,
-  flush,
-  TestBed,
-  waitForAsync,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldHarness } from '@angular/material/form-field/testing';
 import { By } from '@angular/platform-browser';
@@ -38,8 +32,8 @@ describe('CanvasGroupDialogComponent', () => {
   let intl: MimeViewerIntl;
   let canvasService: CanvasServiceStub;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [CanvasGroupDialogComponent],
       providers: [
         provideHttpClient(),
@@ -61,47 +55,45 @@ describe('CanvasGroupDialogComponent', () => {
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
       ],
     }).compileComponents();
-  }));
+  });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fixture = TestBed.createComponent(CanvasGroupDialogComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
 
     intl = TestBed.inject(MimeViewerIntl);
     canvasService = TestBed.inject(CanvasService) as CanvasServiceStub;
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should re-render when the i18n labels have changed', () => {
+  it('should re-render when the i18n labels have changed', async () => {
     const title = fixture.debugElement.query(
       By.css('.canvas-group-dialog-title'),
     );
 
     intl.goToPageLabel = 'Testlabel';
     intl.changes.next();
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(title.nativeElement.innerHTML).toBe('Testlabel');
   });
 
   describe('error messages', () => {
-    it('should show a error message if user enters a canvas group number index that does not exists', fakeAsync(async () => {
+    it('should show a error message if user enters a canvas group number index that does not exists', async () => {
       canvasService._currentNumberOfCanvasGroups.next(10);
 
-      component.canvasGroupControl?.setValue(11);
-
-      component.canvasGroupControl?.markAsTouched();
-      fixture.detectChanges();
-      flush();
+      component.canvasGroupModel.set({ canvasGroup: 11 });
+      component.canvasGroupForm.canvasGroup().markAsTouched();
+      await fixture.whenStable();
 
       const canvasGroupDoesNotExistsError =
         await loader.getHarness(MatFormFieldHarness);
       expect(await canvasGroupDoesNotExistsError.hasErrors()).toBe(true);
-    }));
+    });
   });
 });

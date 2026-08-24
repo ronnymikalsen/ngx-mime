@@ -9,19 +9,22 @@ import {
   HostListener,
   inject,
   Input,
+  linkedSignal,
   NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  signal,
   SimpleChanges,
-  ViewChild,
+  viewChild,
   ViewContainerRef,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { interval, Subscription } from 'rxjs';
-import { take, throttle } from 'rxjs/operators';
+import { map, take, throttle } from 'rxjs/operators';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
 import { CanvasGroupDialogService } from '../canvas-group-dialog/canvas-group-dialog.service';
 import { ContentSearchDialogService } from '../content-search-dialog/content-search-dialog.service';
@@ -76,31 +79,46 @@ import { VIEWER_PROVIDERS } from './viewer.providers';
   providers: VIEWER_PROVIDERS,
 })
 export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() public manifestUri: string | null = null;
-  @Input() public q!: string;
-  @Input() public canvasIndex = 0;
-  @Input() public config: MimeViewerConfig = new MimeViewerConfig();
-  @Input() public tabIndex = 0;
+  @Input() manifestUri: string | null = null;
+  @Input() q!: string;
+  @Input() canvasIndex = 0;
+  @Input() config: MimeViewerConfig = new MimeViewerConfig();
+  @Input() tabIndex = 0;
   @Output() viewerModeChanged: EventEmitter<ViewerMode> = new EventEmitter();
   @Output() canvasChanged: EventEmitter<number> = new EventEmitter();
   @Output() qChanged: EventEmitter<string> = new EventEmitter();
   @Output() manifestChanged: EventEmitter<Manifest> = new EventEmitter();
   @Output() recognizedTextContentModeChanged: EventEmitter<RecognizedTextMode> =
     new EventEmitter();
-  // Viewchilds
-  @ViewChild('mimeHeader', { static: true })
-  private readonly header!: ViewerHeaderComponent;
-  @ViewChild('mimeFooter', { static: true })
-  private readonly footer!: ViewerFooterComponent;
   snackBar = inject(MatSnackBar);
-  intl = inject(MimeViewerIntl);
-  recognizedTextMode = RecognizedTextMode;
+  intl = (() => {
+    const intl = inject(MimeViewerIntl);
+    return toSignal(intl.changes.pipe(map(() => intl)), {
+      initialValue: intl,
+      equal: () => false,
+    });
+  })();
+  readonly recognizedTextMode = RecognizedTextMode;
   id = 'ngx-mime-mimeViewer';
   openseadragonId = 'openseadragon';
-  recognizedTextContentMode: RecognizedTextMode = RecognizedTextMode.NONE;
-  showHeaderAndFooterState = false;
-  osdToolbarState = false;
-  errorMessage: string | null = null;
+  readonly recognizedTextContentMode = (() => {
+    const altoService = inject(AltoService);
+    return toSignal(
+      altoService.onRecognizedTextContentModeChange$.pipe(
+        map((changes) => changes.currentValue),
+      ),
+      { initialValue: altoService.recognizedTextContentMode },
+    );
+  })();
+  readonly showHeaderAndFooterState = signal(false);
+  readonly osdToolbarState = signal(false);
+  readonly errorMessage = (() => {
+    const source = toSignal(inject(IiifManifestService).errorMessage, {
+      initialValue: null,
+      equal: () => false,
+    });
+    return linkedSignal(() => source());
+  })();
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly viewDialogService = inject(ViewDialogService);
   private readonly informationDialogService = inject(InformationDialogService);
@@ -124,10 +142,19 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly zone = inject(NgZone);
   private readonly platform = inject(Platform);
+  private readonly header =
+    viewChild.required<ViewerHeaderComponent>('mimeHeader');
+  private readonly footer =
+    viewChild.required<ViewerFooterComponent>('mimeFooter');
   private readonly subscriptions = new Subscription();
-  private isCanvasPressed = false;
+  private readonly isCanvasPressed = toSignal(
+    this.viewerService.isCanvasPressed,
+    { initialValue: false },
+  );
   private currentManifest!: Manifest | null;
-  private viewerLayout: ViewerLayout | null = null;
+  private readonly viewerLayout = toSignal(this.viewerLayoutService.onChange, {
+    initialValue: null,
+  });
   private viewerState = new ViewerState();
 
   constructor() {
@@ -148,19 +175,19 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get mimeHeaderBeforeRef(): ViewContainerRef {
-    return this.header.mimeHeaderBefore;
+    return this.header().mimeHeaderBefore;
   }
 
   get mimeHeaderAfterRef(): ViewContainerRef {
-    return this.header.mimeHeaderAfter;
+    return this.header().mimeHeaderAfter;
   }
 
   get mimeFooterBeforeRef(): ViewContainerRef {
-    return this.footer.mimeFooterBefore;
+    return this.footer().mimeFooterBefore;
   }
 
   get mimeFooterAfterRef(): ViewContainerRef {
-    return this.footer.mimeFooterAfter;
+    return this.footer().mimeFooterAfter;
   }
 
   @HostListener('keydown', ['$event'])
@@ -169,7 +196,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   @HostListener('drop', ['$event'])
-  public onDrop(event: any) {
+  onDrop(event: any) {
     event.preventDefault();
     event.stopPropagation();
     if (this.config.isDropEnabled) {
@@ -199,20 +226,20 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
         }
       }
     } else {
-      this.snackBar.open(this.intl.dropDisabled, undefined, {
+      this.snackBar.open(this.intl().dropDisabled, undefined, {
         duration: 3000,
       });
     }
   }
 
   @HostListener('dragover', ['$event'])
-  public onDragOver(event: any) {
+  onDragOver(event: any) {
     event.preventDefault();
     event.stopPropagation();
   }
 
   @HostListener('dragleave', ['$event'])
-  public onDragLeave(event: any) {
+  onDragLeave(event: any) {
     event.preventDefault();
     event.stopPropagation();
   }
@@ -230,8 +257,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             this.viewerLayoutService.init(
               ManifestUtils.isManifestPaged(manifest),
             );
-            this.recognizedTextContentMode =
-              this.altoService.recognizedTextContentMode;
+            // OpenSeadragon needs its host element to exist before setup.
             this.changeDetectorRef.detectChanges();
             this.viewerService.setUpViewer(manifest, this.config);
             this.altoService.initialize();
@@ -263,13 +289,9 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     );
 
     this.subscriptions.add(
-      this.iiifManifestService.errorMessage.subscribe(
-        (error: string | null) => {
-          this.resetCurrentManifest();
-          this.errorMessage = error;
-          this.changeDetectorRef.detectChanges();
-        },
-      ),
+      this.iiifManifestService.errorMessage.subscribe(() => {
+        this.resetCurrentManifest();
+      }),
     );
 
     this.subscriptions.add(
@@ -282,13 +304,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       this.iiifContentSearchService.onChange.subscribe((sr: SearchResult) => {
         this.altoService.setHits(sr.hits);
         this.viewerService.highlight(sr);
-      }),
-    );
-
-    this.subscriptions.add(
-      this.viewerService.isCanvasPressed.subscribe((value: boolean) => {
-        this.isCanvasPressed = value;
-        this.changeDetectorRef.detectChanges();
       }),
     );
 
@@ -364,28 +379,16 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
         .subscribe(() => {
           setTimeout(() => {
             this.viewerService.home();
-            this.changeDetectorRef.markForCheck();
           }, ViewerOptions.transitions.OSDAnimationTime);
         }),
     );
 
     this.subscriptions.add(
-      this.viewerLayoutService.onChange.subscribe(
-        (viewerLayout: ViewerLayout) => {
-          this.viewerLayout = viewerLayout;
-        },
-      ),
-    );
-
-    this.subscriptions.add(
       this.altoService.onRecognizedTextContentModeChange$.subscribe(
         (recognizedTextModeChanges: RecognizedTextModeChanges) => {
-          this.recognizedTextContentMode =
-            recognizedTextModeChanges.currentValue;
           this.recognizedTextContentModeChanged.emit(
-            this.recognizedTextContentMode,
+            recognizedTextModeChanges.currentValue,
           );
-          this.changeDetectorRef.markForCheck();
         },
       ),
     );
@@ -432,27 +435,29 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   toggleToolbarsState(mode: ViewerMode): void {
-    if (this.header && this.footer) {
+    if (this.header() && this.footer()) {
       switch (mode) {
         case ViewerMode.DASHBOARD:
-          this.showHeaderAndFooterState = true;
+          this.showHeaderAndFooterState.set(true);
           if (this.config.navigationControlEnabled) {
-            this.osdToolbarState = false;
+            this.osdToolbarState.set(false);
           }
           break;
         case ViewerMode.PAGE:
-          this.showHeaderAndFooterState = false;
+          this.showHeaderAndFooterState.set(false);
           if (this.config.navigationControlEnabled) {
-            this.osdToolbarState = true;
+            this.osdToolbarState.set(true);
           }
           break;
       }
+      // Consumers of this synchronous API expect the toolbar DOM state to be
+      // updated before the method returns.
       this.changeDetectorRef.detectChanges();
     }
   }
 
   goToHomeZoom(): void {
-    if (this.recognizedTextContentMode !== this.recognizedTextMode.ONLY) {
+    if (this.recognizedTextContentMode() !== this.recognizedTextMode.ONLY) {
       this.viewerService.home();
     }
   }
@@ -462,9 +467,9 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       'mode-page': this.modeService.mode === ViewerMode.PAGE,
       'mode-page-zoomed': this.modeService.isPageZoomed(),
       'mode-dashboard': this.modeService.mode === ViewerMode.DASHBOARD,
-      'layout-one-page': this.viewerLayout === ViewerLayout.ONE_PAGE,
-      'layout-two-page': this.viewerLayout === ViewerLayout.TWO_PAGE,
-      'canvas-pressed': this.isCanvasPressed,
+      'layout-one-page': this.viewerLayout() === ViewerLayout.ONE_PAGE,
+      'layout-two-page': this.viewerLayout() === ViewerLayout.TWO_PAGE,
+      'canvas-pressed': this.isCanvasPressed(),
       'broken-mix-blend-mode': !this.hasMixBlendModeSupport(),
     };
   }
@@ -502,7 +507,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private resetErrorMessage(): void {
-    this.errorMessage = null;
+    this.errorMessage.set(null);
   }
 
   private hasMixBlendModeSupport(): boolean {

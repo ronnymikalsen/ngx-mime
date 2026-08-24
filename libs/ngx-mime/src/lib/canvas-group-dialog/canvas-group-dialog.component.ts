@@ -1,19 +1,19 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  computed,
   inject,
-  OnDestroy,
-  OnInit,
+  signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  form,
+  FormField,
+  max,
+  min,
+  required,
+  submit,
+} from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import {
   MatDialogActions,
@@ -28,7 +28,7 @@ import {
   MatInput,
   MatLabel,
 } from '@angular/material/input';
-import { Subscription } from 'rxjs';
+import { map } from 'rxjs';
 import { CanvasService } from '../core/canvas-service/canvas-service';
 import { MimeViewerIntl } from '../core/intl';
 import { ViewerService } from '../core/viewer-service/viewer.service';
@@ -39,8 +39,7 @@ import { ViewerService } from '../core/viewer-service/viewer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     MatDialogTitle,
-    FormsModule,
-    ReactiveFormsModule,
+    FormField,
     MatDialogContent,
     MatFormField,
     MatLabel,
@@ -51,54 +50,40 @@ import { ViewerService } from '../core/viewer-service/viewer.service';
     MatDialogClose,
   ],
 })
-export class CanvasGroupDialogComponent implements OnInit, OnDestroy {
-  readonly intl = inject(MimeViewerIntl);
-  numberOfCanvases: number;
-  canvasGroupForm: FormGroup<{
-    canvasGroupControl: FormControl<number | null>;
-  }>;
+export class CanvasGroupDialogComponent {
+  readonly intl = (() => {
+    const intl = inject(MimeViewerIntl);
+    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
+      initialValue: intl,
+    });
+  })();
+  readonly numberOfCanvases = inject(CanvasService).numberOfCanvases;
+  readonly canvasGroupModel = signal({ canvasGroup: 0 });
+  readonly canvasGroupForm = form(this.canvasGroupModel, (path) => {
+    required(path.canvasGroup);
+    min(path.canvasGroup, 1);
+    max(path.canvasGroup, this.numberOfCanvases);
+  });
+  readonly canvasGroupDoesNotExist = computed(() =>
+    this.canvasGroupForm
+      .canvasGroup()
+      .errors()
+      .some((error) => error.kind === 'max'),
+  );
   private readonly dialogRef =
     inject<MatDialogRef<CanvasGroupDialogComponent>>(MatDialogRef);
-  private readonly fb = inject(FormBuilder);
   private readonly viewerService = inject(ViewerService);
   private readonly canvasService = inject(CanvasService);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly subscriptions = new Subscription();
 
-  constructor() {
-    this.numberOfCanvases = this.canvasService.numberOfCanvases;
-    this.canvasGroupForm = this.fb.group({
-      canvasGroupControl: new FormControl<number | null>(null, [
-        Validators.required,
-        Validators.min(1),
-        Validators.max(this.numberOfCanvases),
-      ]),
-    });
-  }
-
-  get canvasGroupControl() {
-    return this.canvasGroupForm.get('canvasGroupControl');
-  }
-
-  ngOnInit() {
-    this.subscriptions.add(
-      this.intl.changes.subscribe(() => this.changeDetectorRef.markForCheck()),
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
-
-  onSubmit(): void {
-    if (this.canvasGroupForm.valid) {
-      const pageNumber = this.canvasGroupControl?.value;
-      if (pageNumber !== null && pageNumber !== undefined)
-        this.viewerService.goToCanvasGroup(
-          this.canvasService.findCanvasGroupByCanvasIndex(pageNumber - 1),
-          false,
-        );
+  async onSubmit(event: SubmitEvent): Promise<void> {
+    event.preventDefault();
+    await submit(this.canvasGroupForm, async () => {
+      const pageNumber = this.canvasGroupModel().canvasGroup;
+      this.viewerService.goToCanvasGroup(
+        this.canvasService.findCanvasGroupByCanvasIndex(pageNumber - 1),
+        false,
+      );
       this.dialogRef.close();
-    }
+    });
   }
 }

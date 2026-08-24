@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideAutoSpy, Spy } from 'jest-auto-spies';
 import { AccessKeysService } from '../core/access-keys-handler-service/access-keys.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
@@ -15,7 +15,7 @@ describe('AttributionDialogComponent', () => {
   let fixture: ComponentFixture<AttributionDialogComponent>;
   let iiifManifestServiceSpy: Spy<IiifManifestService>;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [AttributionDialogComponent],
       providers: [
@@ -32,7 +32,7 @@ describe('AttributionDialogComponent', () => {
         provideAutoSpy(AccessKeysService),
       ],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AttributionDialogComponent);
@@ -47,14 +47,14 @@ describe('AttributionDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display attribution', () => {
+  it('should display attribution', async () => {
     iiifManifestServiceSpy.currentManifest.nextWith(
       new Manifest({
         attribution: 'This is a test attribution',
       }),
     );
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const attributionEl: HTMLElement =
       fixture.debugElement.nativeElement.querySelector('p');

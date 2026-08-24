@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed, waitForAsync } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideAutoSpy, Spy } from 'jest-auto-spies';
 import { testManifest } from '../../../test/testManifest';
 import { CanvasService } from '../../canvas-service/canvas-service';
@@ -58,16 +58,16 @@ describe('ContentSearchNavigationService', () => {
     expect(contentSearchNavigationService).toBeTruthy();
   });
 
-  it('should return -1 if canvasIndex is before first hit', waitForAsync(() => {
+  it('should return -1 if canvasIndex is before first hit', () => {
     contentSearchNavigationService.currentHitCounter.subscribe((hit) => {
       expect(hit).toBe(-1);
     });
 
     canvasServiceSpy.getCanvasesPerCanvasGroup.mockReturnValue([0]);
     contentSearchNavigationService.update(0);
-  }));
+  });
 
-  it('should return 0 if canvasIndex is on first hit', waitForAsync(() => {
+  it('should return 0 if canvasIndex is on first hit', () => {
     canvasServiceSpy.getCanvasesPerCanvasGroup.mockReturnValue([1]);
 
     contentSearchNavigationService.currentHitCounter.subscribe((hit) => {
@@ -75,9 +75,9 @@ describe('ContentSearchNavigationService', () => {
     });
 
     contentSearchNavigationService.update(1);
-  }));
+  });
 
-  it('should return 5 if canvasIndex is between 5th and 6th hit', waitForAsync(() => {
+  it('should return 5 if canvasIndex is between 5th and 6th hit', () => {
     canvasServiceSpy.getCanvasesPerCanvasGroup.mockReturnValue([6]);
 
     contentSearchNavigationService.currentHitCounter.subscribe((hit) => {
@@ -85,9 +85,9 @@ describe('ContentSearchNavigationService', () => {
     });
 
     contentSearchNavigationService.update(6);
-  }));
+  });
 
-  it('should return 6 if canvasIndex is after last', waitForAsync(() => {
+  it('should return 6 if canvasIndex is after last', () => {
     canvasServiceSpy.getCanvasesPerCanvasGroup.mockReturnValue([10]);
 
     contentSearchNavigationService.currentHitCounter.subscribe((hit) => {
@@ -95,7 +95,7 @@ describe('ContentSearchNavigationService', () => {
     });
 
     contentSearchNavigationService.update(10);
-  }));
+  });
 
   it('should call update function when searchresult changes', () => {
     jest.spyOn(contentSearchNavigationService, 'update');

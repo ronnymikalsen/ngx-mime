@@ -3,7 +3,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { TestManifests } from '../../../testing';
 import { testSearchResult } from '../../test/testSearchResult';
 import { MimeViewerConfig } from '../mime-viewer-config';
@@ -38,7 +38,7 @@ describe('IiifContentSearchService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should return a search result', fakeAsync(() => {
+  it('should return a search result', () => {
     let result: SearchResult = new SearchResult();
 
     service.search(TestManifests.withContentSearchService(), 'query');
@@ -47,12 +47,11 @@ describe('IiifContentSearchService', () => {
     });
 
     httpTestingController.expectOne(`dummyUrl?q=query`).flush(testSearchResult);
-    tick();
 
     expect(result?.size()).toBe(2);
-  }));
+  });
 
-  it('should return a empty search result if empty q', fakeAsync(() => {
+  it('should return a empty search result if empty q', () => {
     let result!: SearchResult;
 
     service.search(TestManifests.aEmpty(), '');
@@ -61,12 +60,11 @@ describe('IiifContentSearchService', () => {
     });
 
     httpTestingController.expectNone(`dummyUrl?q=`);
-    tick();
 
     expect(result.size()).toBe(0);
-  }));
+  });
 
-  it('should cleanup on destroy', fakeAsync(() => {
+  it('should cleanup on destroy', () => {
     let currentSearchResult!: SearchResult;
     let currentQ!: string;
     let currentIsSearching!: boolean;
@@ -94,5 +92,5 @@ describe('IiifContentSearchService', () => {
     expect(currentQ).toBe('');
     expect(currentSearchResult.q).toEqual('');
     expect(currentSearchResult.hits.length).toBe(0);
-  }));
+  });
 });

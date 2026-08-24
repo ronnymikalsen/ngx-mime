@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideAutoSpy } from 'jest-auto-spies';
 import 'openseadragon';
@@ -54,7 +54,7 @@ describe('ViewerComponent', () => {
   let helpDialogService: HelpDialogService;
   let resizeService: MimeResizeService;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(() => {
     TestBed.overrideComponent(ViewerComponent, {
       set: {
         providers: [],
@@ -91,7 +91,7 @@ describe('ViewerComponent', () => {
         provideAutoSpy(HelpDialogService),
       ],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     testHostFixture = TestBed.createComponent(TestHostComponent);
@@ -138,7 +138,7 @@ describe('ViewerComponent', () => {
     expect(helpDialogService.destroy).toHaveBeenCalled();
     expect(viewerService.destroy).toHaveBeenCalled();
     expect(resizeService.destroy).toHaveBeenCalled();
-    expect(comp.errorMessage).toBeNull();
+    expect(comp.errorMessage()).toBeNull();
   });
 
   it('should create viewer', () => {
@@ -163,28 +163,23 @@ describe('ViewerComponent', () => {
     expect(modeService.mode).toBe(config.initViewerMode);
   });
 
-  it('should change mode to initial-mode when changing manifest', (done) => {
+  it('should change mode to initial-mode when changing manifest', async () => {
     testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
 
-    viewerService.onOsdReadyChange.subscribe((state: boolean) => {
-      if (state) {
-        setTimeout(() => {
-          if (config.initViewerMode === ViewerMode.PAGE) {
-            modeService.mode = ViewerMode.DASHBOARD;
-            expect(modeService.mode).toBe(ViewerMode.DASHBOARD);
-          } else {
-            modeService.mode = ViewerMode.PAGE;
-            expect(modeService.mode).toBe(ViewerMode.PAGE);
-          }
-          testHostComponent.manifestUri = 'dummyURI3';
-          testHostFixture.detectChanges();
-          expect(modeService.mode.valueOf()).toBe(
-            config.initViewerMode.valueOf(),
-          );
-          done();
-        }, osdAnimationTime);
-      }
-    });
+    if (config.initViewerMode === ViewerMode.PAGE) {
+      modeService.mode = ViewerMode.DASHBOARD;
+      expect(modeService.mode).toBe(ViewerMode.DASHBOARD);
+    } else {
+      modeService.mode = ViewerMode.PAGE;
+      expect(modeService.mode).toBe(ViewerMode.PAGE);
+    }
+
+    testHostComponent.manifestUri = 'dummyURI3';
+    testHostFixture.changeDetectorRef.markForCheck();
+    await testHostFixture.whenStable();
+
+    expect(modeService.mode.valueOf()).toBe(config.initViewerMode.valueOf());
   });
 
   it('svgOverlay-plugin should be defined', () => {
@@ -644,32 +639,32 @@ describe('ViewerComponent', () => {
   });
 
   const expectHeaderToBeVisible = () => {
-    expect(comp.showHeaderAndFooterState).toBeTruthy();
+    expect(comp.showHeaderAndFooterState()).toBeTruthy();
     expect(getHeader().getAttribute('class')).toContain('show');
   };
 
   const expectHeaderToBeHidden = () => {
-    expect(comp.showHeaderAndFooterState).toBeFalsy();
+    expect(comp.showHeaderAndFooterState()).toBeFalsy();
     expect(getHeader().getAttribute('class')).not.toContain('hide');
   };
 
   const expectFooterToBeVisible = () => {
-    expect(comp.showHeaderAndFooterState).toBeTruthy();
+    expect(comp.showHeaderAndFooterState()).toBeTruthy();
     expect(getFooter().getAttribute('class')).not.toContain('hide');
   };
 
   const expectFooterToBeHidden = () => {
-    expect(comp.showHeaderAndFooterState).toBeFalsy();
+    expect(comp.showHeaderAndFooterState()).toBeFalsy();
     expect(getFooter().getAttribute('class')).not.toContain('hide');
   };
 
   const expectOsdToolbarToBeVisible = () => {
-    expect(comp.osdToolbarState).toBeTruthy();
+    expect(comp.osdToolbarState()).toBeTruthy();
     expect(getOsdToolbar().getAttribute('class')).toBe('show');
   };
 
   const expectOsdToolbarToBeHidden = () => {
-    expect(comp.osdToolbarState).toBeFalsy();
+    expect(comp.osdToolbarState()).toBeFalsy();
     expect(getOsdToolbar().getAttribute('class')).toBeFalsy();
   };
 

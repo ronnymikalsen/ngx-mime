@@ -1,17 +1,9 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { HarnessLoader } from '@angular/cdk/testing';
-import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  waitForAsync,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
-import { MatTabGroupHarness } from '@angular/material/tabs/testing';
 import { By } from '@angular/platform-browser';
 import { AltoService } from '../core/alto-service/alto.service';
 import { CanvasService } from '../core/canvas-service/canvas-service';
@@ -39,14 +31,13 @@ import { TocComponent } from './table-of-contents/table-of-contents.component';
 describe('InformationDialogComponent', () => {
   let component: InformationDialogComponent;
   let fixture: ComponentFixture<InformationDialogComponent>;
-  let loader: HarnessLoader;
   let breakpointObserver: MockBreakpointObserver;
   let iiifManifestService: IiifManifestServiceStub;
   let intl: MimeViewerIntl;
   let dialogRef: MatDialogRef<InformationDialogComponent>;
   let viewerService: ViewerService;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       imports: [InformationDialogComponent, MetadataComponent, TocComponent],
@@ -71,12 +62,11 @@ describe('InformationDialogComponent', () => {
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(InformationDialogComponent);
     component = fixture.componentInstance;
-    loader = TestbedHarnessEnvironment.loader(fixture);
     breakpointObserver = TestBed.inject(
       BreakpointObserver,
     ) as MockBreakpointObserver;
@@ -112,42 +102,40 @@ describe('InformationDialogComponent', () => {
     expect(heading).not.toBeNull();
   });
 
-  it('should show toc', waitForAsync(() => {
+  it('should show toc', async () => {
     fixture.detectChanges();
     const manifest = new Manifest({
       structures: [new Structure()],
     });
     iiifManifestService._currentManifest.next(manifest);
     intl.tocLabel = 'TocTestLabel';
-    fixture.whenStable().then(() => {
-      fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-      const tabs: NodeList =
-        fixture.nativeElement.querySelectorAll('.mat-mdc-tab');
-      const tocTab = Array.from(tabs).find(
-        (t) => t.textContent === intl.tocLabel,
-      );
-      expect(tocTab).toBeDefined();
-    });
-  }));
+    const tabs: NodeList =
+      fixture.nativeElement.querySelectorAll('.mat-mdc-tab');
+    const tocTab = Array.from(tabs).find(
+      (t) => t.textContent === intl.tocLabel,
+    );
+    expect(tocTab).toBeDefined();
+  });
 
-  it('should hide toc', waitForAsync(() => {
+  it('should hide toc', async () => {
     const manifest = new Manifest();
     iiifManifestService._currentManifest.next(manifest);
 
     fixture.detectChanges();
 
-    fixture.whenStable().then(() => {
-      const tabs: NodeList =
-        fixture.nativeElement.querySelectorAll('.mat-mdc-tab');
-      const tocTab = Array.from(tabs).find(
-        (t) => t.textContent === intl.tocLabel,
-      );
-      expect(tocTab).toBeUndefined();
-    });
-  }));
+    await fixture.whenStable();
+    const tabs: NodeList =
+      fixture.nativeElement.querySelectorAll('.mat-mdc-tab');
+    const tocTab = Array.from(tabs).find(
+      (t) => t.textContent === intl.tocLabel,
+    );
+    expect(tocTab).toBeUndefined();
+  });
 
-  it('should close information dialog when selecting a canvas group in TOC when on mobile', fakeAsync(async () => {
+  it('should close information dialog when selecting a canvas group in TOC when on mobile', () => {
     breakpointObserver.setMatches(true);
     jest.spyOn(viewerService, 'goToCanvas').mockImplementation(() => {});
     jest.spyOn(dialogRef, 'close');
@@ -192,16 +180,16 @@ describe('InformationDialogComponent', () => {
       }),
     );
     intl.tocLabel = 'TocTestLabel';
+    component.selectedIndex = 1;
     fixture.detectChanges();
 
-    const tabGroup = await loader.getHarness(MatTabGroupHarness);
-    await tabGroup.selectTab({ label: intl.tocLabel });
     const divs: DebugElement[] = fixture.debugElement.queryAll(
       By.css('.toc-link'),
     );
 
+    expect(divs).toHaveLength(3);
     divs[2].triggerEventHandler('click', new Event('fakeEvent'));
 
     expect(dialogRef.close).toHaveBeenCalled();
-  }));
+  });
 });

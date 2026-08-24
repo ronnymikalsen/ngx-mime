@@ -3,7 +3,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { fakeAsync, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { testManifest } from '../../test/testManifest';
 import { ManifestBuilder } from '../builders/iiif/v2/manifest.builder';
 import { MimeViewerIntl } from '../intl';
@@ -37,7 +37,7 @@ describe('IiifManifestService', () => {
     expect(svc).toBeTruthy();
   });
 
-  it('should return a Manifest', fakeAsync(() => {
+  it('should return a Manifest', () => {
     let result: Manifest | null = new Manifest();
     let error: string | null = null;
 
@@ -57,9 +57,9 @@ describe('IiifManifestService', () => {
     if (result) {
       expect(result.label).toBe('Fjellkongen Ludvig "Ludden"');
     }
-  }));
+  });
 
-  it('should return error message if manifest url is missing', fakeAsync(() => {
+  it('should return error message if manifest url is missing', () => {
     let result: Manifest | null = null;
     let error: string | null = null;
 
@@ -79,9 +79,9 @@ describe('IiifManifestService', () => {
     if (error) {
       expect(error).toBe('ManifestUri is missing');
     }
-  }));
+  });
 
-  it('should return error message if IiifManifestService could not load manifest', fakeAsync(() => {
+  it('should return error message if IiifManifestService could not load manifest', () => {
     let result: Manifest | null = null;
     let error: string | null = null;
 
@@ -106,9 +106,9 @@ describe('IiifManifestService', () => {
     if (error) {
       expect(error).toEqual('Cannot /GET wrongManifestUrl');
     }
-  }));
+  });
 
-  it('should return error message when manifest is not valid', fakeAsync(() => {
+  it('should return error message when manifest is not valid', () => {
     let result: Manifest | null = new Manifest();
     let error: string | null = null;
 
@@ -133,5 +133,5 @@ describe('IiifManifestService', () => {
     if (error) {
       expect(error).toBe('Manifest is not valid');
     }
-  }));
+  });
 });

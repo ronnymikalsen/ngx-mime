@@ -9,7 +9,7 @@ import {
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogHarness } from '@angular/material/dialog/testing';
 import { By } from '@angular/platform-browser';
@@ -63,7 +63,7 @@ describe('ViewerHeaderComponent', () => {
   let intl: MimeViewerIntl;
   let breakpointObserver: MockBreakpointObserver;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [
@@ -106,15 +106,16 @@ describe('ViewerHeaderComponent', () => {
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
-    testHostFixture = TestBed.createComponent(TestHostComponent);
-    testHostComponent = testHostFixture.componentInstance;
-    rootLoader = TestbedHarnessEnvironment.documentRootLoader(testHostFixture);
     fullscreenServiceSpy = TestBed.inject(
       FullscreenService,
     ) as Spy<FullscreenService>;
+    fullscreenServiceSpy.isEnabled.mockReturnValue(true);
+    testHostFixture = TestBed.createComponent(TestHostComponent);
+    testHostComponent = testHostFixture.componentInstance;
+    rootLoader = TestbedHarnessEnvironment.documentRootLoader(testHostFixture);
     intl = TestBed.inject(MimeViewerIntl);
     iiifManifestServiceStub = TestBed.inject<any>(IiifManifestService);
     breakpointObserver = TestBed.inject(
@@ -132,17 +133,15 @@ describe('ViewerHeaderComponent', () => {
     expect(testHostComponent).toBeTruthy();
   });
 
-  it('should re-render when the i18n labels have changed', waitForAsync(() => {
+  it('should re-render when the i18n labels have changed', async () => {
     intl.informationLabel = 'Metadata of the publication';
     intl.changes.next();
 
-    testHostFixture.whenStable().then(async () => {
-      testHostFixture.detectChanges();
-      const informationDialogButton = await getInformationDialogButton();
-      const ariaLabel = await getAriaLabel(informationDialogButton);
-      expect(ariaLabel).toEqual('Metadata of the publication');
-    });
-  }));
+    await testHostFixture.whenStable();
+    const informationDialogButton = await getInformationDialogButton();
+    const ariaLabel = await getAriaLabel(informationDialogButton);
+    expect(ariaLabel).toEqual('Metadata of the publication');
+  });
 
   it('should open view dialog', async () => {
     setCurrentManifest(TestManifests.aDefault());
@@ -218,89 +217,81 @@ describe('ViewerHeaderComponent', () => {
 
   it('should show fullscreen button if fullscreen mode is supported', async () => {
     fullscreenServiceSpy.isEnabled.mockReturnValue(true);
-    testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
 
     expect(await getFullscreenButton()).not.toBeNull();
   });
 
   it('should hide fullscreen button if fullscreen mode is unsupported', async () => {
+    testHostFixture.destroy();
     fullscreenServiceSpy.isEnabled.mockReturnValue(false);
-    testHostFixture.detectChanges();
+    testHostFixture = TestBed.createComponent(TestHostComponent);
+    testHostComponent = testHostFixture.componentInstance;
+    rootLoader = TestbedHarnessEnvironment.documentRootLoader(testHostFixture);
+    await testHostFixture.whenStable();
 
     expect(await getFullscreenButton()).toBeNull();
   });
 
-  it('should show search button if manifest has a search service', waitForAsync(() => {
+  it('should show search button if manifest has a search service', async () => {
     setCurrentManifest({
       ...TestManifests.aEmpty(),
       service: new Service(),
     });
 
-    testHostFixture.whenStable().then(async () => {
-      testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
 
-      const contentSearchDialogbutton = await getContentSearchDialogButton();
-      const ariaLabel = await getAriaLabel(contentSearchDialogbutton);
-      expect(ariaLabel).toEqual('Search');
-    });
-  }));
+    const contentSearchDialogbutton = await getContentSearchDialogButton();
+    const ariaLabel = await getAriaLabel(contentSearchDialogbutton);
+    expect(ariaLabel).toEqual('Search');
+  });
 
-  it('should hide search button if manifest does not have a search service', waitForAsync(() => {
+  it('should hide search button if manifest does not have a search service', async () => {
     setCurrentManifest(new Manifest());
 
-    testHostFixture.whenStable().then(async () => {
-      testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
 
-      expect(await getContentSearchDialogButton()).toBeNull();
-    });
-  }));
+    expect(await getContentSearchDialogButton()).toBeNull();
+  });
 
-  it('should show label if manifest has a label', waitForAsync(() => {
+  it('should show label if manifest has a label', async () => {
     setCurrentManifest({
       label: 'Testlabel',
       viewingDirection: ViewingDirection.LTR,
     });
 
-    testHostFixture.whenStable().then(() => {
-      testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
 
-      const label = testHostFixture.debugElement.query(
-        By.css('[data-testid="ngx-mime-manifest-label"].label'),
-      ).nativeElement;
+    const label = testHostFixture.debugElement.query(
+      By.css('[data-testid="ngx-mime-manifest-label"].label'),
+    ).nativeElement;
 
-      expect(label.innerHTML).toBe('Testlabel');
-    });
-  }));
+    expect(label.innerHTML).toBe('Testlabel');
+  });
 
-  it('should show view menu button if digital text is available', waitForAsync(() => {
+  it('should show view menu button if digital text is available', async () => {
     setCurrentManifest(TestManifests.withDigitalTextContent());
 
-    testHostFixture.whenStable().then(async () => {
-      testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
 
-      expect(await getViewMenuButton()).not.toBeNull();
-    });
-  }));
+    expect(await getViewMenuButton()).not.toBeNull();
+  });
 
-  it('should show view menu button if manifest is paged', waitForAsync(() => {
+  it('should show view menu button if manifest is paged', async () => {
     setCurrentManifest(TestManifests.aDefault());
 
-    testHostFixture.whenStable().then(async () => {
-      testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
 
-      expect(await getViewMenuButton()).not.toBeNull();
-    });
-  }));
+    expect(await getViewMenuButton()).not.toBeNull();
+  });
 
-  it('should hide view menu button if manifest is not paged and digital text is not available', waitForAsync(() => {
+  it('should hide view menu button if manifest is not paged and digital text is not available', async () => {
     setCurrentManifest(TestManifests.aEmpty());
 
-    testHostFixture.whenStable().then(async () => {
-      testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
 
-      expect(await getViewMenuButton()).toBeNull();
-    });
-  }));
+    expect(await getViewMenuButton()).toBeNull();
+  });
 
   const openViewMenuDialog = async () => {
     const viewMenuButton = await getViewMenuButton();

@@ -4,7 +4,7 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DebugElement } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
@@ -39,8 +39,8 @@ describe('ContentSearchDialogComponent', () => {
   let breakpointObserver: MockBreakpointObserver;
   let dialogRef: any;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [ContentSearchDialogComponent],
       providers: [
         provideHttpClient(),
@@ -62,9 +62,9 @@ describe('ContentSearchDialogComponent', () => {
         provideAutoSpy(ViewerLayoutService),
       ],
     }).compileComponents();
-  }));
+  });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     fixture = TestBed.createComponent(ContentSearchDialogComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -76,17 +76,17 @@ describe('ContentSearchDialogComponent', () => {
       BreakpointObserver,
     ) as MockBreakpointObserver;
     dialogRef = TestBed.inject(MatDialogRef);
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('should be created', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display desktop toolbar', () => {
+  it('should display desktop toolbar', async () => {
     breakpointObserver.setMatches(false);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
       By.css('.heading-desktop'),
@@ -94,10 +94,10 @@ describe('ContentSearchDialogComponent', () => {
     expect(heading).not.toBeNull();
   });
 
-  it('should display mobile toolbar', () => {
+  it('should display mobile toolbar', async () => {
     breakpointObserver.setMatches(true);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
       By.css('.heading-desktop'),
@@ -105,51 +105,57 @@ describe('ContentSearchDialogComponent', () => {
     expect(heading).toBeNull();
   });
 
-  it('should go to hit and close dialog when selected on mobile', () => {
+  it('should go to hit and close dialog when selected on mobile', async () => {
     breakpointObserver.setMatches(true);
     jest.spyOn(iiifContentSearchServiceStub, 'selected');
     jest.spyOn(dialogRef, 'close');
-    component.currentSearch = 'dummysearch';
-    component.hits = [
-      new Hit({
-        index: 0,
-        match: 'querystring',
+    iiifContentSearchServiceStub._currentSearchResult.next(
+      new SearchResult({
+        q: 'dummysearch',
+        hits: [
+          new Hit({
+            index: 0,
+            match: 'querystring',
+          }),
+        ],
       }),
-    ];
-    component.numberOfHits = 1;
-    fixture.detectChanges();
+    );
+    await fixture.whenStable();
 
     const hits = fixture.debugElement.queryAll(By.css('a[data-testid="hit"]'));
     hits[0].triggerEventHandler('click', null);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
     expect(iiifContentSearchServiceStub.selected).toHaveBeenCalled();
     expect(dialogRef.close).toHaveBeenCalled();
   });
 
-  it('should go to hit and when selected on desktop', () => {
+  it('should go to hit and when selected on desktop', async () => {
     breakpointObserver.setMatches(false);
     jest.spyOn(iiifContentSearchServiceStub, 'selected');
     jest.spyOn(dialogRef, 'close');
-    component.currentSearch = 'dummysearch';
-    component.hits = [
-      new Hit({
-        index: 0,
-        match: 'querystring',
+    iiifContentSearchServiceStub._currentSearchResult.next(
+      new SearchResult({
+        q: 'dummysearch',
+        hits: [
+          new Hit({
+            index: 0,
+            match: 'querystring',
+          }),
+        ],
       }),
-    ];
-    component.numberOfHits = 1;
-    fixture.detectChanges();
+    );
+    await fixture.whenStable();
 
     const hits = fixture.debugElement.queryAll(By.css('a[data-testid="hit"]'));
     hits[0].triggerEventHandler('click', null);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
     expect(iiifContentSearchServiceStub.selected).toHaveBeenCalled();
     expect(dialogRef.close).not.toHaveBeenCalled();
   });
 
-  it('should remain in search input if content search return zero hits', () => {
+  it('should remain in search input if content search return zero hits', async () => {
     const searchInput = fixture.debugElement.query(
       By.css('.content-search-input'),
     );
@@ -159,7 +165,7 @@ describe('ContentSearchDialogComponent', () => {
     const spy = jest.spyOn(searchResultContainer.nativeElement, 'focus');
     iiifManifestServiceStub._currentManifest.next(testManifest);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     searchInput.nativeElement.setAttribute('value', 'dummyvalue');
     const event = new KeyboardEvent('keypress', { key: 'Enter' });
@@ -167,12 +173,12 @@ describe('ContentSearchDialogComponent', () => {
 
     iiifContentSearchServiceStub._currentSearchResult.next(new SearchResult());
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(spy).not.toHaveBeenCalled();
   });
 
-  it('should set focus on search result if content search return hits', () => {
+  it('should set focus on search result if content search return hits', async () => {
     const searchInput = fixture.debugElement.query(
       By.css('.content-search-input'),
     );
@@ -182,7 +188,7 @@ describe('ContentSearchDialogComponent', () => {
     const spy = jest.spyOn(searchResultContainer.nativeElement, 'focus');
     iiifManifestServiceStub._currentManifest.next(testManifest);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     searchInput.nativeElement.setAttribute('value', 'dummyvalue');
     const event = new KeyboardEvent('keypress', { key: 'Enter' });
@@ -194,7 +200,7 @@ describe('ContentSearchDialogComponent', () => {
       }),
     );
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(spy).toHaveBeenCalled();
   });
@@ -209,7 +215,7 @@ describe('ContentSearchDialogComponent', () => {
     searchInput.nativeElement.value = 'dummyvalue';
     searchInput.nativeElement.dispatchEvent(new Event('input'));
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(await getButtonCount()).toBe(3);
   });

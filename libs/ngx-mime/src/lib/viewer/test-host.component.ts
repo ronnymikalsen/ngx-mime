@@ -17,11 +17,11 @@ import { ViewerComponent } from './viewer.component';
 })
 export class TestHostComponent {
   @ViewChild(ViewerComponent, { static: true })
-  public viewerComponent!: ViewerComponent;
-  public manifestUri: string | null = null;
-  public canvasIndex = 0;
-  public tabIndex = 0;
-  public config = new MimeViewerConfig({
+  viewerComponent!: ViewerComponent;
+  manifestUri: string | null = null;
+  canvasIndex = 0;
+  tabIndex = 0;
+  config = new MimeViewerConfig({
     attributionDialogHideTimeout: -1,
   });
 

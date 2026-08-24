@@ -1,25 +1,22 @@
 import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  computed,
+  DestroyRef,
   inject,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
+  input,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
+import { map } from 'rxjs';
 import { CanvasService } from '../../../core/canvas-service/canvas-service';
 import { IiifContentSearchService } from '../../../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../../../core/iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../../../core/intl';
-import { Manifest } from '../../../core/models/manifest';
 import { SearchResult } from '../../../core/models/search-result';
 import { ViewingDirection } from '../../../core/models/viewing-direction';
 import { ContentSearchNavigationService } from '../../../core/navigation/content-search-navigation-service/content-search-navigation.service';
@@ -31,84 +28,67 @@ import { ContentSearchNavigationService } from '../../../core/navigation/content
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatToolbar, MatIconButton, MatTooltip, MatIcon, NgClass],
 })
-export class ContentSearchNavigatorComponent
-  implements OnInit, OnDestroy, OnChanges
-{
-  @Input() searchResult!: SearchResult;
-  intl = inject(MimeViewerIntl);
-  isHitOnActiveCanvasGroup = false;
-  isFirstHit = false;
-  isLastHit = false;
-  currentHit = 0;
-  invert = false;
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly canvasService = inject(CanvasService);
+export class ContentSearchNavigatorComponent {
+  readonly searchResult = input.required<SearchResult>();
+  readonly intl = (() => {
+    const intl = inject(MimeViewerIntl);
+    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
+      initialValue: intl,
+    });
+  })();
+  readonly currentHit = toSignal(
+    inject(ContentSearchNavigationService).currentHitCounter,
+    { initialValue: 0 },
+  );
+  readonly isFirstHit = computed(() => this.currentHit() <= 0);
+  readonly isLastHit = computed(
+    () => this.currentHit() === this.searchResult().size() - 1,
+  );
+  readonly invert = toSignal(
+    inject(IiifManifestService).currentManifest.pipe(
+      map(
+        (manifest) =>
+          manifest?.viewingDirection !== undefined &&
+          manifest.viewingDirection !== ViewingDirection.LTR,
+      ),
+    ),
+    { initialValue: false },
+  );
+  readonly isHitOnActiveCanvasGroup = (() => {
+    const canvasService = inject(CanvasService);
+    const navigationService = inject(ContentSearchNavigationService);
+    return toSignal(
+      canvasService.onCanvasGroupIndexChange.pipe(
+        map((canvasGroupIndex) => {
+          navigationService.update(canvasGroupIndex);
+          return navigationService.getHitOnActiveCanvasGroup();
+        }),
+      ),
+      { initialValue: false },
+    );
+  })();
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
   private readonly contentSearchNavigationService = inject(
     ContentSearchNavigationService,
   );
-  private readonly iiifManifestService = inject(IiifManifestService);
-  private readonly subscriptions = new Subscription();
+  private readonly destroyRef = inject(DestroyRef);
 
-  ngOnInit() {
+  constructor() {
     this.contentSearchNavigationService.initialize();
-    this.subscriptions.add(
-      this.contentSearchNavigationService.currentHitCounter.subscribe((n) => {
-        this.currentHit = n;
-        this.updateHitStatus();
-        this.changeDetectorRef.detectChanges();
-      }),
+    this.destroyRef.onDestroy(() =>
+      this.contentSearchNavigationService.destroy(),
     );
-    this.subscriptions.add(
-      this.iiifManifestService.currentManifest.subscribe(
-        (manifest: Manifest | null) => {
-          if (manifest) {
-            this.invert = manifest.viewingDirection !== ViewingDirection.LTR;
-            this.changeDetectorRef.detectChanges();
-          }
-        },
-      ),
-    );
-
-    this.subscriptions.add(
-      this.intl.changes.subscribe(() => this.changeDetectorRef.markForCheck()),
-    );
-
-    this.subscriptions.add(
-      this.canvasService.onCanvasGroupIndexChange.subscribe(
-        (canvasGroupIndex) => {
-          this.contentSearchNavigationService.update(canvasGroupIndex);
-          this.isHitOnActiveCanvasGroup =
-            this.contentSearchNavigationService.getHitOnActiveCanvasGroup();
-          this.changeDetectorRef.detectChanges();
-        },
-      ),
-    );
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    this.updateHitStatus();
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-    this.contentSearchNavigationService.destroy();
   }
 
   clear(): void {
     this.iiifContentSearchService.destroy();
   }
 
-  goToNextHit() {
+  goToNextHit(): void {
     this.contentSearchNavigationService.goToNextHit();
   }
 
-  goToPreviousHit() {
+  goToPreviousHit(): void {
     this.contentSearchNavigationService.goToPreviousHit();
-  }
-
-  private updateHitStatus() {
-    this.isFirstHit = this.currentHit <= 0;
-    this.isLastHit = this.currentHit === this.searchResult.size() - 1;
   }
 }

@@ -1,22 +1,17 @@
-import {
-  BreakpointObserver,
-  Breakpoints,
-  BreakpointState,
-} from '@angular/cdk/layout';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgStyle } from '@angular/common';
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
+  afterRenderEffect,
   Component,
+  computed,
   ElementRef,
   inject,
-  OnDestroy,
-  OnInit,
-  QueryList,
-  ViewChild,
-  ViewChildren,
+  linkedSignal,
+  viewChild,
+  viewChildren,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { form, FormField, submit } from '@angular/forms/signals';
 import { MatIconButton } from '@angular/material/button';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import {
@@ -35,15 +30,12 @@ import {
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { map } from 'rxjs';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../core/intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
-import { Dimensions } from '../core/models/dimensions';
 import { Hit } from '../core/models/hit';
-import { Manifest } from '../core/models/manifest';
 import { SearchResult } from '../core/models/search-result';
 import { ContentSearchNavigationService } from '../core/navigation/content-search-navigation-service/content-search-navigation.service';
 
@@ -59,7 +51,7 @@ import { ContentSearchNavigationService } from '../core/navigation/content-searc
     MatIcon,
     MatDialogTitle,
     MatDialogContent,
-    FormsModule,
+    FormField,
     MatFormField,
     MatPrefix,
     MatInput,
@@ -70,167 +62,110 @@ import { ContentSearchNavigationService } from '../core/navigation/content-searc
     MatProgressBar,
   ],
 })
-export class ContentSearchDialogComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
-  @ViewChild('contentSearchResult', { static: true })
-  resultContainer!: ElementRef;
-  @ViewChild('query', { static: true }) qEl!: ElementRef;
-  @ViewChildren('hitButton', { read: ElementRef })
-  hitList!: QueryList<ElementRef>;
-  dialogRef = inject<MatDialogRef<ContentSearchDialogComponent>>(MatDialogRef);
-  intl = inject(MimeViewerIntl);
-  q = '';
-  hits: Hit[] = [];
-  currentHit: Hit | null = null;
-  currentSearch: string | null = null;
-  numberOfHits = 0;
-  isSearching = false;
-  tabHeight = { maxHeight: '100px' };
-  isHandsetOrTabletInPortrait = false;
-  private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly cdr = inject(ChangeDetectorRef);
-  private readonly mimeResizeService = inject(MimeResizeService);
-  private readonly iiifManifestService = inject(IiifManifestService);
+export class ContentSearchDialogComponent {
+  readonly dialogRef =
+    inject<MatDialogRef<ContentSearchDialogComponent>>(MatDialogRef);
+  readonly resultContainer = viewChild.required<ElementRef<HTMLElement>>(
+    'contentSearchResult',
+  );
+  readonly qEl = viewChild.required<ElementRef<HTMLInputElement>>('query');
+  readonly hitList = viewChildren('hitButton', {
+    read: ElementRef,
+  });
+  readonly intl = (() => {
+    const intl = inject(MimeViewerIntl);
+    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
+      initialValue: intl,
+    });
+  })();
+  readonly isHandsetOrTabletInPortrait = toSignal(
+    inject(BreakpointObserver)
+      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+      .pipe(map(({ matches }) => matches)),
+    { initialValue: false },
+  );
+  readonly mimeHeight = toSignal(
+    inject(MimeResizeService).onResize.pipe(map(({ height }) => height)),
+    { initialValue: 0 },
+  );
+  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+    initialValue: null,
+  });
+  readonly searchResult = toSignal(inject(IiifContentSearchService).onChange, {
+    initialValue: new SearchResult(),
+  });
+  readonly searchModel = linkedSignal(() => ({
+    query: this.searchResult().q,
+  }));
+  readonly searchForm = form(this.searchModel);
+  readonly hits = computed(() => this.searchResult().hits);
+  readonly currentSearch = linkedSignal(() => this.searchResult().q);
+  readonly numberOfHits = computed(() => this.searchResult().size());
+  readonly isSearching = toSignal(
+    inject(IiifContentSearchService).isSearching,
+    { initialValue: false },
+  );
+  readonly currentHit = toSignal(inject(IiifContentSearchService).onSelected, {
+    initialValue: null,
+  });
+  readonly tabHeight = computed(() => ({
+    maxHeight: this.isHandsetOrTabletInPortrait()
+      ? `${window.innerHeight - 128}px`
+      : `${this.mimeHeight() - 320}px`,
+  }));
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
   private readonly contentSearchNavigationService = inject(
     ContentSearchNavigationService,
   );
-  private manifest: Manifest | null = null;
-  private mimeHeight = 0;
-  private readonly subscriptions = new Subscription();
 
-  ngOnInit() {
-    this.subscriptions.add(
-      this.breakpointObserver
-        .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
-        .subscribe(
-          (value: BreakpointState) =>
-            (this.isHandsetOrTabletInPortrait = value.matches),
-        ),
-    );
+  constructor() {
+    afterRenderEffect(() => {
+      const searchResult = this.searchResult();
+      if (searchResult.size() > 0) {
+        this.resultContainer().nativeElement.focus();
+      } else if (searchResult.q.length === 0 || searchResult.size() === 0) {
+        this.qEl().nativeElement.focus();
+      }
+    });
 
-    this.subscriptions.add(
-      this.mimeResizeService.onResize.subscribe((dimensions: Dimensions) => {
-        this.mimeHeight = dimensions.height;
-        this.resizeTabHeight();
-      }),
-    );
-
-    this.subscriptions.add(
-      this.iiifManifestService.currentManifest.subscribe(
-        (manifest: Manifest | null) => {
-          this.manifest = manifest;
-        },
-      ),
-    );
-
-    this.subscriptions.add(
-      this.iiifContentSearchService.onChange.subscribe((sr: SearchResult) => {
-        this.hits = sr.hits;
-        this.currentSearch = sr.q ? sr.q : '';
-        this.q = sr.q;
-        this.numberOfHits = sr.size();
-        if (this.resultContainer !== null && this.numberOfHits > 0) {
-          this.resultContainer.nativeElement.focus();
-        } else if (this.q.length === 0 || this.numberOfHits === 0) {
-          this.qEl.nativeElement.focus();
-        }
-      }),
-    );
-
-    this.subscriptions.add(
-      this.iiifContentSearchService.isSearching.subscribe((s: boolean) => {
-        this.isSearching = s;
-      }),
-    );
-
-    this.subscriptions.add(
-      this.iiifContentSearchService.onSelected.subscribe((hit: Hit | null) => {
-        if (hit === null) {
-          this.currentHit = hit;
-        } else {
-          if (!this.currentHit || this.currentHit.id !== hit.id) {
-            this.currentHit = hit;
-            this.scrollCurrentHitIntoView();
-          }
-        }
-      }),
-    );
-
-    this.resizeTabHeight();
+    afterRenderEffect(() => {
+      const currentHit = this.currentHit();
+      if (currentHit !== null) {
+        this.findSelected(currentHit)?.nativeElement.focus();
+      }
+    });
   }
 
-  ngAfterViewInit() {
-    this.scrollCurrentHitIntoView();
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
-  onSubmit(event: KeyboardEvent) {
+  async onSubmit(event: SubmitEvent): Promise<void> {
     event.preventDefault();
-    this.search();
+    await submit(this.searchForm, async () => this.search());
   }
 
-  clear() {
-    this.q = '';
+  clear(): void {
+    this.searchModel.set({ query: '' });
     this.search();
   }
 
   goToHit(hit: Hit): void {
-    this.currentHit = hit;
     this.contentSearchNavigationService.selected(hit);
-    if (this.isHandsetOrTabletInPortrait) {
+    if (this.isHandsetOrTabletInPortrait()) {
       this.dialogRef.close();
     }
   }
 
-  private search() {
-    this.currentSearch = this.q;
-    if (this.manifest) {
-      this.iiifContentSearchService.search(this.manifest, this.q);
+  private search(): void {
+    const query = this.searchModel().query;
+    const manifest = this.manifest();
+    this.currentSearch.set(query);
+    if (manifest) {
+      this.iiifContentSearchService.search(manifest, query);
     }
   }
 
-  private resizeTabHeight(): void {
-    let height = this.mimeHeight;
-
-    if (this.isHandsetOrTabletInPortrait) {
-      this.tabHeight = {
-        maxHeight: window.innerHeight - 128 + 'px',
-      };
-    } else {
-      height -= 320;
-      this.tabHeight = {
-        maxHeight: height + 'px',
-      };
-    }
-    this.cdr.detectChanges();
-  }
-
-  private scrollCurrentHitIntoView() {
-    this.iiifContentSearchService.onSelected
-      .pipe(take(1))
-      .subscribe((hit: Hit | null) => {
-        if (hit !== null) {
-          const selected = this.findSelected(hit);
-          if (selected) {
-            selected.nativeElement.focus();
-          }
-        }
-      });
-  }
-
-  private findSelected(selectedHit: Hit): ElementRef | null {
-    if (this.hitList) {
-      const selectedList = this.hitList.filter(
-        (item: ElementRef, index: number) => index === selectedHit.id,
-      );
-      return selectedList.length > 0 ? selectedList[0] : null;
-    } else {
-      return null;
-    }
+  private findSelected(selectedHit: Hit): ElementRef<HTMLElement> | null {
+    return (
+      this.hitList().find((_, index: number) => index === selectedHit.id) ??
+      null
+    );
   }
 }

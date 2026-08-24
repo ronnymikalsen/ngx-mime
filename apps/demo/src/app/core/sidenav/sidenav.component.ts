@@ -1,16 +1,22 @@
-import { Component, inject, Input, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { form, FormField } from '@angular/forms/signals';
 import { MatListItem, MatNavList } from '@angular/material/list';
 import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { MatSidenav } from '@angular/material/sidenav';
 import {
   ActivatedRoute,
+  convertToParamMap,
   Router,
   RouterLink,
   RouterLinkActive,
 } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { ManifestMenuItem } from '../../models/manifest-menu-item.model';
 import { ManifestService } from '../manifest-service/manifest.service';
 
 @Component({
@@ -19,7 +25,7 @@ import { ManifestService } from '../manifest-service/manifest.service';
   styleUrls: ['./sidenav.component.scss'],
   imports: [
     MatRadioGroup,
-    FormsModule,
+    FormField,
     MatRadioButton,
     MatNavList,
     MatListItem,
@@ -27,38 +33,39 @@ import { ManifestService } from '../manifest-service/manifest.service';
     RouterLink,
   ],
 })
-export class SidenavComponent implements OnDestroy {
-  @Input() sidenav!: MatSidenav;
-  iiifVersion = '3';
-  manifests: ManifestMenuItem[] = [];
-  selectedManifest: string | undefined;
-  private readonly manifestService = inject(ManifestService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly subscriptions = new Subscription();
-
-  constructor() {
-    this.subscriptions.add(
-      this.route.queryParamMap.subscribe((params) => {
-        this.iiifVersion = params.get('v') || this.iiifVersion;
-        this.manifests = this.manifestService.getManifests(this.iiifVersion);
-        const manifest = this.manifests.find(
-          (m) => m.uri === params.getAll('manifestUri'),
-        );
-        if (manifest) {
-          this.selectedManifest = manifest.label;
-        }
-      }),
+export class SidenavComponent {
+  readonly sidenav = input.required<MatSidenav>();
+  readonly queryParamMap = toSignal(inject(ActivatedRoute).queryParamMap, {
+    initialValue: convertToParamMap({}),
+  });
+  readonly iiifVersionModel = linkedSignal(() => ({
+    version: this.queryParamMap().get('v') ?? '3',
+  }));
+  readonly iiifVersionForm = form(this.iiifVersionModel);
+  readonly manifests = (() => {
+    const manifestService = inject(ManifestService);
+    return computed(() =>
+      manifestService.getManifests(this.iiifVersionModel().version),
     );
-  }
+  })();
+  readonly selectedManifest = linkedSignal(() => {
+    const manifestUris = this.queryParamMap().getAll('manifestUri');
+    return this.manifests().find(
+      (manifest) =>
+        manifest.uri.length === manifestUris.length &&
+        manifest.uri.every((uri, index) => uri === manifestUris[index]),
+    )?.label;
+  });
+  private readonly manifestService = inject(ManifestService);
+  private readonly router = inject(Router);
 
   selectIiifVersion(version: string): void {
-    this.iiifVersion = version;
-    this.manifests = this.manifestService.getManifests(this.iiifVersion);
-    if (this.selectedManifest) {
-      const manifest = this.manifests.find(
-        (m) => m.label === this.selectedManifest,
-      );
+    const selectedManifest = this.selectedManifest();
+    this.iiifVersionModel.set({ version });
+    if (selectedManifest) {
+      const manifest = this.manifestService
+        .getManifests(version)
+        .find((item) => item.label === selectedManifest);
       if (manifest?.uri) {
         this.router.navigate(['demo'], {
           queryParams: { manifestUri: manifest.uri, v: manifest.iiifVersion },
@@ -68,13 +75,9 @@ export class SidenavComponent implements OnDestroy {
   }
 
   close(label?: string): void {
-    this.selectedManifest = label;
-    if (this.sidenav.mode === 'over') {
-      this.sidenav.close();
+    this.selectedManifest.set(label);
+    if (this.sidenav().mode === 'over') {
+      this.sidenav().close();
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 }

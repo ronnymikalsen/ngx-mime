@@ -1,26 +1,24 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  computed,
   ElementRef,
   inject,
-  OnDestroy,
-  OnInit,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
+import { map } from 'rxjs';
 import { ContentSearchDialogService } from '../../content-search-dialog/content-search-dialog.service';
 import { FullscreenService } from '../../core/fullscreen-service/fullscreen.service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../../core/iiif-manifest-service/iiif-manifest-utils';
 import { MimeViewerIntl } from '../../core/intl';
 import { MimeDomHelper } from '../../core/mime-dom-helper';
-import { Manifest } from '../../core/models/manifest';
 import { HelpDialogService } from '../../help-dialog/help-dialog.service';
 import { InformationDialogService } from '../../information-dialog/information-dialog.service';
 import { ViewDialogService } from '../../view-dialog/view-dialog.service';
@@ -32,107 +30,85 @@ import { ViewDialogService } from '../../view-dialog/view-dialog.service';
   changeDetection: ChangeDetectionStrategy.Default,
   imports: [MatToolbar, MatTooltip, MatIconButton, MatIcon],
 })
-export class ViewerHeaderComponent implements OnInit, OnDestroy {
+export class ViewerHeaderComponent {
   @ViewChild('mimeHeaderBefore', { read: ViewContainerRef, static: true })
   mimeHeaderBefore!: ViewContainerRef;
   @ViewChild('mimeHeaderAfter', { read: ViewContainerRef, static: true })
   mimeHeaderAfter!: ViewContainerRef;
   @ViewChild('viewMenu', { read: ElementRef, static: true })
   viewMenu!: ElementRef;
-  intl = inject(MimeViewerIntl);
-  manifest: Manifest | null = null;
-  isContentSearchEnabled = false;
-  isFullscreenEnabled = false;
-  isInFullscreen = false;
-  fullscreenLabel = '';
-  isPagedManifest = false;
-  hasRecognizedTextContent = false;
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  readonly intl = (() => {
+    const intl = inject(MimeViewerIntl);
+    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
+      initialValue: intl,
+    });
+  })();
+  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+    initialValue: null,
+  });
+  readonly isContentSearchEnabled = computed(() =>
+    Boolean(this.manifest()?.service),
+  );
+  readonly isFullscreenEnabled = inject(FullscreenService).isEnabled();
+  readonly isInFullscreen = (() => {
+    const fullscreenService = inject(FullscreenService);
+    return toSignal(
+      fullscreenService.onChange.pipe(
+        map(() => fullscreenService.isFullscreen()),
+      ),
+      { initialValue: fullscreenService.isFullscreen() },
+    );
+  })();
+  readonly fullscreenLabel = computed(() =>
+    this.isInFullscreen()
+      ? this.intl().exitFullScreenLabel
+      : this.intl().fullScreenLabel,
+  );
+  readonly isPagedManifest = computed(() => {
+    const manifest = this.manifest();
+    return manifest ? ManifestUtils.isManifestPaged(manifest) : false;
+  });
+  readonly hasRecognizedTextContent = computed(() => {
+    const manifest = this.manifest();
+    return manifest ? ManifestUtils.hasRecognizedTextContent(manifest) : false;
+  });
   private readonly informationDialogService = inject(InformationDialogService);
   private readonly contentSearchDialogService = inject(
     ContentSearchDialogService,
   );
   private readonly viewDialogService = inject(ViewDialogService);
   private readonly helpDialogService = inject(HelpDialogService);
-  private readonly iiifManifestService = inject(IiifManifestService);
-  private readonly fullscreenService = inject(FullscreenService);
   private readonly mimeDomHelper = inject(MimeDomHelper);
-  private readonly subscriptions = new Subscription();
 
-  ngOnInit() {
-    this.isFullscreenEnabled = this.fullscreenService.isEnabled();
-
-    this.subscriptions.add(
-      this.intl.changes.subscribe(() => this.changeDetectorRef.markForCheck()),
-    );
-
-    this.subscriptions.add(
-      this.fullscreenService.onChange.subscribe(() =>
-        this.onFullscreenChange(),
-      ),
-    );
-
-    this.subscriptions.add(
-      this.iiifManifestService.currentManifest.subscribe(
-        (manifest: Manifest | null) => {
-          this.manifest = manifest;
-          this.isContentSearchEnabled =
-            manifest && manifest.service ? true : false;
-          this.isPagedManifest = manifest
-            ? ManifestUtils.isManifestPaged(manifest)
-            : false;
-          this.hasRecognizedTextContent = manifest
-            ? ManifestUtils.hasRecognizedTextContent(manifest)
-            : false;
-          this.changeDetectorRef.detectChanges();
-        },
-      ),
-    );
-
-    this.onFullscreenChange();
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
-  public toggleView() {
+  toggleView() {
     this.informationDialogService.close();
     this.contentSearchDialogService.close();
     this.helpDialogService.close();
     this.viewDialogService.toggle();
   }
 
-  public toggleInformationDialog() {
+  toggleInformationDialog() {
     this.viewDialogService.close();
     this.contentSearchDialogService.close();
     this.helpDialogService.close();
     this.informationDialogService.toggle();
   }
 
-  public toggleSearch() {
+  toggleSearch() {
     this.viewDialogService.close();
     this.informationDialogService.close();
     this.helpDialogService.close();
     this.contentSearchDialogService.toggle();
   }
 
-  public toggleHelp() {
+  toggleHelp() {
     this.viewDialogService.close();
     this.informationDialogService.close();
     this.contentSearchDialogService.close();
     this.helpDialogService.toggle();
   }
 
-  public toggleFullscreen(): void {
+  toggleFullscreen(): void {
     return this.mimeDomHelper.toggleFullscreen();
-  }
-
-  private onFullscreenChange() {
-    this.isInFullscreen = this.fullscreenService.isFullscreen();
-    this.fullscreenLabel = this.isInFullscreen
-      ? this.intl.exitFullScreenLabel
-      : this.intl.fullScreenLabel;
-    this.changeDetectorRef.detectChanges();
   }
 }

@@ -5,23 +5,22 @@ import {
 } from '@angular/cdk/layout';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  computed,
   ElementRef,
   inject,
-  OnDestroy,
-  OnInit,
+  signal,
   ViewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatFabButton, MatMiniFabButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
+import { map } from 'rxjs';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../../core/intl';
 import { ModeService } from '../../core/mode-service/mode.service';
-import { Manifest } from '../../core/models/manifest';
 import { ViewingDirection } from '../../core/models/viewing-direction';
 import { ViewerService } from '../../core/viewer-service/viewer.service';
 
@@ -32,77 +31,56 @@ import { ViewerService } from '../../core/viewer-service/viewer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatFabButton, MatTooltip, MatIcon, MatMiniFabButton],
 })
-export class OsdToolbarComponent implements OnInit, OnDestroy {
+export class OsdToolbarComponent {
   @ViewChild('container', { static: true }) container!: ElementRef;
-  intl = inject(MimeViewerIntl);
-  numberOfCanvasGroups = 0;
-  isFirstCanvasGroup = false;
-  isLastCanvasGroup = false;
-  invert = false;
-  isWeb = false;
-  fabState = 'closed';
-  fabIcon = 'menu';
-  baseAnimationDelay = 20;
-  isZoomed = true;
-  private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  readonly intl = (() => {
+    const intl = inject(MimeViewerIntl);
+    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
+      initialValue: intl,
+    });
+  })();
+  readonly isZoomed = (() => {
+    const modeService = inject(ModeService);
+    return toSignal(
+      modeService.onChange.pipe(map(() => modeService.isPageZoomed())),
+      { initialValue: modeService.isPageZoomed() },
+    );
+  })();
+  readonly isWeb = toSignal(
+    inject(BreakpointObserver)
+      .observe([Breakpoints.Web])
+      .pipe(map((value: BreakpointState) => value.matches)),
+    { initialValue: false },
+  );
+  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+    initialValue: null,
+  });
+  readonly invert = computed(
+    () => this.manifest()?.viewingDirection === ViewingDirection.LTR,
+  );
+  readonly currentCanvasGroupIndex = toSignal(
+    inject(ViewerService).onCanvasGroupIndexChange,
+    { initialValue: 0 },
+  );
+  readonly numberOfCanvasGroups = toSignal(
+    inject(CanvasService).onNumberOfCanvasGroupsChange,
+    { initialValue: 0 },
+  );
+  readonly isFirstCanvasGroup = computed(
+    () => this.currentCanvasGroupIndex() === 0,
+  );
+  readonly isLastCanvasGroup = computed(
+    () => this.currentCanvasGroupIndex() === this.numberOfCanvasGroups() - 1,
+  );
+  readonly fabState = signal<'closed' | 'open'>('closed');
+  readonly fabIcon = computed(() =>
+    this.fabState() === 'closed' ? 'menu' : 'clear',
+  );
+  readonly baseAnimationDelay = 20;
   private readonly viewerService = inject(ViewerService);
-  private readonly canvasService = inject(CanvasService);
-  private readonly iiifManifestService = inject(IiifManifestService);
-  private readonly modeService = inject(ModeService);
-  private readonly subscriptions = new Subscription();
-
-  ngOnInit() {
-    this.subscriptions.add(
-      this.modeService.onChange.subscribe(() => {
-        this.isZoomed = this.modeService.isPageZoomed();
-        this.changeDetectorRef.detectChanges();
-      }),
-    );
-
-    this.subscriptions.add(
-      this.breakpointObserver
-        .observe([Breakpoints.Web])
-        .subscribe((value: BreakpointState) => {
-          this.isWeb = value.matches;
-          this.changeDetectorRef.detectChanges();
-        }),
-    );
-
-    this.subscriptions.add(
-      this.iiifManifestService.currentManifest.subscribe(
-        (manifest: Manifest | null) => {
-          if (manifest) {
-            this.invert = manifest.viewingDirection === ViewingDirection.LTR;
-            this.changeDetectorRef.detectChanges();
-          }
-        },
-      ),
-    );
-
-    this.subscriptions.add(
-      this.viewerService.onCanvasGroupIndexChange.subscribe(
-        (currentCanvasGroupIndex: number) => {
-          this.numberOfCanvasGroups = this.canvasService.numberOfCanvasGroups;
-          this.isFirstCanvasGroup = this.isOnFirstCanvasGroup(
-            currentCanvasGroupIndex,
-          );
-          this.isLastCanvasGroup = this.isOnLastCanvasGroup(
-            currentCanvasGroupIndex,
-          );
-          this.changeDetectorRef.detectChanges();
-        },
-      ),
-    );
-
-    this.subscriptions.add(
-      this.intl.changes.subscribe(() => this.changeDetectorRef.markForCheck()),
-    );
-  }
 
   toggleFab(): void {
-    this.fabState = this.fabState === 'closed' ? 'open' : 'closed';
-    this.fabIcon = this.fabState === 'closed' ? 'menu' : 'clear';
+    this.fabState.update((state) => (state === 'closed' ? 'open' : 'closed'));
   }
 
   zoomIn(): void {
@@ -121,23 +99,11 @@ export class OsdToolbarComponent implements OnInit, OnDestroy {
     this.viewerService.rotate();
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
-  public goToPreviousCanvasGroup(): void {
+  goToPreviousCanvasGroup(): void {
     this.viewerService.goToPreviousCanvasGroup();
   }
 
-  public goToNextCanvasGroup(): void {
+  goToNextCanvasGroup(): void {
     this.viewerService.goToNextCanvasGroup();
-  }
-
-  private isOnFirstCanvasGroup(currentCanvasGroupIndex: number): boolean {
-    return currentCanvasGroupIndex === 0;
-  }
-
-  private isOnLastCanvasGroup(currentCanvasGroupIndex: number): boolean {
-    return currentCanvasGroupIndex === this.numberOfCanvasGroups - 1;
   }
 }

@@ -6,12 +6,11 @@ import {
 import { NgStyle } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  computed,
   inject,
-  OnDestroy,
-  OnInit,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import {
   MatDialogClose,
@@ -23,12 +22,10 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
+import { map } from 'rxjs';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../core/intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
-import { Dimensions } from '../core/models/dimensions';
-import { Manifest } from './../core/models/manifest';
 import { MetadataComponent } from './metadata/metadata.component';
 import { TocComponent } from './table-of-contents/table-of-contents.component';
 
@@ -52,77 +49,45 @@ import { TocComponent } from './table-of-contents/table-of-contents.component';
     TocComponent,
   ],
 })
-export class InformationDialogComponent implements OnInit, OnDestroy {
-  intl = inject(MimeViewerIntl);
-  manifest: Manifest | null = null;
-  tabHeight = {};
-  showToc = false;
+export class InformationDialogComponent {
   selectedIndex = 0;
-  isHandsetOrTabletInPortrait = false;
-  private readonly breakpointObserver = inject(BreakpointObserver);
+  readonly intl = (() => {
+    const intl = inject(MimeViewerIntl);
+    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
+      initialValue: intl,
+    });
+  })();
+  readonly isHandsetOrTabletInPortrait = toSignal(
+    inject(BreakpointObserver)
+      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+      .pipe(map((value: BreakpointState) => value.matches)),
+    { initialValue: false },
+  );
+  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+    initialValue: null,
+  });
+  readonly showToc = computed(() => {
+    const manifest = this.manifest();
+    return Boolean(manifest?.structures?.length);
+  });
+  readonly mimeHeight = toSignal(
+    inject(MimeResizeService).onResize.pipe(
+      map((dimensions) => dimensions.height),
+    ),
+    { initialValue: 0 },
+  );
+  readonly tabHeight = computed(() => {
+    const height = this.isHandsetOrTabletInPortrait()
+      ? window.innerHeight - 128
+      : this.mimeHeight() - 288;
+    return { maxHeight: `${height}px` };
+  });
   private readonly dialogRef =
     inject<MatDialogRef<InformationDialogComponent>>(MatDialogRef);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
-  private readonly iiifManifestService = inject(IiifManifestService);
-  private readonly mimeResizeService = inject(MimeResizeService);
-  private mimeHeight = 0;
-  private readonly subscriptions = new Subscription();
-
-  ngOnInit() {
-    this.subscriptions.add(
-      this.breakpointObserver
-        .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
-        .subscribe(
-          (value: BreakpointState) =>
-            (this.isHandsetOrTabletInPortrait = value.matches),
-        ),
-    );
-
-    this.subscriptions.add(
-      this.iiifManifestService.currentManifest.subscribe(
-        (manifest: Manifest | null) => {
-          this.manifest = manifest;
-          this.showToc =
-            this.manifest !== null &&
-            this.manifest.structures !== undefined &&
-            this.manifest.structures.length > 0;
-        },
-      ),
-    );
-
-    this.subscriptions.add(
-      this.mimeResizeService.onResize.subscribe((dimensions: Dimensions) => {
-        this.mimeHeight = dimensions.height;
-        this.resizeTabHeight();
-      }),
-    );
-
-    this.resizeTabHeight();
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
 
   onCanvasChanged() {
-    if (this.isHandsetOrTabletInPortrait) {
+    if (this.isHandsetOrTabletInPortrait()) {
       this.dialogRef.close();
     }
-  }
-
-  private resizeTabHeight(): void {
-    let height = this.mimeHeight;
-
-    if (this.isHandsetOrTabletInPortrait) {
-      this.tabHeight = {
-        maxHeight: window.innerHeight - 128 + 'px',
-      };
-    } else {
-      height -= 288;
-      this.tabHeight = {
-        maxHeight: height + 'px',
-      };
-    }
-    this.changeDetectorRef.detectChanges();
   }
 }

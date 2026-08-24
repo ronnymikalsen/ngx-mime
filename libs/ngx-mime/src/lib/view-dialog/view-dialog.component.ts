@@ -4,13 +4,8 @@ import {
   BreakpointState,
 } from '@angular/cdk/layout';
 import { NgStyle } from '@angular/common';
-import {
-  ChangeDetectorRef,
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import { MatButtonToggle } from '@angular/material/button-toggle';
 import {
@@ -22,15 +17,13 @@ import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Subscription } from 'rxjs';
+import { map } from 'rxjs';
 import { AltoService } from '../core/alto-service/alto.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../core/iiif-manifest-service/iiif-manifest-utils';
 import { MimeViewerIntl } from '../core/intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { RecognizedTextMode, RecognizedTextModeChanges } from '../core/models';
-import { Dimensions } from '../core/models/dimensions';
-import { Manifest } from '../core/models/manifest';
 import { ViewerLayout } from '../core/models/viewer-layout';
 import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 import { IconComponent } from './icon/icon.component';
@@ -53,72 +46,55 @@ import { IconComponent } from './icon/icon.component';
     MatDivider,
   ],
 })
-export class ViewDialogComponent implements OnInit, OnDestroy {
-  intl = inject(MimeViewerIntl);
-  tabHeight = {};
-  isHandsetOrTabletInPortrait = false;
-  viewerLayout: ViewerLayout = ViewerLayout.ONE_PAGE;
+export class ViewDialogComponent {
   ViewerLayout: typeof ViewerLayout = ViewerLayout;
-  isPagedManifest = false;
-  hasRecognizedTextContent = false;
-  recognizedTextMode = RecognizedTextMode.NONE;
   RecognizedTextMode: typeof RecognizedTextMode = RecognizedTextMode;
-  private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly cdr = inject(ChangeDetectorRef);
+  readonly intl = (() => {
+    const intl = inject(MimeViewerIntl);
+    return toSignal(intl.changes.pipe(map(() => ({ ...intl }))), {
+      initialValue: intl,
+    });
+  })();
+  readonly isHandsetOrTabletInPortrait = toSignal(
+    inject(BreakpointObserver)
+      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+      .pipe(map((value: BreakpointState) => value.matches)),
+    { initialValue: false },
+  );
+  readonly viewerLayout = toSignal(inject(ViewerLayoutService).onChange, {
+    initialValue: ViewerLayout.ONE_PAGE,
+  });
+  readonly recognizedTextMode = toSignal(
+    inject(AltoService).onRecognizedTextContentModeChange$.pipe(
+      map((changes: RecognizedTextModeChanges) => changes.currentValue),
+    ),
+    { initialValue: RecognizedTextMode.NONE },
+  );
+  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+    initialValue: null,
+  });
+  readonly isPagedManifest = computed(() => {
+    const manifest = this.manifest();
+    return manifest ? ManifestUtils.isManifestPaged(manifest) : false;
+  });
+  readonly hasRecognizedTextContent = computed(() => {
+    const manifest = this.manifest();
+    return manifest ? ManifestUtils.hasRecognizedTextContent(manifest) : false;
+  });
+  readonly mimeHeight = toSignal(
+    inject(MimeResizeService).onResize.pipe(
+      map((dimensions) => dimensions.height),
+    ),
+    { initialValue: 0 },
+  );
+  readonly tabHeight = computed(() => {
+    const height = this.isHandsetOrTabletInPortrait()
+      ? window.innerHeight - 128
+      : this.mimeHeight() - 220;
+    return { maxHeight: `${height}px` };
+  });
   private readonly viewerLayoutService = inject(ViewerLayoutService);
-  private readonly iiifManifestService = inject(IiifManifestService);
   private readonly altoService = inject(AltoService);
-  private readonly mimeResizeService = inject(MimeResizeService);
-  private mimeHeight = 0;
-  private readonly subscriptions = new Subscription();
-
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.breakpointObserver
-        .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
-        .subscribe(
-          (value: BreakpointState) =>
-            (this.isHandsetOrTabletInPortrait = value.matches),
-        ),
-    );
-
-    this.subscriptions.add(
-      this.viewerLayoutService.onChange.subscribe(
-        (viewerLayout: ViewerLayout) => {
-          this.viewerLayout = viewerLayout;
-        },
-      ),
-    );
-    this.subscriptions.add(
-      this.altoService.onRecognizedTextContentModeChange$.subscribe(
-        (recognizedTextModeChanges: RecognizedTextModeChanges) => {
-          this.recognizedTextMode = recognizedTextModeChanges.currentValue;
-        },
-      ),
-    );
-    this.subscriptions.add(
-      this.iiifManifestService.currentManifest.subscribe(
-        (manifest: Manifest | null) => {
-          this.isPagedManifest = manifest
-            ? ManifestUtils.isManifestPaged(manifest)
-            : false;
-          this.hasRecognizedTextContent = manifest
-            ? ManifestUtils.hasRecognizedTextContent(manifest)
-            : false;
-        },
-      ),
-    );
-    this.subscriptions.add(
-      this.mimeResizeService.onResize.subscribe((dimensions: Dimensions) => {
-        this.mimeHeight = dimensions.height;
-        this.resizeTabHeight();
-      }),
-    );
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
 
   setLayoutOnePage(): void {
     this.viewerLayoutService.setLayout(ViewerLayout.ONE_PAGE);
@@ -138,21 +114,5 @@ export class ViewDialogComponent implements OnInit, OnDestroy {
 
   showRecognizedTextContentOnly(): void {
     this.altoService.showRecognizedTextContentOnly();
-  }
-
-  private resizeTabHeight() {
-    let height = this.mimeHeight;
-
-    if (this.isHandsetOrTabletInPortrait) {
-      this.tabHeight = {
-        maxHeight: window.innerHeight - 128 + 'px',
-      };
-    } else {
-      height -= 220;
-      this.tabHeight = {
-        maxHeight: height + 'px',
-      };
-    }
-    this.cdr.detectChanges();
   }
 }

@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DebugElement } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideAutoSpy } from 'jest-auto-spies';
 import { MimeViewerIntl } from '../core/intl/viewer-intl';
@@ -13,7 +13,7 @@ describe('HelpDialogComponent', () => {
   let fixture: ComponentFixture<HelpDialogComponent>;
   let breakpointObserver: MockBreakpointObserver;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HelpDialogComponent],
       providers: [
@@ -24,7 +24,7 @@ describe('HelpDialogComponent', () => {
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(HelpDialogComponent);

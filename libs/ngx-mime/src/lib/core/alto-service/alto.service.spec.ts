@@ -3,7 +3,7 @@ import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideAutoSpy } from 'jest-auto-spies';
 import { cold } from 'jest-marbles';
 import { when } from 'jest-when';
@@ -30,6 +30,7 @@ describe('AltoService', () => {
   let intl: MimeViewerIntl;
 
   beforeEach(() => {
+    jest.useFakeTimers();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -55,6 +56,7 @@ describe('AltoService', () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     httpTestingController.verify();
   });
 
@@ -71,7 +73,7 @@ describe('AltoService', () => {
     expect(highlightChangeCount).toBe(1);
   });
 
-  it('should load alto on load', fakeAsync(() => {
+  it('should load alto on load', () => {
     service.initialize();
     iiifManifestService.load('fakeUrl').subscribe(() => {
       waitForDebounce();
@@ -79,9 +81,9 @@ describe('AltoService', () => {
 
       expectAltoToBeDefined();
     });
-  }));
+  });
 
-  it('should emit text content ready once per canvas group', fakeAsync(() => {
+  it('should emit text content ready once per canvas group', () => {
     let readyCount = 0;
     service.onTextContentReady$.subscribe(() => readyCount++);
     service.initialize();
@@ -94,9 +96,9 @@ describe('AltoService', () => {
       insideTestRequest().flush(testAlto);
       expect(readyCount).toBe(1);
     });
-  }));
+  });
 
-  it('should report when the current canvas group has no alto source', fakeAsync(() => {
+  it('should report when the current canvas group has no alto source', () => {
     let hasTextSource: boolean | undefined;
     service.currentCanvasGroupHasTextSource$.subscribe(
       (value) => (hasTextSource = value),
@@ -113,9 +115,9 @@ describe('AltoService', () => {
 
       expect(hasTextSource).toBe(false);
     });
-  }));
+  });
 
-  it('should only initialize canvas loading once', fakeAsync(() => {
+  it('should only initialize canvas loading once', () => {
     service.initialize();
     service.initialize();
 
@@ -125,9 +127,9 @@ describe('AltoService', () => {
 
       expectAltoToBeDefined();
     });
-  }));
+  });
 
-  it('should cancel pending alto loads on destroy', fakeAsync(() => {
+  it('should cancel pending alto loads on destroy', () => {
     service.initialize();
 
     iiifManifestService.load('fakeUrl').subscribe(() => {
@@ -140,9 +142,9 @@ describe('AltoService', () => {
       expect(coverRequest.cancelled).toBe(true);
       expect(insideRequest.cancelled).toBe(true);
     });
-  }));
+  });
 
-  it('should cancel pending alto loads on canvas change', fakeAsync(() => {
+  it('should cancel pending alto loads on canvas change', () => {
     let readyCount = 0;
     service.onTextContentReady$.subscribe(() => readyCount++);
     service.initialize();
@@ -161,9 +163,9 @@ describe('AltoService', () => {
       mockSecondCanvasGroupRequest();
       expect(readyCount).toBe(1);
     });
-  }));
+  });
 
-  it('should load alto on canvas change', fakeAsync(() => {
+  it('should load alto on canvas change', () => {
     service.initialize();
     iiifManifestService.load('fakeUrl').subscribe(() => {
       waitForDebounce();
@@ -174,9 +176,9 @@ describe('AltoService', () => {
 
       expectAltoToBeDefined();
     });
-  }));
+  });
 
-  it('should reload the current canvas group when the layout changes', fakeAsync(() => {
+  it('should reload the current canvas group when the layout changes', () => {
     let readyCount = 0;
     service.onTextContentReady$.subscribe(() => readyCount++);
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0]);
@@ -196,9 +198,9 @@ describe('AltoService', () => {
       expect(service.getHtml(1)).toBeDefined();
       expect(readyCount).toBe(2);
     });
-  }));
+  });
 
-  it('should use cache if alto is already loaded', fakeAsync(() => {
+  it('should use cache if alto is already loaded', () => {
     service.initialize();
     iiifManifestService.load('fakeUrl').subscribe(() => {
       waitForDebounce();
@@ -211,9 +213,9 @@ describe('AltoService', () => {
 
       expectAltoToBeDefined();
     });
-  }));
+  });
 
-  it('should cache an alto page with no recognized text', fakeAsync(() => {
+  it('should cache an alto page with no recognized text', () => {
     jest.spyOn(HtmlFormatter.prototype, 'altoToHtml').mockReturnValue('');
     service.initialize();
 
@@ -228,9 +230,9 @@ describe('AltoService', () => {
       expectNoFirstCanvasGroupRequest();
       expectAltoToBeDefined();
     });
-  }));
+  });
 
-  it('should emit error message if an error has occurred', fakeAsync(() => {
+  it('should emit error message if an error has occurred', () => {
     service.initialize();
     iiifManifestService.load('fakeUrl').subscribe(() => {
       waitForDebounce();
@@ -243,9 +245,9 @@ describe('AltoService', () => {
 
       expect(errorMessage).toBe(intl.textContentErrorLabel);
     });
-  }));
+  });
 
-  it('should replay and reset the current error', fakeAsync(() => {
+  it('should replay and reset the current error', () => {
     service.initialize();
 
     iiifManifestService.load('fakeUrl').subscribe(() => {
@@ -263,9 +265,9 @@ describe('AltoService', () => {
       waitForDebounce();
       mockSecondCanvasGroupRequest();
     });
-  }));
+  });
 
-  it('should finish loading the other page if one page fails', fakeAsync(() => {
+  it('should finish loading the other page if one page fails', () => {
     let readyCount = 0;
     service.onTextContentReady$.subscribe(() => readyCount++);
     service.initialize();
@@ -286,9 +288,9 @@ describe('AltoService', () => {
       expect(service.getHtml(1)).toBeDefined();
       expect(readyCount).toBe(1);
     });
-  }));
+  });
 
-  it('should return undefined if alto does not exists on canvas', fakeAsync(() => {
+  it('should return undefined if alto does not exists on canvas', () => {
     service.initialize();
     iiifManifestService.load('fakeUrl').subscribe(() => {
       waitForDebounce();
@@ -296,7 +298,7 @@ describe('AltoService', () => {
 
       expectAltoToBeUndefined();
     });
-  }));
+  });
 
   it('should toggle on recognized text in split view', () => {
     service.showRecognizedTextContentInSplitView();
@@ -363,7 +365,7 @@ describe('AltoService', () => {
   };
 
   const waitForDebounce = () => {
-    tick(debounceTime);
+    jest.advanceTimersByTime(debounceTime);
   };
 
   const coverTestRequest = () => {

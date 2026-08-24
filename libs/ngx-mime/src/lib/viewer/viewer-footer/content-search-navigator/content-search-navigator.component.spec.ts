@@ -61,9 +61,10 @@ describe('ContentSearchNavigatorComponent', () => {
     ) as Spy<ContentSearchNavigationService>;
 
     component = fixture.componentInstance;
-    component.searchResult = createDefaultData();
-    iiifContentSearchServiceSpy.onChange.nextWith(component.searchResult);
-    fixture.detectChanges();
+    const searchResult = createDefaultData();
+    fixture.componentRef.setInput('searchResult', searchResult);
+    iiifContentSearchServiceSpy.onChange.nextWith(searchResult);
+    await fixture.whenStable();
 
     nextButton = await getButtonHarness('footerNavigateNextHitButton');
     previousButton = await getButtonHarness('footerNavigatePreviousHitButton');
@@ -73,7 +74,7 @@ describe('ContentSearchNavigatorComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should re-render when the i18n labels have changed', () => {
+  it('should re-render when the i18n labels have changed', async () => {
     const text = fixture.debugElement.query(
       By.css('[data-testid="footerNavigateNextHitButton"]'),
     );
@@ -81,7 +82,7 @@ describe('ContentSearchNavigatorComponent', () => {
 
     intl.nextHitLabel = 'New test string';
     intl.changes.next();
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(text.nativeElement.getAttribute('aria-label')).toContain(
       'New test string',
@@ -90,6 +91,8 @@ describe('ContentSearchNavigatorComponent', () => {
 
   it('should go to previous hit when user presses "previous" button', async () => {
     jest.spyOn(contentSearchNavigationServiceSpy, 'goToPreviousHit');
+    contentSearchNavigationServiceSpy.currentHitCounter.nextWith(1);
+    await fixture.whenStable();
 
     await previousButton.click();
 
@@ -118,7 +121,7 @@ describe('ContentSearchNavigatorComponent', () => {
   });
 
   it('should disable the "next" button when the last search result is selected', async () => {
-    const lastSearchHitIndex = component.searchResult.size() - 1;
+    const lastSearchHitIndex = component.searchResult().size() - 1;
     contentSearchNavigationServiceSpy.currentHitCounter.nextWith(
       lastSearchHitIndex,
     );

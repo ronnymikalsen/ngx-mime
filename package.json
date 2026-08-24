@@ -35,8 +35,7 @@
     "stream": "^0.0.2",
     "timers": "^0.1.1",
     "tslib": "^2.5.2",
-    "xml2js": "^0.6.2",
-    "zone.js": "0.16.2"
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "21.2.9",
