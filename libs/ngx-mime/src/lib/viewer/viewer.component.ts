@@ -19,7 +19,7 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { outputToObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { interval, Subscription } from 'rxjs';
@@ -121,8 +121,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   readonly qChanged = output<string>();
   readonly manifestChanged = output<Manifest>();
   readonly recognizedTextContentModeChanged = output<RecognizedTextMode>();
-  private readonly activeManifestUri = linkedSignal(() => this.manifestUri());
-  private readonly manifestChanges = outputToObservable(this.manifestChanged);
   readonly recognizedTextMode = RecognizedTextMode;
   id = 'ngx-mime-mimeViewer';
   openseadragonId = 'openseadragon';
@@ -144,7 +142,9 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.viewerService.isCanvasPressed,
     { initialValue: false },
   );
+  private readonly activeManifestUri = linkedSignal(() => this.manifestUri());
   private currentManifest!: Manifest | null;
+  private pendingStartCanvasId: string | null = null;
   private readonly viewerLayout = toSignal(this.viewerLayoutService.onChange, {
     initialValue: null,
   });
@@ -204,21 +204,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             : manifestUri,
         );
         this.cleanup();
+        this.pendingStartCanvasId = startCanvasId;
         this.loadManifest();
-        if (startCanvasId) {
-          this.manifestChanges.pipe(take(1)).subscribe((manifest) => {
-            const canvasIndex = manifest.sequences
-              ? manifest.sequences[0]?.canvases?.findIndex(
-                  (c) => c.id === startCanvasId,
-                )
-              : -1;
-            if (canvasIndex && canvasIndex !== -1) {
-              setTimeout(() => {
-                this.viewerService.goToCanvas(canvasIndex, true);
-              }, 0);
-            }
-          });
-        }
       }
     } else {
       this.snackBar.open(this.intl().dropDisabled, undefined, {
@@ -249,6 +236,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             this.initialize();
             this.currentManifest = manifest;
             this.manifestChanged.emit(manifest);
+            this.goToPendingStartCanvas(manifest);
             this.viewerLayoutService.init(
               ManifestUtils.isManifestPaged(manifest),
             );
@@ -494,6 +482,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
   private cleanup() {
     this.viewerState = new ViewerState();
+    this.pendingStartCanvasId = null;
     this.accessKeysHandlerService.destroy();
     this.attributionDialogService.destroy();
     this.viewDialogService.destroy();
@@ -503,6 +492,24 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.viewerService.destroy();
     this.resizeService.destroy();
     this.resetErrorMessage();
+  }
+
+  private goToPendingStartCanvas(manifest: Manifest): void {
+    const startCanvasId = this.pendingStartCanvasId;
+    this.pendingStartCanvasId = null;
+    if (!startCanvasId) {
+      return;
+    }
+
+    const canvasIndex =
+      manifest.sequences?.[0]?.canvases?.findIndex(
+        (canvas) => canvas.id === startCanvasId,
+      ) ?? -1;
+    if (canvasIndex > 0) {
+      setTimeout(() => {
+        this.viewerService.goToCanvas(canvasIndex, true);
+      }, 0);
+    }
   }
 
   private resetCurrentManifest(): void {
