@@ -19,11 +19,10 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { interval, Subscription } from 'rxjs';
-import { map, take, throttle } from 'rxjs/operators';
+import { take, throttle } from 'rxjs/operators';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
 import { CanvasGroupDialogService } from '../canvas-group-dialog/canvas-group-dialog.service';
 import { ContentSearchDialogService } from '../content-search-dialog/content-search-dialog.service';
@@ -116,12 +115,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   readonly recognizedTextMode = RecognizedTextMode;
   id = 'ngx-mime-mimeViewer';
   openseadragonId = 'openseadragon';
-  readonly recognizedTextContentMode = toSignal(
-    this.altoService.onRecognizedTextContentModeChange$.pipe(
-      map((changes) => changes.currentValue),
-    ),
-    { initialValue: this.altoService.recognizedTextContentMode },
-  );
+  readonly recognizedTextContentMode =
+    this.altoService.recognizedTextContentMode;
   readonly showHeaderAndFooterState = signal(false);
   readonly osdToolbarState = signal(false);
   readonly errorMessage = linkedSignal(() => this.iiifManifestService.error());

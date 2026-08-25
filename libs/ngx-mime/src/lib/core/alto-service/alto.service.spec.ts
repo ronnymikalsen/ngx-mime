@@ -99,10 +99,6 @@ describe('AltoService', () => {
   });
 
   it('should report when the current canvas group has no alto source', () => {
-    let hasTextSource: boolean | undefined;
-    service.currentCanvasGroupHasTextSource$.subscribe(
-      (value) => (hasTextSource = value),
-    );
     service.initialize();
 
     iiifManifestService.load('fakeUrl').subscribe(() => {
@@ -116,7 +112,7 @@ describe('AltoService', () => {
 
       waitForDebounce();
 
-      expect(hasTextSource).toBe(false);
+      expect(service.currentCanvasGroupHasTextSource()).toBe(false);
     });
   });
 
@@ -239,14 +235,9 @@ describe('AltoService', () => {
     service.initialize();
     iiifManifestService.load('fakeUrl').subscribe(() => {
       waitForDebounce();
-      let errorMessage: string | undefined;
-      service.hasErrors$.subscribe(
-        (err: string | undefined) => (errorMessage = err),
-      );
-
       mockFailedAltoRequest();
 
-      expect(errorMessage).toBe(intl.textContentErrorLabel);
+      expect(service.error()).toBe(intl.textContentErrorLabel);
     });
   });
 
@@ -256,14 +247,11 @@ describe('AltoService', () => {
     iiifManifestService.load('fakeUrl').subscribe(() => {
       waitForDebounce();
       mockFailedAltoRequest();
-      let errorMessage: string | undefined;
 
-      service.hasErrors$.subscribe((error) => (errorMessage = error));
-
-      expect(errorMessage).toBe(intl.textContentErrorLabel);
+      expect(service.error()).toBe(intl.textContentErrorLabel);
 
       canvasService.setCanvasGroupIndexChange(1);
-      expect(errorMessage).toBeUndefined();
+      expect(service.error()).toBeUndefined();
 
       waitForDebounce();
       mockSecondCanvasGroupRequest();
@@ -306,6 +294,7 @@ describe('AltoService', () => {
   it('should toggle on recognized text in split view', () => {
     service.showRecognizedTextContentInSplitView();
 
+    expect(service.recognizedTextContentMode()).toBe(RecognizedTextMode.SPLIT);
     expectOnRecognizedTextContentModeChangeToBe(
       RecognizedTextMode.NONE,
       RecognizedTextMode.SPLIT,
@@ -315,6 +304,7 @@ describe('AltoService', () => {
   it('should toggle on recognized text only', () => {
     service.showRecognizedTextContentOnly();
 
+    expect(service.recognizedTextContentMode()).toBe(RecognizedTextMode.ONLY);
     expectOnRecognizedTextContentModeChangeToBe(
       RecognizedTextMode.NONE,
       RecognizedTextMode.ONLY,
@@ -326,6 +316,7 @@ describe('AltoService', () => {
 
     service.closeRecognizedTextContent();
 
+    expect(service.recognizedTextContentMode()).toBe(RecognizedTextMode.NONE);
     expectOnRecognizedTextContentModeChangeToBe(
       RecognizedTextMode.ONLY,
       RecognizedTextMode.NONE,

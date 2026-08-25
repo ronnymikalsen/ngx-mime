@@ -143,7 +143,7 @@ export class AccessKeysService {
 
   private toggleRecognizedTextContentInSplitView() {
     if (
-      this.altoService.recognizedTextContentMode !== RecognizedTextMode.SPLIT
+      this.altoService.recognizedTextContentMode() !== RecognizedTextMode.SPLIT
     ) {
       this.altoService.showRecognizedTextContentInSplitView();
     } else {
@@ -271,7 +271,7 @@ export class AccessKeysService {
 
   private isRecognizedTextContentModeOnly(): boolean {
     return (
-      this.altoService.recognizedTextContentMode === RecognizedTextMode.ONLY
+      this.altoService.recognizedTextContentMode() === RecognizedTextMode.ONLY
     );
   }
 

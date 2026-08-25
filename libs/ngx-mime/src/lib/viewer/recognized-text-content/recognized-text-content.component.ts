@@ -43,16 +43,10 @@ export class RecognizedTextContentComponent {
     ElementRef<HTMLElement>
   >('recognizedTextContentContainer');
   readonly manifest = this.iiifManifestService.manifest;
-  readonly isLoading = toSignal(this.altoService.isLoading$, {
-    initialValue: false,
-  });
-  readonly error = toSignal(this.altoService.hasErrors$, {
-    initialValue: undefined,
-  });
-  readonly currentCanvasGroupHasTextSource = toSignal(
-    this.altoService.currentCanvasGroupHasTextSource$,
-    { initialValue: undefined },
-  );
+  readonly isLoading = this.altoService.isLoading;
+  readonly error = this.altoService.error;
+  readonly currentCanvasGroupHasTextSource =
+    this.altoService.currentCanvasGroupHasTextSource;
   readonly selectedHit = computed(
     () => this.iiifContentSearchService.selectedHit()?.id,
   );

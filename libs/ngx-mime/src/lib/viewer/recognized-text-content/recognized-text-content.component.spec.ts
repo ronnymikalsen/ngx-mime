@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { DebugElement } from '@angular/core';
+import { DebugElement, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideAutoSpy } from 'jest-auto-spies';
@@ -25,6 +25,9 @@ describe('RecognizedTextContentComponent', () => {
   let iiifContentSearchService: any;
   let iiifManifestService: any;
   let intl: MimeViewerIntl;
+  let isLoadingState: WritableSignal<boolean>;
+  let errorState: WritableSignal<string | undefined>;
+  let currentCanvasGroupHasTextSourceState: WritableSignal<boolean | undefined>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -40,9 +43,6 @@ describe('RecognizedTextContentComponent', () => {
           observablePropsToSpyOn: [
             'onTextContentReady$',
             'onTextHighlightsChange$',
-            'isLoading$',
-            'hasErrors$',
-            'currentCanvasGroupHasTextSource$',
           ],
         }),
         {
@@ -53,15 +53,24 @@ describe('RecognizedTextContentComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(RecognizedTextContentComponent);
-    fixture.componentRef.setInput('viewerId', 'test-viewer');
-    component = fixture.componentInstance;
     altoService = TestBed.inject(AltoService);
+    isLoadingState = signal(false);
+    errorState = signal<string | undefined>(undefined);
+    currentCanvasGroupHasTextSourceState = signal<boolean | undefined>(
+      undefined,
+    );
+    altoService.isLoading = isLoadingState.asReadonly();
+    altoService.error = errorState.asReadonly();
+    altoService.currentCanvasGroupHasTextSource =
+      currentCanvasGroupHasTextSourceState.asReadonly();
     canvasService = TestBed.inject(CanvasService);
     highlightService = TestBed.inject(HighlightService);
     iiifContentSearchService = TestBed.inject(IiifContentSearchService);
     iiifManifestService = TestBed.inject(IiifManifestService);
     intl = TestBed.inject(MimeViewerIntl);
+    fixture = TestBed.createComponent(RecognizedTextContentComponent);
+    fixture.componentRef.setInput('viewerId', 'test-viewer');
+    component = fixture.componentInstance;
   });
 
   it('should create', () => {
@@ -132,7 +141,7 @@ describe('RecognizedTextContentComponent', () => {
 
   it('should show error message', async () => {
     await fixture.whenStable();
-    altoService.hasErrors$.nextWith('fakeError');
+    errorState.set('fakeError');
 
     await fixture.whenStable();
 
@@ -163,7 +172,7 @@ describe('RecognizedTextContentComponent', () => {
     );
     await fixture.whenStable();
 
-    altoService.currentCanvasGroupHasTextSource$.nextWith(false);
+    currentCanvasGroupHasTextSourceState.set(false);
     await fixture.whenStable();
 
     const message: HTMLElement = fixture.nativeElement.querySelector(
@@ -257,7 +266,7 @@ describe('RecognizedTextContentComponent', () => {
     altoService.onTextContentReady$.nextWith(true);
     await fixture.whenStable();
 
-    altoService.isLoading$.nextWith(true);
+    isLoadingState.set(true);
     await fixture.whenStable();
 
     expect(component.firstCanvasRecognizedTextContent()).toBe('');
@@ -269,11 +278,11 @@ describe('RecognizedTextContentComponent', () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0, 1]);
     altoService.getHtml.calledWith(0).mockReturnValue('previousFirstPage');
     altoService.getHtml.calledWith(1).mockReturnValue('previousSecondPage');
-    altoService.currentCanvasGroupHasTextSource$.nextWith(true);
+    currentCanvasGroupHasTextSourceState.set(true);
     altoService.onTextContentReady$.nextWith(true);
     await fixture.whenStable();
 
-    altoService.currentCanvasGroupHasTextSource$.nextWith(undefined);
+    currentCanvasGroupHasTextSourceState.set(undefined);
     await fixture.whenStable();
 
     expect(component.firstCanvasRecognizedTextContent()).toBe('');

@@ -19,7 +19,7 @@ import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest
 import { ManifestUtils } from '../core/iiif-manifest-service/iiif-manifest-utils';
 import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
-import { RecognizedTextMode, RecognizedTextModeChanges } from '../core/models';
+import { RecognizedTextMode } from '../core/models';
 import { ViewerLayout } from '../core/models/viewer-layout';
 import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 import { IconComponent } from './icon/icon.component';
@@ -51,7 +51,7 @@ export class ViewDialogComponent {
   readonly intl = injectMimeViewerIntlSignal();
 
   ViewerLayout: typeof ViewerLayout = ViewerLayout;
-  RecognizedTextMode: typeof RecognizedTextMode = RecognizedTextMode;
+  readonly RecognizedTextMode = RecognizedTextMode;
   readonly isHandsetOrTabletInPortrait = toSignal(
     this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
@@ -59,12 +59,7 @@ export class ViewDialogComponent {
     { initialValue: false },
   );
   readonly viewerLayout = this.viewerLayoutService.viewerLayout;
-  readonly recognizedTextMode = toSignal(
-    this.altoService.onRecognizedTextContentModeChange$.pipe(
-      map((changes: RecognizedTextModeChanges) => changes.currentValue),
-    ),
-    { initialValue: RecognizedTextMode.NONE },
-  );
+  readonly recognizedTextMode = this.altoService.recognizedTextContentMode;
   readonly manifest = this.iiifManifestService.manifest;
   readonly isPagedManifest = computed(() => this.isCurrentManifestPaged());
   readonly hasRecognizedTextContent = computed(() =>
