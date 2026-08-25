@@ -21,7 +21,6 @@ export class CanvasService {
   readonly canvasGroupIndex: Signal<number>;
   readonly canvasCount: Signal<number>;
   readonly onCanvasGroupIndexChange: Observable<number>;
-  readonly onNumberOfCanvasGroupsChange: Observable<number>;
   protected readonly canvasGroupCountState = signal(0);
   protected readonly canvasGroupIndexState = signal(0);
   protected readonly canvasCountState = signal(0);
@@ -40,7 +39,6 @@ export class CanvasService {
     this.canvasGroupIndex = this.canvasGroupIndexState.asReadonly();
     this.canvasCount = this.canvasCountState.asReadonly();
     this.onCanvasGroupIndexChange = toObservable(this.canvasGroupIndex);
-    this.onNumberOfCanvasGroupsChange = toObservable(this.canvasGroupCount);
   }
 
   get overlays(): ReadonlyArray<SVGRectElement> {

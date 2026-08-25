@@ -22,7 +22,7 @@ describe('AccessKeysService', () => {
         AccessKeysService,
         provideAutoSpy(ViewerService),
         provideAutoSpy(CanvasService),
-        provideAutoSpy(ModeService),
+        ModeService,
         provideAutoSpy(IiifManifestService),
         provideAutoSpy(IiifContentSearchService),
         provideAutoSpy(ContentSearchDialogService),

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
 import { Injectable } from '@angular/core';
 import { CanvasService } from '../core/canvas-service/canvas-service';
 

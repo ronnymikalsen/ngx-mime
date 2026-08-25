@@ -11,7 +11,6 @@ export class IiifContentSearchServiceStub {
   readonly selectedHit: Signal<Hit | null>;
   readonly onQChange: Observable<string>;
   readonly onChange: Observable<SearchResult>;
-  readonly isSearching: Observable<boolean>;
   readonly onSelected: Observable<Hit | null>;
   private readonly querySignal = signal('');
   private readonly searchResultSignal = signal(new SearchResult({}));
@@ -21,7 +20,6 @@ export class IiifContentSearchServiceStub {
   private readonly searchResultState = new BehaviorSubject(
     this.searchResultSignal(),
   );
-  private readonly searchingState = new BehaviorSubject(this.searchingSignal());
   private readonly selectedHitState = new BehaviorSubject(
     this.selectedHitSignal(),
   );
@@ -34,7 +32,6 @@ export class IiifContentSearchServiceStub {
     this.selectedHit = this.selectedHitSignal.asReadonly();
     this.onQChange = this.queryState.asObservable();
     this.onChange = this.searchResultState.asObservable();
-    this.isSearching = this.searchingState.asObservable();
     this.onSelected = this.selectedHitState.asObservable();
   }
 
@@ -56,11 +53,6 @@ export class IiifContentSearchServiceStub {
   setSearchResult(searchResult: SearchResult): void {
     this.searchResultSignal.set(searchResult);
     this.searchResultState.next(searchResult);
-  }
-
-  setSearching(searching: boolean): void {
-    this.searchingSignal.set(searching);
-    this.searchingState.next(searching);
   }
 
   setSelected(hit: Hit | null): void {

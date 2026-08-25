@@ -33,10 +33,7 @@ export class OsdToolbarComponent {
   private readonly canvasService = inject(CanvasService);
   readonly intl = injectMimeViewerIntlSignal();
 
-  readonly isZoomed = toSignal(
-    this.modeService.onChange.pipe(map(() => this.modeService.isPageZoomed())),
-    { initialValue: this.modeService.isPageZoomed() },
-  );
+  readonly isZoomed = this.modeService.isPageZoomed;
   readonly isWeb = toSignal(
     this.breakpointObserver
       .observe([Breakpoints.Web])

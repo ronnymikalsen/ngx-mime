@@ -6,12 +6,10 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { map } from 'rxjs';
 import { ContentSearchDialogService } from '../../content-search-dialog/content-search-dialog.service';
 import { FullscreenService } from '../../core/fullscreen-service/fullscreen.service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
@@ -52,12 +50,7 @@ export class ViewerHeaderComponent {
     Boolean(this.manifest()?.service),
   );
   readonly isFullscreenEnabled = this.fullscreenService.isEnabled();
-  readonly isInFullscreen = toSignal(
-    this.fullscreenService.onChange.pipe(
-      map(() => this.fullscreenService.isFullscreen()),
-    ),
-    { initialValue: this.fullscreenService.isFullscreen() },
-  );
+  readonly isInFullscreen = this.fullscreenService.isFullscreen;
   readonly fullscreenLabel = computed(() =>
     this.isInFullscreen()
       ? this.intl().exitFullScreenLabel

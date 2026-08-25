@@ -44,9 +44,7 @@ describe('ViewerService', () => {
           observablePropsToSpyOn: ['onChange'],
         }),
         provideAutoSpy(ClickService),
-        provideAutoSpy(ModeService, {
-          observablePropsToSpyOn: ['onChange'],
-        }),
+        ModeService,
         provideAutoSpy(IiifContentSearchService, {
           observablePropsToSpyOn: ['onSelected'],
         }),

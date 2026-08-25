@@ -158,7 +158,7 @@ describe('ViewerComponent', () => {
   it('should initially open in configs intial-mode', () => {
     testHostFixture.detectChanges();
 
-    expect(modeService.mode).toBe(config.initViewerMode);
+    expect(modeService.mode()).toBe(config.initViewerMode);
   });
 
   it('should change mode to initial-mode when changing manifest', async () => {
@@ -166,18 +166,18 @@ describe('ViewerComponent', () => {
     await testHostFixture.whenStable();
 
     if (config.initViewerMode === ViewerMode.PAGE) {
-      modeService.mode = ViewerMode.DASHBOARD;
-      expect(modeService.mode).toBe(ViewerMode.DASHBOARD);
+      modeService.setMode(ViewerMode.DASHBOARD);
+      expect(modeService.mode()).toBe(ViewerMode.DASHBOARD);
     } else {
-      modeService.mode = ViewerMode.PAGE;
-      expect(modeService.mode).toBe(ViewerMode.PAGE);
+      modeService.setMode(ViewerMode.PAGE);
+      expect(modeService.mode()).toBe(ViewerMode.PAGE);
     }
 
     testHostComponent.manifestUri = 'dummyURI3';
     testHostFixture.changeDetectorRef.markForCheck();
     await testHostFixture.whenStable();
 
-    expect(modeService.mode.valueOf()).toBe(config.initViewerMode.valueOf());
+    expect(modeService.mode().valueOf()).toBe(config.initViewerMode.valueOf());
   });
 
   it('svgOverlay-plugin should be defined', () => {
@@ -402,7 +402,7 @@ describe('ViewerComponent', () => {
       (mode: ViewerMode) => (selectedMode = mode),
     );
 
-    modeService.mode = ViewerMode.DASHBOARD;
+    modeService.setMode(ViewerMode.DASHBOARD);
     expect(selectedMode).toEqual(ViewerMode.DASHBOARD);
   });
 

@@ -13,7 +13,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogHarness } from '@angular/material/dialog/testing';
 import { By } from '@angular/platform-browser';
-import { provideAutoSpy, Spy } from 'jest-auto-spies';
+import { provideAutoSpy } from 'jest-auto-spies';
 import { TestManifests } from '../../../testing';
 import { ContentSearchDialogConfigStrategyFactory } from '../../content-search-dialog/content-search-dialog-config-strategy-factory';
 import { ContentSearchDialogComponent } from '../../content-search-dialog/content-search-dialog.component';
@@ -35,6 +35,7 @@ import { HelpDialogService } from '../../help-dialog/help-dialog.service';
 import { InformationDialogConfigStrategyFactory } from '../../information-dialog/information-dialog-config-strategy-factory';
 import { InformationDialogComponent } from '../../information-dialog/information-dialog.component';
 import { InformationDialogService } from '../../information-dialog/information-dialog.service';
+import { FullscreenServiceStub } from '../../test/fullscreen-service-stub';
 import { IiifContentSearchServiceStub } from '../../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
 import { MockBreakpointObserver } from '../../test/mock-breakpoint-observer';
@@ -59,7 +60,10 @@ describe('ViewerHeaderComponent', () => {
   let testHostComponent: TestHostComponent;
   let testHostFixture: ComponentFixture<TestHostComponent>;
   let rootLoader: HarnessLoader;
-  let fullscreenServiceSpy: Spy<FullscreenService>;
+  let fullscreenService: FullscreenService;
+  let isFullscreenEnabledSpy: jest.SpiedFunction<
+    FullscreenService['isEnabled']
+  >;
   let iiifManifestServiceStub: IiifManifestServiceStub;
   let intl: MimeViewerIntl;
   let breakpointObserver: MockBreakpointObserver;
@@ -87,9 +91,7 @@ describe('ViewerHeaderComponent', () => {
         HelpDialogConfigStrategyFactory,
         HelpDialogService,
         provideAutoSpy(ElementRef),
-        provideAutoSpy(FullscreenService, {
-          observablePropsToSpyOn: ['onChange'],
-        }),
+        { provide: FullscreenService, useClass: FullscreenServiceStub },
         provideAutoSpy(MimeResizeService, {
           observablePropsToSpyOn: ['onResize'],
         }),
@@ -107,10 +109,10 @@ describe('ViewerHeaderComponent', () => {
       ],
     }).compileComponents();
 
-    fullscreenServiceSpy = TestBed.inject(
-      FullscreenService,
-    ) as Spy<FullscreenService>;
-    fullscreenServiceSpy.isEnabled.mockReturnValue(true);
+    fullscreenService = TestBed.inject(FullscreenService);
+    isFullscreenEnabledSpy = jest
+      .spyOn(fullscreenService, 'isEnabled')
+      .mockReturnValue(true);
     testHostFixture = TestBed.createComponent(TestHostComponent);
     testHostComponent = testHostFixture.componentInstance;
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(testHostFixture);
@@ -214,7 +216,7 @@ describe('ViewerHeaderComponent', () => {
   // }));
 
   it('should show fullscreen button if fullscreen mode is supported', async () => {
-    fullscreenServiceSpy.isEnabled.mockReturnValue(true);
+    isFullscreenEnabledSpy.mockReturnValue(true);
     await testHostFixture.whenStable();
 
     expect(await getFullscreenButton()).not.toBeNull();
@@ -222,7 +224,7 @@ describe('ViewerHeaderComponent', () => {
 
   it('should hide fullscreen button if fullscreen mode is unsupported', async () => {
     testHostFixture.destroy();
-    fullscreenServiceSpy.isEnabled.mockReturnValue(false);
+    isFullscreenEnabledSpy.mockReturnValue(false);
     testHostFixture = TestBed.createComponent(TestHostComponent);
     testHostComponent = testHostFixture.componentInstance;
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(testHostFixture);

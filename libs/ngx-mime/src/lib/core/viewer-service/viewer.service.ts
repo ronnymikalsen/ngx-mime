@@ -146,7 +146,7 @@ export class ViewerService {
     if (!this.osdIsReady.getValue()) {
       return;
     }
-    this.zoomStrategy.setMinZoom(this.modeService.mode);
+    this.zoomStrategy.setMinZoom(this.modeService.mode());
 
     this.goToCanvasGroupStrategy.centerCurrentCanvas();
 
@@ -337,8 +337,8 @@ export class ViewerService {
               this.canvasService.getCanvasGroupRect(canvasGroupIndex),
             );
             if (
-              this.modeService.mode === ViewerMode.PAGE ||
-              this.modeService.mode === ViewerMode.DASHBOARD
+              this.modeService.mode() === ViewerMode.PAGE ||
+              this.modeService.mode() === ViewerMode.DASHBOARD
             ) {
               this.home();
             }
@@ -676,8 +676,8 @@ export class ViewerService {
    * @param point to zoom to. If not set, the viewer will zoom to center
    */
   private zoomInGesture(position: Point, zoomFactor?: number): void {
-    if (this.modeService.mode === ViewerMode.DASHBOARD) {
-      this.modeService.mode = ViewerMode.PAGE;
+    if (this.modeService.mode() === ViewerMode.DASHBOARD) {
+      this.modeService.setMode(ViewerMode.PAGE);
     } else {
       if (position) {
         this.zoomStrategy.zoomIn(zoomFactor, position);
@@ -690,8 +690,8 @@ export class ViewerService {
   private zoomOutGesture(position: Point, zoomFactor?: number): void {
     if (this.modeService.isPageZoomed()) {
       this.zoomStrategy.zoomOut(zoomFactor, position);
-    } else if (this.modeService.mode === ViewerMode.PAGE) {
-      this.modeService.mode = ViewerMode.DASHBOARD;
+    } else if (this.modeService.mode() === ViewerMode.PAGE) {
+      this.modeService.setMode(ViewerMode.DASHBOARD);
     }
   }
 
@@ -703,8 +703,8 @@ export class ViewerService {
    * @param event from pinch gesture
    */
   private zoomInPinchGesture(event: any, zoomFactor: number): void {
-    if (this.modeService.mode === ViewerMode.DASHBOARD) {
-      this.modeService.mode = ViewerMode.PAGE;
+    if (this.modeService.mode() === ViewerMode.DASHBOARD) {
+      this.modeService.setMode(ViewerMode.PAGE);
     } else {
       this.zoomIn(zoomFactor, this.dragStartPosition || event.center);
     }
@@ -723,7 +723,7 @@ export class ViewerService {
     if (this.modeService.isPageZoomed()) {
       this.pinchStatus.shouldStop = true;
       this.zoomStrategy.zoomOut(zoomFactor, event.center);
-    } else if (this.modeService.mode === ViewerMode.PAGE) {
+    } else if (this.modeService.mode() === ViewerMode.PAGE) {
       if (
         !this.pinchStatus.shouldStop ||
         gestureId === this.pinchStatus.previousGestureId + 2
@@ -760,14 +760,14 @@ export class ViewerService {
    */
   private dblClickHandler = (event: any) => {
     // Page is fitted vertically, so dbl-click zooms in
-    if (this.modeService.mode === ViewerMode.PAGE) {
-      this.modeService.mode = ViewerMode.PAGE_ZOOMED;
+    if (this.modeService.mode() === ViewerMode.PAGE) {
+      this.modeService.setMode(ViewerMode.PAGE_ZOOMED);
       this.zoomStrategy.zoomIn(
         ViewerOptions.zoom.dblClickZoomFactor,
         event.position,
       );
     } else {
-      this.modeService.mode = ViewerMode.PAGE;
+      this.modeService.setMode(ViewerMode.PAGE);
       const canvasIndex: number = this.getOverlayIndexFromClickEvent(event);
       const requestedCanvasGroupIndex =
         this.canvasService.findCanvasGroupByCanvasIndex(canvasIndex);
@@ -798,7 +798,7 @@ export class ViewerService {
     this.home();
     this.canvasGroupMask.initialize(
       this.canvasService.getCurrentCanvasGroupRect(),
-      this.modeService.mode !== ViewerMode.DASHBOARD,
+      this.modeService.mode() !== ViewerMode.DASHBOARD,
     );
     if (this.viewer) {
       d3.select(this.viewer.container.parentNode)
@@ -934,7 +934,7 @@ export class ViewerService {
     const currentCanvasGroupIndex: number =
       this.canvasService.currentCanvasGroupIndex;
     const calculateNextCanvasGroupStrategy =
-      CalculateNextCanvasGroupFactory.create(this.modeService.mode);
+      CalculateNextCanvasGroupFactory.create(this.modeService.mode());
 
     let pannedPastSide: Side | null;
     let canvasGroupEndHitCountReached = false;
@@ -959,8 +959,8 @@ export class ViewerService {
       }),
     );
     if (
-      this.modeService.mode === ViewerMode.DASHBOARD ||
-      this.modeService.mode === ViewerMode.PAGE ||
+      this.modeService.mode() === ViewerMode.DASHBOARD ||
+      this.modeService.mode() === ViewerMode.PAGE ||
       (canvasGroupEndHitCountReached && direction)
     ) {
       this.goToCanvasGroupStrategy.goToCanvasGroup({

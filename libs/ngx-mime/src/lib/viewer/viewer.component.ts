@@ -385,7 +385,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
     if (changes['manifestUri']) {
       this.cleanup();
-      this.modeService.mode = this.config().initViewerMode;
+      this.modeService.setMode(this.config().initViewerMode);
       this.loadManifest();
     }
 
@@ -442,9 +442,9 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
   setClasses() {
     return {
-      'mode-page': this.modeService.mode === ViewerMode.PAGE,
+      'mode-page': this.modeService.mode() === ViewerMode.PAGE,
       'mode-page-zoomed': this.modeService.isPageZoomed(),
-      'mode-dashboard': this.modeService.mode === ViewerMode.DASHBOARD,
+      'mode-dashboard': this.modeService.mode() === ViewerMode.DASHBOARD,
       'layout-one-page': this.viewerLayout() === ViewerLayout.ONE_PAGE,
       'layout-two-page': this.viewerLayout() === ViewerLayout.TWO_PAGE,
       'canvas-pressed': this.isCanvasPressed(),
