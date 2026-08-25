@@ -6,6 +6,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   inject,
+  signal,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
@@ -25,6 +26,7 @@ import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manif
 import { MimeViewerIntl } from '../../core/intl';
 import { MimeDomHelper } from '../../core/mime-dom-helper';
 import { MimeResizeService } from '../../core/mime-resize-service/mime-resize.service';
+import { RecognizedTextMode } from '../../core/models';
 import { Manifest, Service } from '../../core/models/manifest';
 import { ViewingDirection } from '../../core/models/viewing-direction';
 import { ContentSearchNavigationService } from '../../core/navigation/content-search-navigation-service/content-search-navigation.service';
@@ -97,9 +99,7 @@ describe('ViewerHeaderComponent', () => {
         }),
         provideAutoSpy(MimeDomHelper),
         ViewerLayoutService,
-        provideAutoSpy(AltoService, {
-          observablePropsToSpyOn: ['onRecognizedTextContentModeChange$'],
-        }),
+        provideAutoSpy(AltoService),
         {
           provide: IiifContentSearchService,
           useClass: IiifContentSearchServiceStub,
@@ -109,6 +109,10 @@ describe('ViewerHeaderComponent', () => {
       ],
     }).compileComponents();
 
+    const altoService = TestBed.inject(AltoService) as any;
+    altoService.recognizedTextContentMode = signal(
+      RecognizedTextMode.NONE,
+    ).asReadonly();
     fullscreenService = TestBed.inject(FullscreenService);
     isFullscreenEnabledSpy = jest
       .spyOn(fullscreenService, 'isEnabled')

@@ -2,13 +2,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable, signal, Signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
-  BehaviorSubject,
   combineLatest,
   EMPTY,
   forkJoin,
   Observable,
   of,
-  Subject,
   Subscriber,
   Subscription,
   timer,
@@ -21,7 +19,7 @@ import { HighlightService } from '../highlight-service/highlight.service';
 import { IiifManifestService } from '../iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../intl';
 import { MimeViewerConfig } from '../mime-viewer-config';
-import { RecognizedTextMode, RecognizedTextModeChanges } from '../models';
+import { RecognizedTextMode } from '../models';
 import { Hit } from '../models/hit';
 import { Manifest } from '../models/manifest';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
@@ -35,9 +33,8 @@ export class AltoService {
   readonly isLoading: Signal<boolean>;
   readonly error: Signal<string | undefined>;
   readonly currentCanvasGroupHasTextSource: Signal<boolean | undefined>;
-  readonly onRecognizedTextContentModeChange$: Observable<RecognizedTextModeChanges>;
-  readonly onTextContentReady$: Observable<void>;
-  readonly onTextHighlightsChange$: Observable<void>;
+  readonly textContentRevision: Signal<number>;
+  readonly highlightsRevision: Signal<number>;
   private readonly http = inject(HttpClient);
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly highlightService = inject(HighlightService);
@@ -54,19 +51,14 @@ export class AltoService {
   private readonly currentCanvasGroupHasTextSourceState = signal<
     boolean | undefined
   >(undefined);
-  private readonly textContentReadySubject = new Subject<void>();
-  private readonly textHighlightsChangedSubject = new Subject<void>();
+  private readonly textContentRevisionState = signal(0);
+  private readonly highlightsRevisionState = signal(0);
   private manifest: Manifest | null = null;
   private subscriptions = new Subscription();
   private readonly altoBuilder = new AltoBuilder();
   private htmlFormatter!: HtmlFormatter;
   private hits: Hit[] | undefined;
   private initialized = false;
-  private readonly recognizedTextContentModeChangesSubject =
-    new BehaviorSubject<RecognizedTextModeChanges>({
-      previousValue: RecognizedTextMode.NONE,
-      currentValue: RecognizedTextMode.NONE,
-    });
 
   constructor() {
     this.recognizedTextContentMode =
@@ -75,11 +67,8 @@ export class AltoService {
     this.error = this.errorState.asReadonly();
     this.currentCanvasGroupHasTextSource =
       this.currentCanvasGroupHasTextSourceState.asReadonly();
-    this.onRecognizedTextContentModeChange$ =
-      this.recognizedTextContentModeChangesSubject.asObservable();
-    this.onTextContentReady$ = this.textContentReadySubject.asObservable();
-    this.onTextHighlightsChange$ =
-      this.textHighlightsChangedSubject.asObservable();
+    this.textContentRevision = this.textContentRevisionState.asReadonly();
+    this.highlightsRevision = this.highlightsRevisionState.asReadonly();
   }
 
   initialize() {
@@ -119,13 +108,15 @@ export class AltoService {
             );
           }),
         )
-        .subscribe(() => this.textContentReadySubject.next()),
+        .subscribe(() =>
+          this.textContentRevisionState.update((revision) => revision + 1),
+        ),
     );
   }
 
   setHits(hits?: Hit[]) {
     this.hits = hits;
-    this.textHighlightsChangedSubject.next();
+    this.highlightsRevisionState.update((revision) => revision + 1);
   }
 
   destroy() {
@@ -266,12 +257,7 @@ export class AltoService {
   }
 
   private setRecognizedTextContentMode(value: RecognizedTextMode): void {
-    const previousValue = this.recognizedTextContentMode();
     this.recognizedTextContentModeState.set(value);
-    this.recognizedTextContentModeChangesSubject.next({
-      currentValue: value,
-      previousValue,
-    });
   }
 
   private complete(observer: Subscriber<void>) {

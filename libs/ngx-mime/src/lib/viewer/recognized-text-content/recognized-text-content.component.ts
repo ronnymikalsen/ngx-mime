@@ -9,8 +9,6 @@ import {
   linkedSignal,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { scan } from 'rxjs';
 import { AltoService } from '../../core/alto-service/alto.service';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { HighlightService } from '../../core/highlight-service/highlight.service';
@@ -50,18 +48,8 @@ export class RecognizedTextContentComponent {
   readonly selectedHit = computed(
     () => this.iiifContentSearchService.selectedHit()?.id,
   );
-  readonly textContentRevision = toSignal(
-    this.altoService.onTextContentReady$.pipe(
-      scan((version) => version + 1, 0),
-    ),
-    { initialValue: 0 },
-  );
-  readonly highlightsRevision = toSignal(
-    this.altoService.onTextHighlightsChange$.pipe(
-      scan((version) => version + 1, 0),
-    ),
-    { initialValue: 0 },
-  );
+  readonly textContentRevision = this.altoService.textContentRevision;
+  readonly highlightsRevision = this.altoService.highlightsRevision;
   readonly hasRecognizedTextContent = computed(() =>
     this.currentManifestHasRecognizedTextContent(),
   );

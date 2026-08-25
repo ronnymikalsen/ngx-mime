@@ -28,6 +28,8 @@ describe('RecognizedTextContentComponent', () => {
   let isLoadingState: WritableSignal<boolean>;
   let errorState: WritableSignal<string | undefined>;
   let currentCanvasGroupHasTextSourceState: WritableSignal<boolean | undefined>;
+  let textContentRevisionState: WritableSignal<number>;
+  let highlightsRevisionState: WritableSignal<number>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -40,10 +42,6 @@ describe('RecognizedTextContentComponent', () => {
         provideAutoSpy(CanvasService),
         provideAutoSpy(AltoService, {
           methodsToSpyOn: ['getHtml'],
-          observablePropsToSpyOn: [
-            'onTextContentReady$',
-            'onTextHighlightsChange$',
-          ],
         }),
         {
           provide: IiifContentSearchService,
@@ -59,10 +57,14 @@ describe('RecognizedTextContentComponent', () => {
     currentCanvasGroupHasTextSourceState = signal<boolean | undefined>(
       undefined,
     );
+    textContentRevisionState = signal(0);
+    highlightsRevisionState = signal(0);
     altoService.isLoading = isLoadingState.asReadonly();
     altoService.error = errorState.asReadonly();
     altoService.currentCanvasGroupHasTextSource =
       currentCanvasGroupHasTextSourceState.asReadonly();
+    altoService.textContentRevision = textContentRevisionState.asReadonly();
+    altoService.highlightsRevision = highlightsRevisionState.asReadonly();
     canvasService = TestBed.inject(CanvasService);
     highlightService = TestBed.inject(HighlightService);
     iiifContentSearchService = TestBed.inject(IiifContentSearchService);
@@ -103,7 +105,7 @@ describe('RecognizedTextContentComponent', () => {
     altoService.getHtml
       .calledWith(1)
       .mockReturnValue(secondCanvasRecognizedTextContent);
-    altoService.onTextContentReady$.nextWith(true);
+    incrementTextContentRevision();
 
     await fixture.whenStable();
 
@@ -192,7 +194,7 @@ describe('RecognizedTextContentComponent', () => {
     await fixture.whenStable();
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([4]);
     altoService.getHtml.calledWith(4).mockReturnValue('updatedTextContent');
-    altoService.onTextContentReady$.nextWith(true);
+    incrementTextContentRevision();
 
     await fixture.whenStable();
 
@@ -208,7 +210,7 @@ describe('RecognizedTextContentComponent', () => {
     await fixture.whenStable();
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([3, 4]);
     altoService.getHtml.mockReturnValue('updatedTextContent');
-    altoService.onTextContentReady$.nextWith(true);
+    incrementTextContentRevision();
 
     await fixture.whenStable();
 
@@ -225,7 +227,7 @@ describe('RecognizedTextContentComponent', () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([3, 4]);
     altoService.getHtml.calledWith(3).mockReturnValue(undefined);
     altoService.getHtml.calledWith(4).mockReturnValue('updatedTextContent');
-    altoService.onTextContentReady$.nextWith(true);
+    incrementTextContentRevision();
 
     await fixture.whenStable();
 
@@ -248,7 +250,7 @@ describe('RecognizedTextContentComponent', () => {
       .calledWith(0)
       .mockReturnValue('<mark>updatedTextContent</mark>');
 
-    altoService.onTextHighlightsChange$.nextWith(true);
+    incrementHighlightsRevision();
     await fixture.whenStable();
 
     const recognizedTextContentEl: HTMLElement =
@@ -263,7 +265,7 @@ describe('RecognizedTextContentComponent', () => {
   it('should clear stale recognized text when loading starts', async () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0]);
     altoService.getHtml.calledWith(0).mockReturnValue('previousTextContent');
-    altoService.onTextContentReady$.nextWith(true);
+    incrementTextContentRevision();
     await fixture.whenStable();
 
     isLoadingState.set(true);
@@ -279,7 +281,7 @@ describe('RecognizedTextContentComponent', () => {
     altoService.getHtml.calledWith(0).mockReturnValue('previousFirstPage');
     altoService.getHtml.calledWith(1).mockReturnValue('previousSecondPage');
     currentCanvasGroupHasTextSourceState.set(true);
-    altoService.onTextContentReady$.nextWith(true);
+    incrementTextContentRevision();
     await fixture.whenStable();
 
     currentCanvasGroupHasTextSourceState.set(undefined);
@@ -321,7 +323,7 @@ describe('RecognizedTextContentComponent', () => {
     highlightService.highlightSelectedHit.mockClear();
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0]);
     altoService.getHtml.calledWith(0).mockReturnValue('fakeTextContent');
-    altoService.onTextContentReady$.nextWith(true);
+    incrementTextContentRevision();
 
     await fixture.whenStable();
 
@@ -341,5 +343,13 @@ describe('RecognizedTextContentComponent', () => {
       after: '',
       highlightRects: [],
     };
+  }
+
+  function incrementTextContentRevision(): void {
+    textContentRevisionState.update((revision) => revision + 1);
+  }
+
+  function incrementHighlightsRevision(): void {
+    highlightsRevisionState.update((revision) => revision + 1);
   }
 });

@@ -8,6 +8,7 @@ import 'openseadragon';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
 import { ContentSearchDialogService } from '../content-search-dialog/content-search-dialog.service';
 import { AccessKeysService } from '../core/access-keys-handler-service/access-keys.service';
+import { AltoService } from '../core/alto-service/alto.service';
 import { CanvasService } from '../core/canvas-service/canvas-service';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
@@ -53,6 +54,7 @@ describe('ViewerComponent', () => {
   let contentSearchDialogService: ContentSearchDialogService;
   let helpDialogService: HelpDialogService;
   let resizeService: MimeResizeService;
+  let altoService: AltoService;
 
   beforeEach(async () => {
     TestBed.overrideComponent(ViewerComponent, {
@@ -113,12 +115,28 @@ describe('ViewerComponent', () => {
     contentSearchDialogService = TestBed.inject(ContentSearchDialogService);
     helpDialogService = TestBed.inject(HelpDialogService);
     resizeService = TestBed.inject(MimeResizeService);
+    altoService = TestBed.inject(AltoService);
   });
 
   it('should create component', () => {
     testHostFixture.detectChanges();
 
     expect(comp).toBeDefined();
+  });
+
+  it('should emit the latest recognized-text mode', async () => {
+    const recognizedTextContentModeChanged = jest.fn();
+    comp.recognizedTextContentModeChanged.subscribe(
+      recognizedTextContentModeChanged,
+    );
+    testHostFixture.detectChanges();
+
+    altoService.showRecognizedTextContentOnly();
+    await testHostFixture.whenStable();
+
+    expect(recognizedTextContentModeChanged).toHaveBeenLastCalledWith(
+      comp.recognizedTextMode.ONLY,
+    );
   });
 
   it('should cleanup when manifestUri changes', () => {

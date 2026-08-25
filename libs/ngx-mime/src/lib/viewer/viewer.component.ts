@@ -5,6 +5,7 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  effect,
   HostListener,
   inject,
   input,
@@ -36,12 +37,7 @@ import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { MimeViewerConfig } from '../core/mime-viewer-config';
 import { ModeService } from '../core/mode-service/mode.service';
-import {
-  ModeChanges,
-  RecognizedTextMode,
-  RecognizedTextModeChanges,
-  ViewerMode,
-} from '../core/models';
+import { ModeChanges, RecognizedTextMode, ViewerMode } from '../core/models';
 import { Manifest } from '../core/models/manifest';
 import { SearchResult } from '../core/models/search-result';
 import { ViewerLayout } from '../core/models/viewer-layout';
@@ -147,6 +143,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.helpDialogService.viewContainerRef = this.viewContainerRef;
     this.canvasGroupDialogService.viewContainerRef = this.viewContainerRef;
     this.resizeService.el = this.el;
+    effect(() => this.emitRecognizedTextContentMode());
   }
 
   get mimeHeaderBeforeRef(): ViewContainerRef {
@@ -352,16 +349,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
           }, ViewerOptions.transitions.OSDAnimationTime);
         }),
     );
-
-    this.subscriptions.add(
-      this.altoService.onRecognizedTextContentModeChange$.subscribe(
-        (recognizedTextModeChanges: RecognizedTextModeChanges) => {
-          this.recognizedTextContentModeChanged.emit(
-            recognizedTextModeChanges.currentValue,
-          );
-        },
-      ),
-    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -460,6 +447,12 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.helpDialogService.initialize();
     this.viewerService.initialize();
     this.resizeService.initialize();
+  }
+
+  private emitRecognizedTextContentMode(): void {
+    this.recognizedTextContentModeChanged.emit(
+      this.recognizedTextContentMode(),
+    );
   }
 
   private cleanup() {

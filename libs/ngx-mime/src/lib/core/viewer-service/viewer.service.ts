@@ -1,4 +1,11 @@
-import { inject, Injectable, NgZone, signal, Signal } from '@angular/core';
+import {
+  effect,
+  inject,
+  Injectable,
+  NgZone,
+  signal,
+  Signal,
+} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as d3 from 'd3';
 import {
@@ -18,12 +25,7 @@ import { ManifestUtils } from '../iiif-manifest-service/iiif-manifest-utils';
 import { MimeViewerIntl } from '../intl';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ModeService } from '../mode-service/mode.service';
-import {
-  ModeChanges,
-  RecognizedTextMode,
-  RecognizedTextModeChanges,
-  ViewerMode,
-} from '../models';
+import { ModeChanges, RecognizedTextMode, ViewerMode } from '../models';
 import { Direction } from '../models/direction';
 import { Hit } from '../models/hit';
 import { Manifest, Resource } from '../models/manifest';
@@ -91,6 +93,11 @@ export class ViewerService {
 
   constructor() {
     this.isCanvasPressed = this.isCanvasPressedState.asReadonly();
+    effect(() =>
+      this.applyRecognizedTextContentMode(
+        this.altoService.recognizedTextContentMode(),
+      ),
+    );
     this.id = this.generateRandomId('ngx-mime-mimeViewer');
     this.openseadragonId = this.generateRandomId('openseadragon');
   }
@@ -380,32 +387,8 @@ export class ViewerService {
       }),
     );
 
-    this.subscriptions.add(
-      this.altoService.onRecognizedTextContentModeChange$.subscribe(
-        (recognizedTextModeChanges: RecognizedTextModeChanges) => {
-          if (
-            recognizedTextModeChanges.currentValue === RecognizedTextMode.ONLY
-          ) {
-            this.hidePages();
-          }
-
-          if (
-            recognizedTextModeChanges.previousValue === RecognizedTextMode.ONLY
-          ) {
-            this.showPages();
-          }
-
-          if (
-            recognizedTextModeChanges.previousValue ===
-              RecognizedTextMode.ONLY &&
-            recognizedTextModeChanges.currentValue === RecognizedTextMode.SPLIT
-          ) {
-            setTimeout(() => {
-              this.home();
-            }, ViewerOptions.transitions.OSDAnimationTime);
-          }
-        },
-      ),
+    this.applyRecognizedTextContentMode(
+      this.altoService.recognizedTextContentMode(),
     );
   }
 
@@ -1003,6 +986,22 @@ export class ViewerService {
     this.snackBar.open(this.intl.rotationIsNotSupported, undefined, {
       duration: 3000,
     });
+  }
+
+  private applyRecognizedTextContentMode(mode: RecognizedTextMode): void {
+    if (mode === RecognizedTextMode.ONLY) {
+      this.hidePages();
+
+      return;
+    }
+
+    this.showPages();
+
+    if (mode === RecognizedTextMode.SPLIT) {
+      setTimeout(() => {
+        this.home();
+      }, ViewerOptions.transitions.OSDAnimationTime);
+    }
   }
 
   private setOpacityOnPages(opacity: number): void {

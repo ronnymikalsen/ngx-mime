@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideAutoSpy } from 'jest-auto-spies';
@@ -12,6 +12,7 @@ import { IiifContentSearchService } from '../iiif-content-search-service/iiif-co
 import { MimeViewerIntl } from '../intl';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ModeService } from '../mode-service/mode.service';
+import { RecognizedTextMode } from '../models';
 import { Hit } from '../models/hit';
 import { SearchResult } from '../models/search-result';
 import { ViewerLayout } from '../models/viewer-layout';
@@ -32,6 +33,7 @@ describe('ViewerService', () => {
   let hostFixture: ComponentFixture<TestHostComponent>;
   let viewerLayoutService: ViewerLayoutService;
   let viewerService: ViewerService;
+  let recognizedTextContentModeState: WritableSignal<RecognizedTextMode>;
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
@@ -51,13 +53,15 @@ describe('ViewerService', () => {
         provideAutoSpy(StyleService, {
           observablePropsToSpyOn: ['onChange'],
         }),
-        provideAutoSpy(AltoService, {
-          observablePropsToSpyOn: ['onRecognizedTextContentModeChange$'],
-        }),
+        provideAutoSpy(AltoService),
       ],
     });
 
     viewerLayoutService = TestBed.inject(ViewerLayoutService);
+    const altoService = TestBed.inject(AltoService) as any;
+    recognizedTextContentModeState = signal(RecognizedTextMode.NONE);
+    altoService.recognizedTextContentMode =
+      recognizedTextContentModeState.asReadonly();
     viewerService = TestBed.inject(ViewerService);
     snackBar = TestBed.inject(MatSnackBar);
     viewerLayoutService.setLayout(ViewerLayout.TWO_PAGE);
@@ -66,6 +70,7 @@ describe('ViewerService', () => {
     hostFixture.componentInstance.openseadragonId =
       viewerService.openseadragonId;
     hostFixture.detectChanges();
+    await hostFixture.whenStable();
   });
 
   afterEach(() => {
@@ -148,6 +153,27 @@ describe('ViewerService', () => {
         done();
       }
     });
+  });
+
+  it('should hide pages in recognized-text-only mode', async () => {
+    const hidePages = jest.spyOn(viewerService, 'hidePages');
+
+    recognizedTextContentModeState.set(RecognizedTextMode.ONLY);
+    await hostFixture.whenStable();
+
+    expect(hidePages).toHaveBeenCalledTimes(1);
+  });
+
+  it('should apply only the latest recognized-text mode', async () => {
+    const hidePages = jest.spyOn(viewerService, 'hidePages');
+    const showPages = jest.spyOn(viewerService, 'showPages');
+
+    recognizedTextContentModeState.set(RecognizedTextMode.ONLY);
+    recognizedTextContentModeState.set(RecognizedTextMode.NONE);
+    await hostFixture.whenStable();
+
+    expect(hidePages).not.toHaveBeenCalled();
+    expect(showPages).toHaveBeenCalledTimes(1);
   });
 
   describe('rotate', () => {
