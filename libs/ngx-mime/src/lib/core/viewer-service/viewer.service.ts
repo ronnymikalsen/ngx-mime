@@ -1,4 +1,4 @@
-import { inject, Injectable, NgZone } from '@angular/core';
+import { inject, Injectable, NgZone, signal, Signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as d3 from 'd3';
 import {
@@ -52,7 +52,7 @@ declare const OpenSeadragon: any;
 @Injectable()
 export class ViewerService {
   config!: MimeViewerConfig;
-  isCanvasPressed: Subject<boolean> = new BehaviorSubject<boolean>(false);
+  readonly isCanvasPressed: Signal<boolean>;
   currentSearch: SearchResult | null = null;
   id = 'ngx-mime-mimeViewer';
   openseadragonId = 'openseadragon';
@@ -66,6 +66,7 @@ export class ViewerService {
   private readonly altoService = inject(AltoService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly intl = inject(MimeViewerIntl);
+  private readonly isCanvasPressedState = signal(false);
   private viewer?: any;
   private svgOverlay: any;
   private svgNode: any;
@@ -89,6 +90,7 @@ export class ViewerService {
   private dragStatus = false;
 
   constructor() {
+    this.isCanvasPressed = this.isCanvasPressedState.asReadonly();
     this.id = this.generateRandomId('ngx-mime-mimeViewer');
     this.openseadragonId = this.generateRandomId('openseadragon');
   }
@@ -495,10 +497,10 @@ export class ViewerService {
     this.viewer.addHandler('canvas-press', (e: any) => {
       this.pinchStatus.active = false;
       this.dragStartPosition = e.position;
-      this.isCanvasPressed.next(true);
+      this.isCanvasPressedState.set(true);
     });
     this.viewer.addHandler('canvas-release', () =>
-      this.isCanvasPressed.next(false),
+      this.isCanvasPressedState.set(false),
     );
     this.viewer.addHandler('canvas-scroll', this.scrollHandler);
     this.viewer.addHandler('canvas-pinch', this.pinchHandler);

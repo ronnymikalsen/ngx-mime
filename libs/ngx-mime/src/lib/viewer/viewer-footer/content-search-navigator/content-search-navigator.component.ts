@@ -39,10 +39,7 @@ export class ContentSearchNavigatorComponent {
   readonly intl = injectMimeViewerIntlSignal();
 
   readonly searchResult = input.required<SearchResult>();
-  readonly currentHit = toSignal(
-    this.contentSearchNavigationService.currentHitCounter,
-    { initialValue: 0 },
-  );
+  readonly currentHit = this.contentSearchNavigationService.currentHitCounter;
   readonly isFirstHit = computed(() => this.currentHit() <= 0);
   readonly isLastHit = computed(
     () => this.currentHit() === this.searchResult().size() - 1,

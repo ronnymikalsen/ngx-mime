@@ -1,6 +1,5 @@
-import { inject, Injectable } from '@angular/core';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { inject, Injectable, signal, Signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CanvasService } from '../../canvas-service/canvas-service';
 import { IiifContentSearchService } from '../../iiif-content-search-service/iiif-content-search.service';
 import { Hit } from '../../models/hit';
@@ -8,8 +7,10 @@ import { SearchResult } from '../../models/search-result';
 
 @Injectable()
 export class ContentSearchNavigationService {
+  readonly currentHitCounter: Signal<number>;
   private readonly canvasService = inject(CanvasService);
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
+  private readonly currentHitCounterState = signal(0);
   private currentIndex = 0;
   private lastHitIndex = 0;
   private isHitOnActiveCanvasGroup = false;
@@ -17,14 +18,10 @@ export class ContentSearchNavigationService {
   private canvasesPerCanvasGroup = [-1];
   private searchResult: SearchResult | null = null;
   private subscriptions!: Subscription;
-  private readonly _currentHitCounter$: Subject<number> = new Subject<number>();
 
   constructor() {
+    this.currentHitCounter = this.currentHitCounterState.asReadonly();
     this.initialize();
-  }
-
-  get currentHitCounter(): Observable<number> {
-    return this._currentHitCounter$.pipe(distinctUntilChanged());
   }
 
   initialize() {
@@ -50,7 +47,7 @@ export class ContentSearchNavigationService {
     this.currentIndex = this.findCurrentHitIndex(this.canvasesPerCanvasGroup);
     this.lastHitIndex = this.findLastHitIndex(this.canvasesPerCanvasGroup);
     this.isHitOnActiveCanvasGroup = this.findHitOnActiveCanvasGroup();
-    this._currentHitCounter$.next(this.updateCurrentHitCounter());
+    this.currentHitCounterState.set(this.updateCurrentHitCounter());
   }
 
   getHitOnActiveCanvasGroup(): boolean {
@@ -75,7 +72,7 @@ export class ContentSearchNavigationService {
 
   selected(hit: Hit): void {
     this.currentHit = hit;
-    this._currentHitCounter$.next(this.currentHit.id);
+    this.currentHitCounterState.set(this.currentHit.id);
     this.currentIndex = this.currentHit.index;
     this.iiifContentSearchService.selected(hit);
   }

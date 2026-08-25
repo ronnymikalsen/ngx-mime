@@ -56,42 +56,31 @@ describe('ContentSearchNavigationService', () => {
   });
 
   it('should return -1 if canvasIndex is before first hit', () => {
-    contentSearchNavigationService.currentHitCounter.subscribe((hit) => {
-      expect(hit).toBe(-1);
-    });
-
     canvasServiceSpy.getCanvasesPerCanvasGroup.mockReturnValue([0]);
     contentSearchNavigationService.update(0);
+
+    expect(contentSearchNavigationService.currentHitCounter()).toBe(-1);
   });
 
   it('should return 0 if canvasIndex is on first hit', () => {
     canvasServiceSpy.getCanvasesPerCanvasGroup.mockReturnValue([1]);
-
-    contentSearchNavigationService.currentHitCounter.subscribe((hit) => {
-      expect(hit).toBe(0);
-    });
-
     contentSearchNavigationService.update(1);
+
+    expect(contentSearchNavigationService.currentHitCounter()).toBe(0);
   });
 
   it('should return 5 if canvasIndex is between 5th and 6th hit', () => {
     canvasServiceSpy.getCanvasesPerCanvasGroup.mockReturnValue([6]);
-
-    contentSearchNavigationService.currentHitCounter.subscribe((hit) => {
-      expect(hit).toBe(5);
-    });
-
     contentSearchNavigationService.update(6);
+
+    expect(contentSearchNavigationService.currentHitCounter()).toBe(5);
   });
 
   it('should return 6 if canvasIndex is after last', () => {
     canvasServiceSpy.getCanvasesPerCanvasGroup.mockReturnValue([10]);
-
-    contentSearchNavigationService.currentHitCounter.subscribe((hit) => {
-      expect(hit).toBe(6);
-    });
-
     contentSearchNavigationService.update(10);
+
+    expect(contentSearchNavigationService.currentHitCounter()).toBe(6);
   });
 
   it('should call update function when searchresult changes', () => {

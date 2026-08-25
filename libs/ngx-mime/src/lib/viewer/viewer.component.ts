@@ -130,10 +130,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   private readonly footer =
     viewChild.required<ViewerFooterComponent>('mimeFooter');
   private readonly subscriptions = new Subscription();
-  private readonly isCanvasPressed = toSignal(
-    this.viewerService.isCanvasPressed,
-    { initialValue: false },
-  );
+  private readonly isCanvasPressed = this.viewerService.isCanvasPressed;
   private readonly activeManifestUri = linkedSignal(() => this.manifestUri());
   private currentManifest!: Manifest | null;
   private pendingStartCanvasId: string | null = null;

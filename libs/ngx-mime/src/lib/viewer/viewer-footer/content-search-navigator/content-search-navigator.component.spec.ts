@@ -13,6 +13,7 @@ import { Hit } from '../../../core/models/hit';
 import { SearchResult } from '../../../core/models/search-result';
 import { ContentSearchNavigationService } from '../../../core/navigation/content-search-navigation-service/content-search-navigation.service';
 import { ViewerLayoutService } from '../../../core/viewer-layout-service/viewer-layout-service';
+import { ContentSearchNavigationServiceStub } from '../../../test/content-search-navigation-service-stub';
 import { IiifManifestServiceStub } from '../../../test/iiif-manifest-service-stub';
 import { ContentSearchNavigatorComponent } from './content-search-navigator.component';
 
@@ -20,7 +21,7 @@ describe('ContentSearchNavigatorComponent', () => {
   let component: ContentSearchNavigatorComponent;
   let fixture: ComponentFixture<ContentSearchNavigatorComponent>;
   let iiifContentSearchServiceSpy: Spy<IiifContentSearchService>;
-  let contentSearchNavigationServiceSpy: Spy<ContentSearchNavigationService>;
+  let contentSearchNavigationService: ContentSearchNavigationServiceStub;
   let intl: MimeViewerIntl;
   let loader: HarnessLoader;
   let nextButton: MatButtonHarness;
@@ -35,9 +36,10 @@ describe('ContentSearchNavigatorComponent', () => {
         provideAutoSpy(IiifContentSearchService, {
           observablePropsToSpyOn: ['onChange'],
         }),
-        provideAutoSpy(ContentSearchNavigationService, {
-          observablePropsToSpyOn: ['currentHitCounter'],
-        }),
+        {
+          provide: ContentSearchNavigationService,
+          useClass: ContentSearchNavigationServiceStub,
+        },
         provideAutoSpy(CanvasService, {
           observablePropsToSpyOn: ['onCanvasGroupIndexChange'],
         }),
@@ -54,9 +56,9 @@ describe('ContentSearchNavigatorComponent', () => {
       IiifContentSearchService,
     ) as Spy<IiifContentSearchService>;
     intl = TestBed.inject(MimeViewerIntl);
-    contentSearchNavigationServiceSpy = TestBed.inject(
+    contentSearchNavigationService = TestBed.inject(
       ContentSearchNavigationService,
-    ) as Spy<ContentSearchNavigationService>;
+    ) as unknown as ContentSearchNavigationServiceStub;
 
     component = fixture.componentInstance;
     const searchResult = createDefaultData();
@@ -88,41 +90,39 @@ describe('ContentSearchNavigatorComponent', () => {
   });
 
   it('should go to previous hit when user presses "previous" button', async () => {
-    jest.spyOn(contentSearchNavigationServiceSpy, 'goToPreviousHit');
-    contentSearchNavigationServiceSpy.currentHitCounter.nextWith(1);
+    const goToPreviousHit = jest.spyOn(
+      contentSearchNavigationService,
+      'goToPreviousHit',
+    );
+    contentSearchNavigationService.setCurrentHitCounter(1);
     await fixture.whenStable();
 
     await previousButton.click();
 
-    expect(
-      contentSearchNavigationServiceSpy.goToPreviousHit,
-    ).toHaveBeenCalledTimes(1);
+    expect(goToPreviousHit).toHaveBeenCalledTimes(1);
   });
 
   it('should go to next hit when user presses "next" button', async () => {
-    jest.spyOn(contentSearchNavigationServiceSpy, 'goToNextHit');
+    const goToNextHit = jest.spyOn(
+      contentSearchNavigationService,
+      'goToNextHit',
+    );
 
     await nextButton.click();
 
-    expect(contentSearchNavigationServiceSpy.goToNextHit).toHaveBeenCalledTimes(
-      1,
-    );
+    expect(goToNextHit).toHaveBeenCalledTimes(1);
   });
 
   it('should disable the "previous" button when the first search result is selected', async () => {
     const firstSearchHitIndex = 0;
-    contentSearchNavigationServiceSpy.currentHitCounter.nextWith(
-      firstSearchHitIndex,
-    );
+    contentSearchNavigationService.setCurrentHitCounter(firstSearchHitIndex);
 
     await checkButtonIsDisabled(previousButton);
   });
 
   it('should disable the "next" button when the last search result is selected', async () => {
     const lastSearchHitIndex = component.searchResult().size() - 1;
-    contentSearchNavigationServiceSpy.currentHitCounter.nextWith(
-      lastSearchHitIndex,
-    );
+    contentSearchNavigationService.setCurrentHitCounter(lastSearchHitIndex);
 
     await checkButtonIsDisabled(nextButton);
   });
