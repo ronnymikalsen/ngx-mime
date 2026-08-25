@@ -175,7 +175,7 @@ describe('InformationDialogComponent', () => {
       }),
     );
     intl.tocLabel = 'TocTestLabel';
-    component.selectedIndex = 1;
+    component.selectedIndex.set(1);
     fixture.detectChanges();
 
     const divs: DebugElement[] = fixture.debugElement.queryAll(

@@ -127,6 +127,7 @@ export class AltoService {
             this.textError.next(undefined);
             this.currentCanvasGroupHasTextSource.next(undefined);
             this.isLoading.next(true);
+
             return timer(200).pipe(
               switchMap(() => this.loadCanvasGroup(currentCanvasGroupIndex)),
               finalize(() => this.isLoading.next(false)),
@@ -190,6 +191,7 @@ export class AltoService {
 
     if (!canvasGroup || canvasGroup.length === 0) {
       this.currentCanvasGroupHasTextSource.next(false);
+
       return EMPTY;
     }
     this.addAltoSource(canvasGroup[0], sources);
@@ -197,6 +199,7 @@ export class AltoService {
       this.addAltoSource(canvasGroup[1], sources);
     }
     this.currentCanvasGroupHasTextSource.next(sources.length > 0);
+
     return sources.length > 0
       ? forkJoin(sources).pipe(
           take(1),
@@ -221,8 +224,10 @@ export class AltoService {
     return new Observable((observer) => {
       if (this.isInCache(index)) {
         this.done(observer);
+
         return;
       }
+
       return this.load(observer, index, url);
     });
   }

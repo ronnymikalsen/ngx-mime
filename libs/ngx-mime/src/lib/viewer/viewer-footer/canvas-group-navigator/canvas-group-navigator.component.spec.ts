@@ -210,6 +210,7 @@ describe('CanvasGroupNavigatorComponent', () => {
 
   const getAriaLabel = async (buttonHarness: MatButtonHarness | null) => {
     const host = await buttonHarness?.host();
+
     return host?.getAttribute('aria-label');
   };
 });

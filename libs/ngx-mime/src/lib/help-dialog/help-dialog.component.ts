@@ -53,6 +53,7 @@ export class HelpDialogComponent {
     const height = this.isHandsetOrTabletInPortrait()
       ? window.innerHeight - 128
       : this.mimeHeight() - 220;
+
     return { maxHeight: `${height}px` };
   }
 }

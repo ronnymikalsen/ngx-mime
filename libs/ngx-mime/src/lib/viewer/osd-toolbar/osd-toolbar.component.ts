@@ -3,10 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ElementRef,
   inject,
   signal,
-  ViewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatFabButton, MatMiniFabButton } from '@angular/material/button';
@@ -35,7 +33,6 @@ export class OsdToolbarComponent {
   private readonly canvasService = inject(CanvasService);
   readonly intl = injectMimeViewerIntlSignal();
 
-  @ViewChild('container', { static: true }) container!: ElementRef;
   readonly isZoomed = toSignal(
     this.modeService.onChange.pipe(map(() => this.modeService.isPageZoomed())),
     { initialValue: this.modeService.isPageZoomed() },

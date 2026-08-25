@@ -55,6 +55,7 @@ export class CanvasService {
   get currentCanvasIndex(): number {
     const canvases =
       this.canvasGroups.canvasesPerCanvasGroup[this.currentCanvasGroupIndex];
+
     return canvases && canvases.length >= 1 ? canvases[0] : 0;
   }
 
@@ -123,6 +124,7 @@ export class CanvasService {
       return -1;
     }
     this.currentCanvasGroupIndex++;
+
     return this.currentCanvasGroupIndex;
   }
 
@@ -132,6 +134,7 @@ export class CanvasService {
       return -1;
     }
     this.currentCanvasGroupIndex--;
+
     return this.currentCanvasGroupIndex;
   }
 

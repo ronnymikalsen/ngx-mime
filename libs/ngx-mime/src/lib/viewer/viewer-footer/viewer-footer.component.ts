@@ -4,7 +4,7 @@ import {
   Component,
   computed,
   inject,
-  ViewChild,
+  viewChild,
   ViewContainerRef,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -32,10 +32,12 @@ export class ViewerFooterComponent {
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
-  @ViewChild('mimeFooterBefore', { read: ViewContainerRef, static: true })
-  mimeFooterBefore!: ViewContainerRef;
-  @ViewChild('mimeFooterAfter', { read: ViewContainerRef, static: true })
-  mimeFooterAfter!: ViewContainerRef;
+  readonly mimeFooterBefore = viewChild.required('mimeFooterBefore', {
+    read: ViewContainerRef,
+  });
+  readonly mimeFooterAfter = viewChild.required('mimeFooterAfter', {
+    read: ViewContainerRef,
+  });
   readonly searchResult = toSignal(this.iiifContentSearchService.onChange, {
     initialValue: new SearchResult(),
   });

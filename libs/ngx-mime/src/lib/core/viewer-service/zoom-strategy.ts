@@ -199,6 +199,7 @@ export class ZoomStrategy {
     const pbHeight = Math.round(canvasGroupRec.height);
     const vpWidth = Math.round(viewportBounds.width);
     const vpHeight = Math.round(viewportBounds.height);
+
     return vpHeight >= pbHeight || vpWidth >= pbWidth;
   }
 

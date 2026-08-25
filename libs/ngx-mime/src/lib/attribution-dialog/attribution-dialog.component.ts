@@ -68,6 +68,7 @@ export class AttributionDialogComponent {
 
   private getBackgroundColor(): string | null {
     const color = this.styleColor();
+
     return color ? this.styleService.convertToRgba(color, 0.3) : null;
   }
 

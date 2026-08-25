@@ -51,6 +51,7 @@ export class SidenavComponent {
   );
   readonly selectedManifest = linkedSignal(() => {
     const manifestUris = this.queryParamMap().getAll('manifestUri');
+
     return this.manifests().find(
       (manifest) =>
         manifest.uri.length === manifestUris.length &&

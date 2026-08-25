@@ -163,6 +163,7 @@ export class ContentSearchDialogComponent {
     const height = this.isHandsetOrTabletInPortrait()
       ? window.innerHeight - 128
       : this.mimeHeight() - 320;
+
     return { maxHeight: `${height}px` };
   }
 }

@@ -5,6 +5,7 @@ import {
   Component,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
@@ -53,7 +54,7 @@ export class InformationDialogComponent {
   private readonly mimeResizeService = inject(MimeResizeService);
   readonly intl = injectMimeViewerIntlSignal();
 
-  selectedIndex = 0;
+  readonly selectedIndex = signal(0);
   readonly isHandsetOrTabletInPortrait = toSignal(
     this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
@@ -84,6 +85,7 @@ export class InformationDialogComponent {
     const height = this.isHandsetOrTabletInPortrait()
       ? window.innerHeight - 128
       : this.mimeHeight() - 288;
+
     return { maxHeight: `${height}px` };
   }
 }

@@ -58,8 +58,8 @@ export class InformationDialogService {
       const config = this.getDialogConfig();
       this.dialogRef = this.dialog.open(InformationDialogComponent, config);
 
-      if (selectedIndex) {
-        this.dialogRef.componentInstance.selectedIndex = selectedIndex;
+      if (selectedIndex !== undefined) {
+        this.dialogRef.componentInstance.selectedIndex.set(selectedIndex);
       }
     }
   }
@@ -79,7 +79,7 @@ export class InformationDialogService {
   }
 
   public getSelectedIndex(): number {
-    return this.dialogRef?.componentInstance?.selectedIndex ?? 0;
+    return this.dialogRef?.componentInstance.selectedIndex() ?? 0;
   }
 
   private getDialogConfig(): MatDialogConfig {

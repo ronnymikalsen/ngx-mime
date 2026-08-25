@@ -2,9 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ElementRef,
   inject,
-  ViewChild,
+  viewChild,
   ViewContainerRef,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -42,12 +41,12 @@ export class ViewerHeaderComponent {
   private readonly mimeDomHelper = inject(MimeDomHelper);
   readonly intl = injectMimeViewerIntlSignal();
 
-  @ViewChild('mimeHeaderBefore', { read: ViewContainerRef, static: true })
-  mimeHeaderBefore!: ViewContainerRef;
-  @ViewChild('mimeHeaderAfter', { read: ViewContainerRef, static: true })
-  mimeHeaderAfter!: ViewContainerRef;
-  @ViewChild('viewMenu', { read: ElementRef, static: true })
-  viewMenu!: ElementRef;
+  readonly mimeHeaderBefore = viewChild.required('mimeHeaderBefore', {
+    read: ViewContainerRef,
+  });
+  readonly mimeHeaderAfter = viewChild.required('mimeHeaderAfter', {
+    read: ViewContainerRef,
+  });
   readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
@@ -105,11 +104,13 @@ export class ViewerHeaderComponent {
 
   private isCurrentManifestPaged(): boolean {
     const manifest = this.manifest();
+
     return manifest ? ManifestUtils.isManifestPaged(manifest) : false;
   }
 
   private currentManifestHasRecognizedTextContent(): boolean {
     const manifest = this.manifest();
+
     return manifest ? ManifestUtils.hasRecognizedTextContent(manifest) : false;
   }
 }

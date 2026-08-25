@@ -61,6 +61,7 @@ export class ContentSearchNavigatorComponent {
     this.canvasService.onCanvasGroupIndexChange.pipe(
       map((canvasGroupIndex) => {
         this.contentSearchNavigationService.update(canvasGroupIndex);
+
         return this.contentSearchNavigationService.getHitOnActiveCanvasGroup();
       }),
     ),

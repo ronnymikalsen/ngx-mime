@@ -53,6 +53,7 @@ export class IiifContentSearchService {
 
     if (q.length === 0) {
       this._currentSearchResult.next(new SearchResult());
+
       return;
     }
     if (!manifest.service || manifest.service === null) {
@@ -102,6 +103,7 @@ export class IiifContentSearchService {
     } else {
       errMsg = err.error;
     }
+
     return throwError(errMsg);
   }
 }

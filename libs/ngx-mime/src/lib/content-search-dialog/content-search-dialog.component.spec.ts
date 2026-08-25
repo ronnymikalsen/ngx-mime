@@ -220,6 +220,7 @@ describe('ContentSearchDialogComponent', () => {
 
   async function getButtonCount() {
     const buttons = await loader.getAllHarnesses(MatButtonHarness);
+
     return buttons.length;
   }
 });

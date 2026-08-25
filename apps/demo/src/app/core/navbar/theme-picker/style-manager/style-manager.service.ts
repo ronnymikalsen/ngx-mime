@@ -30,6 +30,7 @@ export class StyleManagerService {
     linkEl.setAttribute('rel', 'stylesheet');
     linkEl.classList.add(this.getClassNameForKey(key));
     document.head.appendChild(linkEl);
+
     return linkEl;
   }
 

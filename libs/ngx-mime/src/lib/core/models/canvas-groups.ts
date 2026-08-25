@@ -43,8 +43,10 @@ export class CanvasGroups {
       }
       i = index;
       lastDelta = delta;
+
       return false;
     });
+
     return i;
   }
 

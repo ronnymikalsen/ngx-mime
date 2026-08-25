@@ -106,6 +106,7 @@ export class CanvasGroupNavigatorComponent {
 
   private getCurrentViewingDirection(): Direction {
     const manifest = this.manifest();
+
     return !manifest || manifest.viewingDirection === ViewingDirection.LTR
       ? ViewingDirection.LTR
       : ViewingDirection.RTL;

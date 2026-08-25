@@ -5,6 +5,7 @@ declare const OpenSeadragon: any;
 export function createSvgOverlay() {
   if (!OpenSeadragon) {
     console.error('[openseadragon-svg-overlay] requires OpenSeadragon');
+
     return;
   }
 
@@ -114,6 +115,7 @@ export function createSvgOverlay() {
     }
 
     this._svgOverlayInfo = new Overlay(this);
+
     return this._svgOverlayInfo;
   };
 }

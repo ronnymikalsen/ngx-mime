@@ -288,6 +288,7 @@ export class AccessKeysService {
 
   private isKeyDisabled(keyCode: number): boolean {
     this.updateDisabledKeys();
+
     return this.disabledKeys.indexOf(keyCode) > -1;
   }
 

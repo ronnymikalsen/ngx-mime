@@ -31,4 +31,15 @@ describe('AppComponent', () => {
     const ngxMime = appDe.query(By.css('mime-viewer'));
     expect(ngxMime).toBeTruthy();
   });
+
+  it('should update the viewer config when the config input changes', async () => {
+    fixture.componentRef.setInput(
+      'config',
+      JSON.stringify({ navigationControlEnabled: false }),
+    );
+
+    await fixture.whenStable();
+
+    expect(component.mimeConfig().navigationControlEnabled).toBe(false);
+  });
 });

@@ -29,6 +29,7 @@ export class ViewerComponent {
   );
   readonly canvasIndex = computed(() => {
     const value = this.queryParamMap().get('canvasIndex');
+
     return value ? Number.parseInt(value, 10) : 0;
   });
 }

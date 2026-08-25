@@ -112,6 +112,7 @@ export class AttributionDialogService {
     }
 
     const dimensions = this.getPosition();
+
     return {
       hasBackdrop: false,
       width: '180px',
@@ -132,6 +133,7 @@ export class AttributionDialogService {
     }
     const padding = 20;
     const dimensions = this.mimeDomHelper.getBoundingClientRect(this._el);
+
     return new Dimensions({
       top:
         dimensions.top + dimensions.height - this.attributionDialogHeight - 80,

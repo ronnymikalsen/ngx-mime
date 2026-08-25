@@ -217,6 +217,7 @@ export class ViewerPage {
         text += secondCanvasRecognizedText;
       }
     }
+
     return text;
   }
 
@@ -340,11 +341,13 @@ export class ViewerPage {
   async getCurrentCanvasGroupLabel(): Promise<string> {
     const currentCanvasGroupLabel =
       await this.currentCanvasGroupLabel.textContent();
+
     return currentCanvasGroupLabel ? currentCanvasGroupLabel : '';
   }
 
   async getNumberOfCanvasGroups() {
     const numberOfCanvasGroups = await this.numOfCanvasGroups.textContent();
+
     return numberOfCanvasGroups ? parseInt(numberOfCanvasGroups, 10) : -1;
   }
 
@@ -370,6 +373,7 @@ export class ViewerPage {
 
   async isFullscreen() {
     await this.page.waitForTimeout(1000);
+
     return await this.page.evaluate(
       '(document.fullscreenElement != null' +
         ' || document.mozFullScreenElement != null' +
@@ -379,6 +383,7 @@ export class ViewerPage {
   }
   async getSVGElement() {
     await this.svg.waitFor();
+
     return this.svg;
   }
 
@@ -397,6 +402,7 @@ export class ViewerPage {
   async getFirstCanvasGroupOverlay() {
     const first = this.canvasGroupOverlay.first();
     await first.waitFor();
+
     return first;
   }
 
@@ -491,6 +497,7 @@ export class ViewerPage {
 
   async zoomIn(): Promise<void> {
     const newZoomLevel = (await this.getZoomLevel()) * 2;
+
     return this.page.evaluate(
       'window.openSeadragonViewer.viewport.zoomTo(' + newZoomLevel + ');',
     );
@@ -498,6 +505,7 @@ export class ViewerPage {
 
   async zoomOut(): Promise<void> {
     const newZoomLevel = (await this.getZoomLevel()) / 2;
+
     return this.page.evaluate(
       'window.openSeadragonViewer.viewport.zoomTo(' + newZoomLevel + ');',
     );
@@ -572,6 +580,7 @@ export class ViewerPage {
       .nth(1)
       .locator('rect')
       .count();
+
     return secondPageGroupCount === 1;
   }
 
@@ -580,6 +589,7 @@ export class ViewerPage {
       .nth(1)
       .locator('rect')
       .count();
+
     return secondPageGroupCount === 2;
   }
 
@@ -632,6 +642,7 @@ export class ViewerPage {
   async sendKeyboardEvent(key: string): Promise<void> {
     await this.setFocusOnViewer();
     await this.page.keyboard.press(key);
+
     return this.animations.waitFor();
   }
 
@@ -656,6 +667,7 @@ export class ViewerPage {
       );
       result.push(isVisible);
     }
+
     return result;
   }
 
@@ -679,6 +691,7 @@ export class ViewerPage {
           left: elementSize.x,
           right: elementSize.x + elementSize.width,
         };
+
         return (
           elementCalculatedLocastion.right >= leftCanvasGroupMask.width &&
           elementCalculatedLocastion.left <= rightCanvasGroupMask.x
@@ -687,6 +700,7 @@ export class ViewerPage {
     } catch (e) {
       console.log(`Ooups, this should not happen!`, e);
     }
+
     return false;
   }
 

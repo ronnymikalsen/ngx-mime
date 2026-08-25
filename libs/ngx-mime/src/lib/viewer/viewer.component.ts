@@ -168,19 +168,19 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get mimeHeaderBeforeRef(): ViewContainerRef {
-    return this.header().mimeHeaderBefore;
+    return this.header().mimeHeaderBefore();
   }
 
   get mimeHeaderAfterRef(): ViewContainerRef {
-    return this.header().mimeHeaderAfter;
+    return this.header().mimeHeaderAfter();
   }
 
   get mimeFooterBeforeRef(): ViewContainerRef {
-    return this.footer().mimeFooterBefore;
+    return this.footer().mimeFooterBefore();
   }
 
   get mimeFooterAfterRef(): ViewContainerRef {
-    return this.footer().mimeFooterAfter;
+    return this.footer().mimeFooterAfter();
   }
 
   @HostListener('keydown', ['$event'])

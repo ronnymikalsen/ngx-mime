@@ -8,6 +8,7 @@ export class Utils {
   }
   static shortenDecimals(zoom: any, precision: number): number {
     const short = Number(zoom).toPrecision(precision);
+
     return Number(short);
   }
 

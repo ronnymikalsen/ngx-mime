@@ -583,6 +583,7 @@ export class ViewerService {
         return requestedCanvasGroup;
       }
     }
+
     return -1;
   }
 
@@ -597,6 +598,7 @@ export class ViewerService {
 
   private generateRandomId(prefix: string): string {
     const randomString = Math.random().toString(16).slice(2);
+
     return `${prefix}-${randomString}`;
   }
 

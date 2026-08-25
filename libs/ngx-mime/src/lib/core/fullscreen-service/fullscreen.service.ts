@@ -15,6 +15,7 @@ export class FullscreenService {
 
   public isEnabled(): boolean {
     const d: any = document;
+
     return (
       d.fullscreenEnabled ||
       d.webkitFullscreenEnabled ||
@@ -25,6 +26,7 @@ export class FullscreenService {
 
   public isFullscreen(): boolean {
     const d: any = document;
+
     return (
       d.fullscreenElement ||
       d.webkitFullscreenElement ||

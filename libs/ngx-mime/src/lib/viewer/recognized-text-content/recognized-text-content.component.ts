@@ -112,6 +112,7 @@ export class RecognizedTextContentComponent {
 
   private currentManifestHasRecognizedTextContent(): boolean | undefined {
     const manifest = this.manifest();
+
     return manifest
       ? ManifestUtils.hasRecognizedTextContent(manifest)
       : undefined;
@@ -156,6 +157,7 @@ export class RecognizedTextContentComponent {
     if (source.highlightsRevision !== previous.source.highlightsRevision) {
       return this.refreshRecognizedText(false, previous.value);
     }
+
     return previous.value;
   }
 
@@ -206,6 +208,7 @@ export class RecognizedTextContentComponent {
     }
     const firstPage = canvases[0] + 1;
     const lastPage = canvases[canvases.length - 1] + 1;
+
     return firstPage === lastPage ? `${firstPage}` : `${firstPage}–${lastPage}`;
   }
 }

@@ -156,6 +156,7 @@ export class ContentSearchNavigationService {
     if (!this.searchResult || this.currentIndex === -1) {
       return false;
     }
+
     return (
       this.canvasesPerCanvasGroup?.indexOf(
         this.searchResult.get(this.currentIndex).index,
@@ -179,6 +180,7 @@ export class ContentSearchNavigationService {
             return -1;
           } else {
             const phit = this.searchResult.get(i - 1);
+
             return this.searchResult.hits.findIndex(
               (sr) => sr.index === phit.index,
             );
@@ -186,6 +188,7 @@ export class ContentSearchNavigationService {
         }
       }
     }
+
     return this.searchResult.size() - 1;
   }
 
@@ -196,6 +199,7 @@ export class ContentSearchNavigationService {
     const hits = this.searchResult.hits.filter(
       (hit) => hit.index < canvasGroupIndexes[0],
     );
+
     return hits.length > 0 ? hits[hits.length - 1].id : -1;
   }
 
@@ -212,6 +216,7 @@ export class ContentSearchNavigationService {
       );
       const canvasesPerCanvasGroup =
         this.canvasService.getCanvasesPerCanvasGroup(canvasGroup);
+
       return canvasesPerCanvasGroup.indexOf(this.currentHit.index) !== -1;
     } else {
       return false;

@@ -93,6 +93,7 @@ export class IiifManifestService {
     } else {
       errMsg = err.error;
     }
+
     return errMsg;
   }
 }

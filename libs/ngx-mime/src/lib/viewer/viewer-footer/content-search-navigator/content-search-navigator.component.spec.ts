@@ -141,6 +141,7 @@ describe('ContentSearchNavigatorComponent', () => {
         index: 1,
       }),
     );
+
     return searchResult;
   }
 

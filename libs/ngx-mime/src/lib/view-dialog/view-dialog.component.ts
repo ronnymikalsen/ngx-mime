@@ -104,11 +104,13 @@ export class ViewDialogComponent {
 
   private isCurrentManifestPaged(): boolean {
     const manifest = this.manifest();
+
     return manifest ? ManifestUtils.isManifestPaged(manifest) : false;
   }
 
   private currentManifestHasRecognizedTextContent(): boolean {
     const manifest = this.manifest();
+
     return manifest ? ManifestUtils.hasRecognizedTextContent(manifest) : false;
   }
 
@@ -116,6 +118,7 @@ export class ViewDialogComponent {
     const height = this.isHandsetOrTabletInPortrait()
       ? window.innerHeight - 128
       : this.mimeHeight() - 220;
+
     return { maxHeight: `${height}px` };
   }
 }

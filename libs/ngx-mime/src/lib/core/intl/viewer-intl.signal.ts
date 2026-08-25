@@ -5,6 +5,7 @@ import { MimeViewerIntl } from './viewer-intl';
 
 export function injectMimeViewerIntlSignal() {
   const intl = inject(MimeViewerIntl);
+
   return toSignal(intl.changes.pipe(map(() => intl)), {
     initialValue: intl,
     equal: () => false,
