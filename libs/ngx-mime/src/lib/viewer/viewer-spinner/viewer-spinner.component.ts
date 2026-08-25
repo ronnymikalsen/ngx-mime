@@ -11,8 +11,10 @@ import { SpinnerService } from '../../core/spinner-service/spinner.service';
   imports: [MatProgressSpinner],
 })
 export class ViewerSpinnerComponent {
+  private readonly spinnerService = inject(SpinnerService);
+
   readonly visible = toSignal(
-    inject(SpinnerService).spinnerState.pipe(map((state) => state.show)),
+    this.spinnerService.spinnerState.pipe(map((state) => state.show)),
     { initialValue: false },
   );
 }

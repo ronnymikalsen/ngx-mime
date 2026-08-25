@@ -15,7 +15,11 @@ import { ManifestService } from '../core/manifest-service/manifest.service';
   imports: [MimeModule],
 })
 export class ViewerComponent {
-  readonly queryParamMap = toSignal(inject(ActivatedRoute).queryParamMap, {
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly manifestService = inject(ManifestService);
+
+  readonly queryParamMap = toSignal(this.activatedRoute.queryParamMap, {
     initialValue: convertToParamMap({}),
   });
   readonly iiifVersion = computed(() => this.queryParamMap().get('v') ?? '3');
@@ -32,8 +36,6 @@ export class ViewerComponent {
     initViewerMode: MimeViewerMode.PAGE,
     initRecognizedTextContentMode: RecognizedTextMode.NONE,
   });
-  private readonly router = inject(Router);
-  private readonly manifestService = inject(ManifestService);
 
   constructor() {
     effect(() => {

@@ -35,20 +35,22 @@ import { AttributionDialogResizeService } from './attribution-dialog-resize.serv
   ],
 })
 export class AttributionDialogComponent {
-  readonly container = viewChild.required<ElementRef<HTMLElement>>('container');
-  readonly intl = injectMimeViewerIntlSignal();
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
-    initialValue: null,
-  });
-  readonly backgroundColor = computed(() => this.getBackgroundColor());
+  private readonly iiifManifestService = inject(IiifManifestService);
   private readonly styleService = inject(StyleService);
-  private readonly styleColor = toSignal(this.styleService.onChange, {
-    initialValue: undefined,
-  });
   private readonly attributionDialogResizeService = inject(
     AttributionDialogResizeService,
   );
   private readonly accessKeysHandlerService = inject(AccessKeysService);
+  readonly intl = injectMimeViewerIntlSignal();
+
+  readonly container = viewChild.required<ElementRef<HTMLElement>>('container');
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
+    initialValue: null,
+  });
+  private readonly styleColor = toSignal(this.styleService.onChange, {
+    initialValue: undefined,
+  });
+  readonly backgroundColor = computed(() => this.getBackgroundColor());
 
   constructor() {
     afterRenderEffect(() => this.updateDialogSize());

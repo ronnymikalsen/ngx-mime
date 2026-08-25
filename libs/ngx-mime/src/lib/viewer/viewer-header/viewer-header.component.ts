@@ -31,21 +31,36 @@ import { ViewDialogService } from '../../view-dialog/view-dialog.service';
   imports: [MatToolbar, MatTooltip, MatIconButton, MatIcon],
 })
 export class ViewerHeaderComponent {
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly fullscreenService = inject(FullscreenService);
+  private readonly informationDialogService = inject(InformationDialogService);
+  private readonly contentSearchDialogService = inject(
+    ContentSearchDialogService,
+  );
+  private readonly viewDialogService = inject(ViewDialogService);
+  private readonly helpDialogService = inject(HelpDialogService);
+  private readonly mimeDomHelper = inject(MimeDomHelper);
+  readonly intl = injectMimeViewerIntlSignal();
+
   @ViewChild('mimeHeaderBefore', { read: ViewContainerRef, static: true })
   mimeHeaderBefore!: ViewContainerRef;
   @ViewChild('mimeHeaderAfter', { read: ViewContainerRef, static: true })
   mimeHeaderAfter!: ViewContainerRef;
   @ViewChild('viewMenu', { read: ElementRef, static: true })
   viewMenu!: ElementRef;
-  readonly intl = injectMimeViewerIntlSignal();
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
   readonly isContentSearchEnabled = computed(() =>
     Boolean(this.manifest()?.service),
   );
-  readonly isFullscreenEnabled = inject(FullscreenService).isEnabled();
-  readonly isInFullscreen = this.createIsInFullscreenSignal();
+  readonly isFullscreenEnabled = this.fullscreenService.isEnabled();
+  readonly isInFullscreen = toSignal(
+    this.fullscreenService.onChange.pipe(
+      map(() => this.fullscreenService.isFullscreen()),
+    ),
+    { initialValue: this.fullscreenService.isFullscreen() },
+  );
   readonly fullscreenLabel = computed(() =>
     this.isInFullscreen()
       ? this.intl().exitFullScreenLabel
@@ -55,13 +70,6 @@ export class ViewerHeaderComponent {
   readonly hasRecognizedTextContent = computed(() =>
     this.currentManifestHasRecognizedTextContent(),
   );
-  private readonly informationDialogService = inject(InformationDialogService);
-  private readonly contentSearchDialogService = inject(
-    ContentSearchDialogService,
-  );
-  private readonly viewDialogService = inject(ViewDialogService);
-  private readonly helpDialogService = inject(HelpDialogService);
-  private readonly mimeDomHelper = inject(MimeDomHelper);
 
   toggleView() {
     this.informationDialogService.close();
@@ -93,16 +101,6 @@ export class ViewerHeaderComponent {
 
   toggleFullscreen(): void {
     return this.mimeDomHelper.toggleFullscreen();
-  }
-
-  private createIsInFullscreenSignal() {
-    const fullscreenService = inject(FullscreenService);
-    return toSignal(
-      fullscreenService.onChange.pipe(
-        map(() => fullscreenService.isFullscreen()),
-      ),
-      { initialValue: fullscreenService.isFullscreen() },
-    );
   }
 
   private isCurrentManifestPaged(): boolean {

@@ -79,27 +79,6 @@ import { VIEWER_PROVIDERS } from './viewer.providers';
   providers: VIEWER_PROVIDERS,
 })
 export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() manifestUri: string | null = null;
-  @Input() q!: string;
-  @Input() canvasIndex = 0;
-  @Input() config: MimeViewerConfig = new MimeViewerConfig();
-  @Input() tabIndex = 0;
-  @Output() viewerModeChanged: EventEmitter<ViewerMode> = new EventEmitter();
-  @Output() canvasChanged: EventEmitter<number> = new EventEmitter();
-  @Output() qChanged: EventEmitter<string> = new EventEmitter();
-  @Output() manifestChanged: EventEmitter<Manifest> = new EventEmitter();
-  @Output() recognizedTextContentModeChanged: EventEmitter<RecognizedTextMode> =
-    new EventEmitter();
-  snackBar = inject(MatSnackBar);
-  readonly intl = injectMimeViewerIntlSignal();
-  readonly recognizedTextMode = RecognizedTextMode;
-  id = 'ngx-mime-mimeViewer';
-  openseadragonId = 'openseadragon';
-  readonly recognizedTextContentMode =
-    this.createRecognizedTextContentModeSignal();
-  readonly showHeaderAndFooterState = signal(false);
-  readonly osdToolbarState = signal(false);
-  readonly errorMessage = this.createErrorMessageSignal();
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly viewDialogService = inject(ViewDialogService);
   private readonly informationDialogService = inject(InformationDialogService);
@@ -123,6 +102,39 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly zone = inject(NgZone);
   private readonly platform = inject(Platform);
+  snackBar = inject(MatSnackBar);
+  readonly intl = injectMimeViewerIntlSignal();
+  private readonly errorMessageSource = toSignal(
+    this.iiifManifestService.errorMessage,
+    {
+      initialValue: null,
+      equal: () => false,
+    },
+  );
+
+  @Input() manifestUri: string | null = null;
+  @Input() q!: string;
+  @Input() canvasIndex = 0;
+  @Input() config: MimeViewerConfig = new MimeViewerConfig();
+  @Input() tabIndex = 0;
+  @Output() viewerModeChanged: EventEmitter<ViewerMode> = new EventEmitter();
+  @Output() canvasChanged: EventEmitter<number> = new EventEmitter();
+  @Output() qChanged: EventEmitter<string> = new EventEmitter();
+  @Output() manifestChanged: EventEmitter<Manifest> = new EventEmitter();
+  @Output() recognizedTextContentModeChanged: EventEmitter<RecognizedTextMode> =
+    new EventEmitter();
+  readonly recognizedTextMode = RecognizedTextMode;
+  id = 'ngx-mime-mimeViewer';
+  openseadragonId = 'openseadragon';
+  readonly recognizedTextContentMode = toSignal(
+    this.altoService.onRecognizedTextContentModeChange$.pipe(
+      map((changes) => changes.currentValue),
+    ),
+    { initialValue: this.altoService.recognizedTextContentMode },
+  );
+  readonly showHeaderAndFooterState = signal(false);
+  readonly osdToolbarState = signal(false);
+  readonly errorMessage = linkedSignal(() => this.errorMessageSource());
   private readonly header =
     viewChild.required<ViewerHeaderComponent>('mimeHeader');
   private readonly footer =
@@ -453,24 +465,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       'canvas-pressed': this.isCanvasPressed(),
       'broken-mix-blend-mode': !this.hasMixBlendModeSupport(),
     };
-  }
-
-  private createRecognizedTextContentModeSignal() {
-    const altoService = inject(AltoService);
-    return toSignal(
-      altoService.onRecognizedTextContentModeChange$.pipe(
-        map((changes) => changes.currentValue),
-      ),
-      { initialValue: altoService.recognizedTextContentMode },
-    );
-  }
-
-  private createErrorMessageSignal() {
-    const source = toSignal(inject(IiifManifestService).errorMessage, {
-      initialValue: null,
-      equal: () => false,
-    });
-    return linkedSignal(() => source());
   }
 
   private loadManifest(): void {

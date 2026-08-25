@@ -11,10 +11,12 @@ import { ViewerComponent as ElementsViewerComponent } from './elements/viewer/vi
   imports: [ComponentViewerComponent, ElementsViewerComponent],
 })
 export class ViewerComponent {
-  readonly routeParams = toSignal(inject(ActivatedRoute).params, {
+  private readonly activatedRoute = inject(ActivatedRoute);
+
+  readonly routeParams = toSignal(this.activatedRoute.params, {
     initialValue: {} as Params,
   });
-  readonly queryParamMap = toSignal(inject(ActivatedRoute).queryParamMap, {
+  readonly queryParamMap = toSignal(this.activatedRoute.queryParamMap, {
     initialValue: convertToParamMap({}),
   });
   readonly isComponent = computed(

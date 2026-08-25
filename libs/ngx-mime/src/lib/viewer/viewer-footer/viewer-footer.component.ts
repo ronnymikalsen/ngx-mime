@@ -29,15 +29,18 @@ import { ContentSearchNavigatorComponent } from './content-search-navigator/cont
   ],
 })
 export class ViewerFooterComponent {
+  private readonly iiifContentSearchService = inject(IiifContentSearchService);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+
   @ViewChild('mimeFooterBefore', { read: ViewContainerRef, static: true })
   mimeFooterBefore!: ViewContainerRef;
   @ViewChild('mimeFooterAfter', { read: ViewContainerRef, static: true })
   mimeFooterAfter!: ViewContainerRef;
-  readonly searchResult = toSignal(inject(IiifContentSearchService).onChange, {
+  readonly searchResult = toSignal(this.iiifContentSearchService.onChange, {
     initialValue: new SearchResult(),
   });
   readonly isXSmall = toSignal(
-    inject(BreakpointObserver)
+    this.breakpointObserver
       .observe([Breakpoints.XSmall])
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },

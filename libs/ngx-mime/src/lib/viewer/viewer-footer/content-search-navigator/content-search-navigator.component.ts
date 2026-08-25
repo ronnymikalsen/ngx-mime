@@ -29,10 +29,18 @@ import { ContentSearchNavigationService } from '../../../core/navigation/content
   imports: [MatToolbar, MatIconButton, MatTooltip, MatIcon, NgClass],
 })
 export class ContentSearchNavigatorComponent {
-  readonly searchResult = input.required<SearchResult>();
+  private readonly contentSearchNavigationService = inject(
+    ContentSearchNavigationService,
+  );
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly canvasService = inject(CanvasService);
+  private readonly iiifContentSearchService = inject(IiifContentSearchService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly intl = injectMimeViewerIntlSignal();
+
+  readonly searchResult = input.required<SearchResult>();
   readonly currentHit = toSignal(
-    inject(ContentSearchNavigationService).currentHitCounter,
+    this.contentSearchNavigationService.currentHitCounter,
     { initialValue: 0 },
   );
   readonly isFirstHit = computed(() => this.currentHit() <= 0);
@@ -40,7 +48,7 @@ export class ContentSearchNavigatorComponent {
     () => this.currentHit() === this.searchResult().size() - 1,
   );
   readonly invert = toSignal(
-    inject(IiifManifestService).currentManifest.pipe(
+    this.iiifManifestService.currentManifest.pipe(
       map(
         (manifest) =>
           manifest?.viewingDirection !== undefined &&
@@ -49,13 +57,15 @@ export class ContentSearchNavigatorComponent {
     ),
     { initialValue: false },
   );
-  readonly isHitOnActiveCanvasGroup =
-    this.createIsHitOnActiveCanvasGroupSignal();
-  private readonly iiifContentSearchService = inject(IiifContentSearchService);
-  private readonly contentSearchNavigationService = inject(
-    ContentSearchNavigationService,
+  readonly isHitOnActiveCanvasGroup = toSignal(
+    this.canvasService.onCanvasGroupIndexChange.pipe(
+      map((canvasGroupIndex) => {
+        this.contentSearchNavigationService.update(canvasGroupIndex);
+        return this.contentSearchNavigationService.getHitOnActiveCanvasGroup();
+      }),
+    ),
+    { initialValue: false },
   );
-  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     this.contentSearchNavigationService.initialize();
@@ -74,19 +84,5 @@ export class ContentSearchNavigatorComponent {
 
   goToPreviousHit(): void {
     this.contentSearchNavigationService.goToPreviousHit();
-  }
-
-  private createIsHitOnActiveCanvasGroupSignal() {
-    const canvasService = inject(CanvasService);
-    const navigationService = inject(ContentSearchNavigationService);
-    return toSignal(
-      canvasService.onCanvasGroupIndexChange.pipe(
-        map((canvasGroupIndex) => {
-          navigationService.update(canvasGroupIndex);
-          return navigationService.getHitOnActiveCanvasGroup();
-        }),
-      ),
-      { initialValue: false },
-    );
   }
 }

@@ -10,7 +10,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { SafeHtml } from '@angular/platform-browser';
 import { map, scan } from 'rxjs';
 import { AltoService } from '../../core/alto-service/alto.service';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
@@ -19,27 +18,11 @@ import { IiifContentSearchService } from '../../core/iiif-content-search-service
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../../core/iiif-manifest-service/iiif-manifest-utils';
 import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
-import { Manifest } from '../../core/models/manifest';
-
-interface RecognizedTextSource {
-  manifest: Manifest | null;
-  isLoading: boolean;
-  hasTextSource: boolean | undefined;
-  textContentRevision: number;
-  highlightsRevision: number;
-}
-
-interface RecognizedTextState {
-  firstCanvas: SafeHtml | string | undefined;
-  secondCanvas: SafeHtml | string | undefined;
-  updatedCanvasGroupLabel: string | undefined;
-  updatedCanvasGroupPageCount: number;
-}
-
-interface PreviousRecognizedTextState {
-  source: RecognizedTextSource;
-  value: RecognizedTextState;
-}
+import {
+  PreviousRecognizedTextState,
+  RecognizedTextSource,
+  RecognizedTextState,
+} from './recognized-text-content.model';
 
 @Component({
   selector: 'mime-recognized-text-content',
@@ -48,36 +31,42 @@ interface PreviousRecognizedTextState {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RecognizedTextContentComponent {
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly altoService = inject(AltoService);
+  private readonly iiifContentSearchService = inject(IiifContentSearchService);
+  private readonly highlightService = inject(HighlightService);
+  private readonly canvasService = inject(CanvasService);
+  readonly intl = injectMimeViewerIntlSignal();
+
   readonly viewerId = input.required<string>();
   readonly recognizedTextContentContainer = viewChild.required<
     ElementRef<HTMLElement>
   >('recognizedTextContentContainer');
-  readonly intl = injectMimeViewerIntlSignal();
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
-  readonly isLoading = toSignal(inject(AltoService).isLoading$, {
+  readonly isLoading = toSignal(this.altoService.isLoading$, {
     initialValue: false,
   });
-  readonly error = toSignal(inject(AltoService).hasErrors$, {
+  readonly error = toSignal(this.altoService.hasErrors$, {
     initialValue: undefined,
   });
   readonly currentCanvasGroupHasTextSource = toSignal(
-    inject(AltoService).currentCanvasGroupHasTextSource$,
+    this.altoService.currentCanvasGroupHasTextSource$,
     { initialValue: undefined },
   );
   readonly selectedHit = toSignal(
-    inject(IiifContentSearchService).onSelected.pipe(map((hit) => hit?.id)),
+    this.iiifContentSearchService.onSelected.pipe(map((hit) => hit?.id)),
     { initialValue: undefined },
   );
   readonly textContentRevision = toSignal(
-    inject(AltoService).onTextContentReady$.pipe(
+    this.altoService.onTextContentReady$.pipe(
       scan((version) => version + 1, 0),
     ),
     { initialValue: 0 },
   );
   readonly highlightsRevision = toSignal(
-    inject(AltoService).onTextHighlightsChange$.pipe(
+    this.altoService.onTextHighlightsChange$.pipe(
       scan((version) => version + 1, 0),
     ),
     { initialValue: 0 },
@@ -98,9 +87,6 @@ export class RecognizedTextContentComponent {
   readonly updatedCanvasGroupPageCount = computed(
     () => this.recognizedTextState().updatedCanvasGroupPageCount,
   );
-  private readonly highlightService = inject(HighlightService);
-  private readonly canvasService = inject(CanvasService);
-  private readonly altoService = inject(AltoService);
   private lastScrolledTextContentRevision = 0;
 
   constructor() {

@@ -49,8 +49,13 @@ import { ViewerService } from '../core/viewer-service/viewer.service';
   ],
 })
 export class CanvasGroupDialogComponent {
+  private readonly dialogRef =
+    inject<MatDialogRef<CanvasGroupDialogComponent>>(MatDialogRef);
+  private readonly viewerService = inject(ViewerService);
+  private readonly canvasService = inject(CanvasService);
   readonly intl = injectMimeViewerIntlSignal();
-  readonly numberOfCanvases = inject(CanvasService).numberOfCanvases;
+
+  readonly numberOfCanvases = this.canvasService.numberOfCanvases;
   readonly canvasGroupModel = signal({ canvasGroup: Number.NaN });
   readonly canvasGroupForm = form(this.canvasGroupModel, (path) => {
     required(path.canvasGroup);
@@ -63,11 +68,6 @@ export class CanvasGroupDialogComponent {
       .errors()
       .some((error) => error.kind === 'max'),
   );
-  private readonly dialogRef =
-    inject<MatDialogRef<CanvasGroupDialogComponent>>(MatDialogRef);
-  private readonly viewerService = inject(ViewerService);
-  private readonly canvasService = inject(CanvasService);
-
   async onSubmit(event: SubmitEvent): Promise<void> {
     event.preventDefault();
     await submit(this.canvasGroupForm, async () => {

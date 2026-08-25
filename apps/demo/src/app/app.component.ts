@@ -16,8 +16,12 @@ import { SidenavComponent } from './core/sidenav/sidenav.component';
   imports: [MatSidenavModule, SidenavComponent, NavbarComponent, RouterOutlet],
 })
 export class AppComponent {
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly overlayContainer = inject(OverlayContainer);
+  private readonly themeService = inject(ThemeService);
+
   readonly isHandsetOrTabletInPortrait = toSignal(
-    inject(BreakpointObserver)
+    this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
@@ -26,8 +30,6 @@ export class AppComponent {
     this.isHandsetOrTabletInPortrait() ? 'over' : 'side',
   );
   readonly sidenavIsOpen = computed(() => !this.isHandsetOrTabletInPortrait());
-  private readonly overlayContainer = inject(OverlayContainer);
-  private readonly themeService = inject(ThemeService);
   private readonly theme = toSignal(this.themeService.onThemeUpdate, {
     initialValue: this.themeService.getStoredTheme(),
   });

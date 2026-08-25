@@ -46,29 +46,33 @@ import { TocComponent } from './table-of-contents/table-of-contents.component';
   ],
 })
 export class InformationDialogComponent {
-  selectedIndex = 0;
+  private readonly dialogRef =
+    inject<MatDialogRef<InformationDialogComponent>>(MatDialogRef);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly mimeResizeService = inject(MimeResizeService);
   readonly intl = injectMimeViewerIntlSignal();
+
+  selectedIndex = 0;
   readonly isHandsetOrTabletInPortrait = toSignal(
-    inject(BreakpointObserver)
+    this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
   readonly showToc = computed(() =>
     Boolean(this.manifest()?.structures?.length),
   );
   readonly mimeHeight = toSignal(
-    inject(MimeResizeService).onResize.pipe(
+    this.mimeResizeService.onResize.pipe(
       map((dimensions) => dimensions.height),
     ),
     { initialValue: 0 },
   );
   readonly tabHeight = computed(() => this.getTabHeight());
-  private readonly dialogRef =
-    inject<MatDialogRef<InformationDialogComponent>>(MatDialogRef);
 
   onCanvasChanged() {
     if (this.isHandsetOrTabletInPortrait()) {

@@ -16,16 +16,18 @@ import { ViewerService } from '../../core/viewer-service/viewer.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TocComponent {
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly viewerService = inject(ViewerService);
+
   @Output()
   canvasChanged: EventEmitter<number> = new EventEmitter();
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
   readonly currentCanvasGroupIndex = toSignal(
-    inject(ViewerService).onCanvasGroupIndexChange,
+    this.viewerService.onCanvasGroupIndexChange,
     { initialValue: 0 },
   );
-  private readonly viewerService = inject(ViewerService);
 
   goToCanvas(event: Event, canvasIndex: number | undefined): void {
     if (canvasIndex !== undefined) {

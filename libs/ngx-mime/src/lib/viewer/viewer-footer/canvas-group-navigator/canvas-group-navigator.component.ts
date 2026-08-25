@@ -38,20 +38,33 @@ import { ViewerService } from './../../../core/viewer-service/viewer.service';
   ],
 })
 export class CanvasGroupNavigatorComponent {
-  @Input() searchResult!: SearchResult;
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly viewerService = inject(ViewerService);
+  private readonly canvasService = inject(CanvasService);
+  private readonly canvasGroupDialogService = inject(CanvasGroupDialogService);
   readonly intl = injectMimeViewerIntlSignal();
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+
+  @Input() searchResult!: SearchResult;
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
   readonly currentViewingDirection = computed<Direction>(() =>
     this.getCurrentViewingDirection(),
   );
   readonly numberOfCanvasGroups = toSignal(
-    inject(CanvasService).onNumberOfCanvasGroupsChange,
+    this.canvasService.onNumberOfCanvasGroupsChange,
     { initialValue: 0 },
   );
-  readonly numberOfCanvases = this.createNumberOfCanvasesSignal();
-  readonly serviceCanvasGroupIndex = this.createCanvasGroupIndexSignal();
+  readonly numberOfCanvases = toSignal(
+    this.canvasService.onNumberOfCanvasGroupsChange.pipe(
+      map(() => this.canvasService.numberOfCanvases),
+    ),
+    { initialValue: this.canvasService.numberOfCanvases },
+  );
+  readonly serviceCanvasGroupIndex = toSignal(
+    this.canvasService.onCanvasGroupIndexChange,
+    { initialValue: this.canvasService.currentCanvasGroupIndex },
+  );
   readonly currentCanvasGroupIndex = linkedSignal(() =>
     this.serviceCanvasGroupIndex(),
   );
@@ -65,9 +78,6 @@ export class CanvasGroupNavigatorComponent {
     () => this.currentCanvasGroupIndex() === this.numberOfCanvasGroups() - 1,
   );
   readonly ViewingDirection = ViewingDirection;
-  private readonly viewerService = inject(ViewerService);
-  private readonly canvasService = inject(CanvasService);
-  private readonly canvasGroupDialogService = inject(CanvasGroupDialogService);
 
   goToPreviousCanvasGroup(): void {
     this.viewerService.goToPreviousCanvasGroup();
@@ -99,22 +109,5 @@ export class CanvasGroupNavigatorComponent {
     return !manifest || manifest.viewingDirection === ViewingDirection.LTR
       ? ViewingDirection.LTR
       : ViewingDirection.RTL;
-  }
-
-  private createNumberOfCanvasesSignal() {
-    const canvasService = inject(CanvasService);
-    return toSignal(
-      canvasService.onNumberOfCanvasGroupsChange.pipe(
-        map(() => canvasService.numberOfCanvases),
-      ),
-      { initialValue: canvasService.numberOfCanvases },
-    );
-  }
-
-  private createCanvasGroupIndexSignal() {
-    const canvasService = inject(CanvasService);
-    return toSignal(canvasService.onCanvasGroupIndexChange, {
-      initialValue: canvasService.currentCanvasGroupIndex,
-    });
   }
 }

@@ -65,6 +65,15 @@ import { ContentSearchNavigationService } from '../core/navigation/content-searc
 export class ContentSearchDialogComponent {
   readonly dialogRef =
     inject<MatDialogRef<ContentSearchDialogComponent>>(MatDialogRef);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly mimeResizeService = inject(MimeResizeService);
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly iiifContentSearchService = inject(IiifContentSearchService);
+  private readonly contentSearchNavigationService = inject(
+    ContentSearchNavigationService,
+  );
+  readonly intl = injectMimeViewerIntlSignal();
+
   readonly resultContainer = viewChild.required<ElementRef<HTMLElement>>(
     'contentSearchResult',
   );
@@ -72,21 +81,20 @@ export class ContentSearchDialogComponent {
   readonly hitList = viewChildren('hitButton', {
     read: ElementRef,
   });
-  readonly intl = injectMimeViewerIntlSignal();
   readonly isHandsetOrTabletInPortrait = toSignal(
-    inject(BreakpointObserver)
+    this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
   readonly mimeHeight = toSignal(
-    inject(MimeResizeService).onResize.pipe(map(({ height }) => height)),
+    this.mimeResizeService.onResize.pipe(map(({ height }) => height)),
     { initialValue: 0 },
   );
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
-  readonly searchResult = toSignal(inject(IiifContentSearchService).onChange, {
+  readonly searchResult = toSignal(this.iiifContentSearchService.onChange, {
     initialValue: new SearchResult(),
   });
   readonly searchModel = linkedSignal(() => ({
@@ -96,18 +104,13 @@ export class ContentSearchDialogComponent {
   readonly hits = computed(() => this.searchResult().hits);
   readonly currentSearch = linkedSignal(() => this.searchResult().q);
   readonly numberOfHits = computed(() => this.searchResult().size());
-  readonly isSearching = toSignal(
-    inject(IiifContentSearchService).isSearching,
-    { initialValue: false },
-  );
-  readonly currentHit = toSignal(inject(IiifContentSearchService).onSelected, {
+  readonly isSearching = toSignal(this.iiifContentSearchService.isSearching, {
+    initialValue: false,
+  });
+  readonly currentHit = toSignal(this.iiifContentSearchService.onSelected, {
     initialValue: null,
   });
   readonly tabHeight = computed(() => this.getTabHeight());
-  private readonly iiifContentSearchService = inject(IiifContentSearchService);
-  private readonly contentSearchNavigationService = inject(
-    ContentSearchNavigationService,
-  );
 
   constructor() {
     afterRenderEffect(() => this.focusSearchInputOrResults());

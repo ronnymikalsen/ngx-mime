@@ -43,25 +43,31 @@ import { IconComponent } from './icon/icon.component';
   ],
 })
 export class ViewDialogComponent {
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly viewerLayoutService = inject(ViewerLayoutService);
+  private readonly altoService = inject(AltoService);
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly mimeResizeService = inject(MimeResizeService);
+  readonly intl = injectMimeViewerIntlSignal();
+
   ViewerLayout: typeof ViewerLayout = ViewerLayout;
   RecognizedTextMode: typeof RecognizedTextMode = RecognizedTextMode;
-  readonly intl = injectMimeViewerIntlSignal();
   readonly isHandsetOrTabletInPortrait = toSignal(
-    inject(BreakpointObserver)
+    this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
-  readonly viewerLayout = toSignal(inject(ViewerLayoutService).onChange, {
+  readonly viewerLayout = toSignal(this.viewerLayoutService.onChange, {
     initialValue: ViewerLayout.ONE_PAGE,
   });
   readonly recognizedTextMode = toSignal(
-    inject(AltoService).onRecognizedTextContentModeChange$.pipe(
+    this.altoService.onRecognizedTextContentModeChange$.pipe(
       map((changes: RecognizedTextModeChanges) => changes.currentValue),
     ),
     { initialValue: RecognizedTextMode.NONE },
   );
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
   readonly isPagedManifest = computed(() => this.isCurrentManifestPaged());
@@ -69,14 +75,12 @@ export class ViewDialogComponent {
     this.currentManifestHasRecognizedTextContent(),
   );
   readonly mimeHeight = toSignal(
-    inject(MimeResizeService).onResize.pipe(
+    this.mimeResizeService.onResize.pipe(
       map((dimensions) => dimensions.height),
     ),
     { initialValue: 0 },
   );
   readonly tabHeight = computed(() => this.getTabHeight());
-  private readonly viewerLayoutService = inject(ViewerLayoutService);
-  private readonly altoService = inject(AltoService);
 
   setLayoutOnePage(): void {
     this.viewerLayoutService.setLayout(ViewerLayout.ONE_PAGE);

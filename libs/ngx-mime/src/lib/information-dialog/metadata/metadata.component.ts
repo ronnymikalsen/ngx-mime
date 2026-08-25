@@ -10,8 +10,10 @@ import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MetadataComponent {
+  private readonly iiifManifestService = inject(IiifManifestService);
+
   readonly intl = injectMimeViewerIntlSignal();
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
 }

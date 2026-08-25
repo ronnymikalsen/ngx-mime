@@ -34,8 +34,12 @@ import { ManifestService } from '../manifest-service/manifest.service';
   ],
 })
 export class SidenavComponent {
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly manifestService = inject(ManifestService);
+  private readonly router = inject(Router);
+
   readonly sidenav = input.required<MatSidenav>();
-  readonly queryParamMap = toSignal(inject(ActivatedRoute).queryParamMap, {
+  readonly queryParamMap = toSignal(this.activatedRoute.queryParamMap, {
     initialValue: convertToParamMap({}),
   });
   readonly iiifVersionModel = linkedSignal(() => ({
@@ -53,8 +57,6 @@ export class SidenavComponent {
         manifest.uri.every((uri, index) => uri === manifestUris[index]),
     )?.label;
   });
-  private readonly manifestService = inject(ManifestService);
-  private readonly router = inject(Router);
 
   selectIiifVersion(version: string): void {
     const selectedManifest = this.selectedManifest();

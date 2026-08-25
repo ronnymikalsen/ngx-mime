@@ -31,15 +31,18 @@ import { MimeResizeService } from '../core/mime-resize-service/mime-resize.servi
   ],
 })
 export class HelpDialogComponent {
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly mimeResizeService = inject(MimeResizeService);
+
   readonly intl = injectMimeViewerIntlSignal();
   readonly isHandsetOrTabletInPortrait = toSignal(
-    inject(BreakpointObserver)
+    this.breakpointObserver
       .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
   readonly mimeHeight = toSignal(
-    inject(MimeResizeService).onResize.pipe(
+    this.mimeResizeService.onResize.pipe(
       map((dimensions) => dimensions.height),
     ),
     { initialValue: 0 },

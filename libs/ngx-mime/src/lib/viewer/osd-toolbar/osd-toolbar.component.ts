@@ -28,27 +28,36 @@ import { ViewerService } from '../../core/viewer-service/viewer.service';
   imports: [MatFabButton, MatTooltip, MatIcon, MatMiniFabButton],
 })
 export class OsdToolbarComponent {
-  @ViewChild('container', { static: true }) container!: ElementRef;
+  private readonly modeService = inject(ModeService);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly iiifManifestService = inject(IiifManifestService);
+  private readonly viewerService = inject(ViewerService);
+  private readonly canvasService = inject(CanvasService);
   readonly intl = injectMimeViewerIntlSignal();
-  readonly isZoomed = this.createIsZoomedSignal();
+
+  @ViewChild('container', { static: true }) container!: ElementRef;
+  readonly isZoomed = toSignal(
+    this.modeService.onChange.pipe(map(() => this.modeService.isPageZoomed())),
+    { initialValue: this.modeService.isPageZoomed() },
+  );
   readonly isWeb = toSignal(
-    inject(BreakpointObserver)
+    this.breakpointObserver
       .observe([Breakpoints.Web])
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
-  readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
+  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });
   readonly invert = computed(
     () => this.manifest()?.viewingDirection === ViewingDirection.LTR,
   );
   readonly currentCanvasGroupIndex = toSignal(
-    inject(ViewerService).onCanvasGroupIndexChange,
+    this.viewerService.onCanvasGroupIndexChange,
     { initialValue: 0 },
   );
   readonly numberOfCanvasGroups = toSignal(
-    inject(CanvasService).onNumberOfCanvasGroupsChange,
+    this.canvasService.onNumberOfCanvasGroupsChange,
     { initialValue: 0 },
   );
   readonly isFirstCanvasGroup = computed(
@@ -62,7 +71,6 @@ export class OsdToolbarComponent {
     this.fabState() === 'closed' ? 'menu' : 'clear',
   );
   readonly baseAnimationDelay = 20;
-  private readonly viewerService = inject(ViewerService);
 
   toggleFab(): void {
     this.fabState.update((state) => (state === 'closed' ? 'open' : 'closed'));
@@ -90,13 +98,5 @@ export class OsdToolbarComponent {
 
   goToNextCanvasGroup(): void {
     this.viewerService.goToNextCanvasGroup();
-  }
-
-  private createIsZoomedSignal() {
-    const modeService = inject(ModeService);
-    return toSignal(
-      modeService.onChange.pipe(map(() => modeService.isPageZoomed())),
-      { initialValue: modeService.isPageZoomed() },
-    );
   }
 }

@@ -41,6 +41,14 @@ export default [
       ],
     },
   },
+  {
+    files: ['**/*.component.ts'],
+    rules: {
+      // Angular ESLint 22 provides `inject-at-top`. Until this workspace moves
+      // to Angular 22, allow components to keep injected dependencies first.
+      '@typescript-eslint/member-ordering': 'off',
+    },
+  },
   ...compat
     .config({
       extends: ['plugin:@nx/typescript'],
