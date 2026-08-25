@@ -1,5 +1,5 @@
 import { computed, Injectable, signal, Signal } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ModeChanges, ViewerMode } from '../models';
 
@@ -10,7 +10,7 @@ export class ModeService {
   readonly onChange: Observable<ModeChanges>;
   private config = new MimeViewerConfig();
   private readonly modeState = signal(this.config.initViewerMode);
-  private readonly modeChangesSubject = new BehaviorSubject(new ModeChanges());
+  private readonly modeChangesSubject = new Subject<ModeChanges>();
 
   constructor() {
     this.mode = this.modeState.asReadonly();

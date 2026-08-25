@@ -7,7 +7,6 @@ import {
   inject,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import {
   MatDialogClose,
@@ -45,9 +44,6 @@ export class AttributionDialogComponent {
 
   readonly container = viewChild.required<ElementRef<HTMLElement>>('container');
   readonly manifest = this.iiifManifestService.manifest;
-  private readonly styleColor = toSignal(this.styleService.onChange, {
-    initialValue: undefined,
-  });
   readonly backgroundColor = computed(() => this.getBackgroundColor());
 
   constructor() {
@@ -70,7 +66,7 @@ export class AttributionDialogComponent {
   }
 
   private getBackgroundColor(): string | null {
-    const color = this.styleColor();
+    const color = this.styleService.color();
 
     return color ? this.styleService.convertToRgba(color, 0.3) : null;
   }

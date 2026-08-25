@@ -4,7 +4,6 @@ import {
   inject,
   output,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { ViewerService } from '../../core/viewer-service/viewer.service';
 
@@ -20,10 +19,7 @@ export class TocComponent {
 
   readonly canvasChanged = output<number>();
   readonly manifest = this.iiifManifestService.manifest;
-  readonly currentCanvasGroupIndex = toSignal(
-    this.viewerService.onCanvasGroupIndexChange,
-    { initialValue: 0 },
-  );
+  readonly currentCanvasGroupIndex = this.viewerService.currentCanvasGroupIndex;
 
   goToCanvas(event: Event, canvasIndex: number | undefined): void {
     if (canvasIndex !== undefined) {

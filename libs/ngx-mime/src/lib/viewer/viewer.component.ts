@@ -10,13 +10,13 @@ import {
   inject,
   input,
   linkedSignal,
-  NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
   output,
   signal,
   SimpleChanges,
+  untracked,
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
@@ -94,7 +94,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   private readonly canvasGroupDialogService = inject(CanvasGroupDialogService);
   private readonly el = inject(ElementRef);
   private readonly viewContainerRef = inject(ViewContainerRef);
-  private readonly zone = inject(NgZone);
   private readonly platform = inject(Platform);
   private readonly snackBar = inject(MatSnackBar);
   readonly intl = injectMimeViewerIntlSignal();
@@ -144,6 +143,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.canvasGroupDialogService.viewContainerRef = this.viewContainerRef;
     this.resizeService.el = this.el;
     effect(() => this.emitRecognizedTextContentMode());
+    effect(() => this.goToInitialCanvasWhenReady(this.viewerService.isReady()));
   }
 
   get mimeHeaderBeforeRef(): ViewContainerRef {
@@ -240,19 +240,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     );
 
     this.subscriptions.add(
-      this.viewerService.onOsdReadyChange.subscribe((state: boolean) => {
-        // Don't reset current page when switching layout
-        if (
-          state &&
-          this.canvasIndex() &&
-          !this.canvasService.currentCanvasGroupIndex
-        ) {
-          this.viewerService.goToCanvas(this.canvasIndex(), false);
-        }
-      }),
-    );
-
-    this.subscriptions.add(
       this.iiifManifestService.errorMessage.subscribe(() => {
         this.resetCurrentManifest();
       }),
@@ -273,56 +260,10 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
     this.subscriptions.add(
       this.modeService.onChange.subscribe((mode: ModeChanges) => {
-        const currentMode = mode.currentValue;
-        if (currentMode !== undefined) {
-          this.toggleToolbarsState(currentMode);
-        }
-        if (
-          mode.previousValue === ViewerMode.DASHBOARD &&
-          currentMode === ViewerMode.PAGE
-        ) {
-          this.viewerState.viewDialogState.isOpen =
-            this.viewDialogService.isOpen();
-          this.viewerState.contentDialogState.isOpen =
-            this.informationDialogService.isOpen();
-          this.viewerState.contentDialogState.selectedIndex =
-            this.informationDialogService.getSelectedIndex();
-          this.viewerState.contentsSearchDialogState.isOpen =
-            this.contentSearchDialogService.isOpen();
-          this.viewerState.helpDialogState.isOpen =
-            this.helpDialogService.isOpen();
-          this.zone.run(() => {
-            this.viewDialogService.close();
-            this.informationDialogService.close();
-            this.contentSearchDialogService.close();
-            this.helpDialogService.close();
-          });
-        }
-        if (currentMode === ViewerMode.DASHBOARD) {
-          this.zone.run(() => {
-            if (this.viewerState.viewDialogState.isOpen) {
-              this.viewDialogService.open();
-            }
-            if (this.viewerState.contentDialogState.isOpen) {
-              this.informationDialogService.open(
-                this.viewerState.contentDialogState.selectedIndex,
-              );
-            }
-            if (this.viewerState.contentsSearchDialogState.isOpen) {
-              this.contentSearchDialogService.open();
-            }
-            if (this.viewerState.helpDialogState.isOpen) {
-              this.helpDialogService.open();
-            }
-          });
-        }
-        if (currentMode !== undefined) {
-          this.zone.run(() => {
-            this.viewerModeChanged.emit(currentMode);
-          });
-        }
+        this.handleModeChange(mode);
       }),
     );
+    this.handleModeChange({ currentValue: this.modeService.mode() });
 
     this.subscriptions.add(
       this.canvasService.onCanvasGroupIndexChange.subscribe(
@@ -429,6 +370,61 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       'canvas-pressed': this.isCanvasPressed(),
       'broken-mix-blend-mode': !this.hasMixBlendModeSupport(),
     };
+  }
+
+  private goToInitialCanvasWhenReady(isReady: boolean): void {
+    if (!isReady) {
+      return;
+    }
+
+    const canvasIndex = untracked(this.canvasIndex);
+    // Don't reset current page when switching layout.
+    if (canvasIndex && !this.canvasService.currentCanvasGroupIndex) {
+      this.viewerService.goToCanvas(canvasIndex, false);
+    }
+  }
+
+  private handleModeChange(mode: ModeChanges): void {
+    const currentMode = mode.currentValue;
+    if (currentMode !== undefined) {
+      this.toggleToolbarsState(currentMode);
+    }
+    if (
+      mode.previousValue === ViewerMode.DASHBOARD &&
+      currentMode === ViewerMode.PAGE
+    ) {
+      this.viewerState.viewDialogState.isOpen = this.viewDialogService.isOpen();
+      this.viewerState.contentDialogState.isOpen =
+        this.informationDialogService.isOpen();
+      this.viewerState.contentDialogState.selectedIndex =
+        this.informationDialogService.getSelectedIndex();
+      this.viewerState.contentsSearchDialogState.isOpen =
+        this.contentSearchDialogService.isOpen();
+      this.viewerState.helpDialogState.isOpen = this.helpDialogService.isOpen();
+      this.viewDialogService.close();
+      this.informationDialogService.close();
+      this.contentSearchDialogService.close();
+      this.helpDialogService.close();
+    }
+    if (currentMode === ViewerMode.DASHBOARD) {
+      if (this.viewerState.viewDialogState.isOpen) {
+        this.viewDialogService.open();
+      }
+      if (this.viewerState.contentDialogState.isOpen) {
+        this.informationDialogService.open(
+          this.viewerState.contentDialogState.selectedIndex,
+        );
+      }
+      if (this.viewerState.contentsSearchDialogState.isOpen) {
+        this.contentSearchDialogService.open();
+      }
+      if (this.viewerState.helpDialogState.isOpen) {
+        this.helpDialogService.open();
+      }
+    }
+    if (currentMode !== undefined) {
+      this.viewerModeChanged.emit(currentMode);
+    }
   }
 
   private loadManifest(): void {

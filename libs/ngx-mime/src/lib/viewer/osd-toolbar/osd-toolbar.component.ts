@@ -44,10 +44,7 @@ export class OsdToolbarComponent {
   readonly invert = computed(
     () => this.manifest()?.viewingDirection === ViewingDirection.LTR,
   );
-  readonly currentCanvasGroupIndex = toSignal(
-    this.viewerService.onCanvasGroupIndexChange,
-    { initialValue: 0 },
-  );
+  readonly currentCanvasGroupIndex = this.viewerService.currentCanvasGroupIndex;
   readonly canvasGroupCount = this.canvasService.canvasGroupCount;
   readonly isFirstCanvasGroup = computed(
     () => this.currentCanvasGroupIndex() === 0,

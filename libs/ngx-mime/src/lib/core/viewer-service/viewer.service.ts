@@ -2,20 +2,14 @@ import {
   effect,
   inject,
   Injectable,
-  NgZone,
+  Injector,
   signal,
   Signal,
 } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as d3 from 'd3';
-import {
-  BehaviorSubject,
-  interval,
-  Observable,
-  Subject,
-  Subscription,
-} from 'rxjs';
-import { distinctUntilChanged, sample } from 'rxjs/operators';
+import { interval, Observable, Subject, Subscription } from 'rxjs';
+import { sample } from 'rxjs/operators';
 import { AltoService } from '../alto-service/alto.service';
 import { CanvasService } from '../canvas-service/canvas-service';
 import { ClickService } from '../click-service/click.service';
@@ -54,11 +48,14 @@ declare const OpenSeadragon: any;
 @Injectable()
 export class ViewerService {
   config!: MimeViewerConfig;
+  readonly currentCanvasGroupIndex: Signal<number>;
   readonly isCanvasPressed: Signal<boolean>;
+  readonly isReady: Signal<boolean>;
+  readonly rotation: Signal<number>;
   currentSearch: SearchResult | null = null;
   id = 'ngx-mime-mimeViewer';
   openseadragonId = 'openseadragon';
-  private readonly zone = inject(NgZone);
+  private readonly injector = inject(Injector);
   private readonly clickService = inject(ClickService);
   private readonly canvasService = inject(CanvasService);
   private readonly modeService = inject(ModeService);
@@ -75,10 +72,9 @@ export class ViewerService {
   private tileSources: Array<Resource> = [];
   private subscriptions!: Subscription;
   private readonly currentCenter: Subject<Point> = new Subject();
-  private readonly currentCanvasIndex: BehaviorSubject<number> =
-    new BehaviorSubject(0);
+  private readonly currentCanvasGroupIndexState = signal(0);
   private currentHit: Hit | null = null;
-  private readonly osdIsReady = new BehaviorSubject<boolean>(false);
+  private readonly isReadyState = signal(false);
   private readonly swipeDragEndCounter = new SwipeDragEndCounter();
   private canvasGroupMask!: CanvasGroupMask;
   private readonly pinchStatus = new PinchStatus();
@@ -88,11 +84,15 @@ export class ViewerService {
   private defaultKeyDownHandler: any;
   private zoomStrategy!: ZoomStrategy;
   private goToCanvasGroupStrategy!: GoToCanvasGroupStrategy;
-  private readonly rotation: BehaviorSubject<number> = new BehaviorSubject(0);
+  private readonly rotationState = signal(0);
   private dragStatus = false;
 
   constructor() {
+    this.currentCanvasGroupIndex =
+      this.currentCanvasGroupIndexState.asReadonly();
     this.isCanvasPressed = this.isCanvasPressedState.asReadonly();
+    this.isReady = this.isReadyState.asReadonly();
+    this.rotation = this.rotationState.asReadonly();
     effect(() =>
       this.applyRecognizedTextContentMode(
         this.altoService.recognizedTextContentMode(),
@@ -102,20 +102,8 @@ export class ViewerService {
     this.openseadragonId = this.generateRandomId('openseadragon');
   }
 
-  get onRotationChange(): Observable<number> {
-    return this.rotation.asObservable().pipe(distinctUntilChanged());
-  }
-
   get onCenterChange(): Observable<Point> {
     return this.currentCenter.asObservable();
-  }
-
-  get onCanvasGroupIndexChange(): Observable<number> {
-    return this.currentCanvasIndex.asObservable().pipe(distinctUntilChanged());
-  }
-
-  get onOsdReadyChange(): Observable<boolean> {
-    return this.osdIsReady.asObservable().pipe(distinctUntilChanged());
   }
 
   initialize() {
@@ -152,7 +140,7 @@ export class ViewerService {
   }
 
   public home(): void {
-    if (!this.osdIsReady.getValue()) {
+    if (!this.isReady()) {
       return;
     }
     this.zoomStrategy.setMinZoom(this.modeService.mode());
@@ -164,13 +152,13 @@ export class ViewerService {
 
   public goToPreviousCanvasGroup(): void {
     this.goToCanvasGroupStrategy.goToPreviousCanvasGroup(
-      this.currentCanvasIndex.getValue(),
+      this.currentCanvasGroupIndex(),
     );
   }
 
   public goToNextCanvasGroup(): void {
     this.goToCanvasGroupStrategy.goToNextCanvasGroup(
-      this.currentCanvasIndex.getValue(),
+      this.currentCanvasGroupIndex(),
     );
   }
 
@@ -197,7 +185,7 @@ export class ViewerService {
         this.currentSearch = searchResult;
       }
 
-      const rotation = this.rotation.getValue();
+      const rotation = this.rotation();
 
       for (const hit of searchResult.hits) {
         for (const highlightRect of hit.highlightRects) {
@@ -270,43 +258,42 @@ export class ViewerService {
       this.tileSources = manifest.tileSource;
       this.canvasService.addTileSources(this.tileSources);
 
-      this.zone.runOutsideAngular(() => {
-        this.manifest = manifest;
-        this.isManifestPaged = ManifestUtils.isManifestPaged(this.manifest);
-        this.viewer = new OpenSeadragon.Viewer(
-          OptionsFactory.create(this.openseadragonId, this.config),
-        );
+      this.manifest = manifest;
+      this.isManifestPaged = ManifestUtils.isManifestPaged(this.manifest);
+      this.viewer = new OpenSeadragon.Viewer(
+        OptionsFactory.create(this.openseadragonId, this.config),
+      );
 
-        createSvgOverlay();
-        this.zoomStrategy = new DefaultZoomStrategy(
-          this.viewer,
-          this.canvasService,
-          this.modeService,
-          this.viewerLayoutService,
-        );
-        this.goToCanvasGroupStrategy = new DefaultGoToCanvasGroupStrategy(
-          this.viewer,
-          this.zoomStrategy,
-          this.canvasService,
-          this.modeService,
-          this.config,
-          this.manifest.viewingDirection,
-        );
+      createSvgOverlay();
+      this.zoomStrategy = new DefaultZoomStrategy(
+        this.viewer,
+        this.canvasService,
+        this.modeService,
+        this.viewerLayoutService,
+      );
+      this.goToCanvasGroupStrategy = new DefaultGoToCanvasGroupStrategy(
+        this.viewer,
+        this.zoomStrategy,
+        this.canvasService,
+        this.modeService,
+        this.config,
+        this.manifest.viewingDirection,
+      );
 
-        /*
-          This disables keyboard navigation in openseadragon.
-          We use s for opening search dialog and OSD use the same key for panning.
-          Issue: https://github.com/openseadragon/openseadragon/issues/794
-         */
-        this.defaultKeyDownHandler = this.viewer.innerTracker.keyDownHandler;
-        this.disableKeyDownHandler();
-        this.viewer.innerTracker.keyHandler = null;
-        this.canvasService.reset();
-        this.canvasGroupMask = new CanvasGroupMask(
-          this.viewer,
-          this.styleService,
-        );
-      });
+      /*
+        This disables keyboard navigation in openseadragon.
+        We use s for opening search dialog and OSD use the same key for panning.
+        Issue: https://github.com/openseadragon/openseadragon/issues/794
+       */
+      this.defaultKeyDownHandler = this.viewer.innerTracker.keyDownHandler;
+      this.disableKeyDownHandler();
+      this.viewer.innerTracker.keyHandler = null;
+      this.canvasService.reset();
+      this.canvasGroupMask = new CanvasGroupMask(
+        this.viewer,
+        this.styleService,
+        this.injector,
+      );
 
       this.addToWindow();
       this.setupOverlays();
@@ -323,19 +310,18 @@ export class ViewerService {
         this.modeChanged(mode);
       }),
     );
+    this.modeChanged({ currentValue: this.modeService.mode() });
 
-    this.zone.runOutsideAngular(() => {
-      this.subscriptions.add(
-        this.onCenterChange
-          .pipe(sample(interval(500)))
-          .subscribe((center: Point) => {
-            this.calculateCurrentCanvasGroup(center);
-            if (center && center !== null) {
-              this.osdIsReady.next(true);
-            }
-          }),
-      );
-    });
+    this.subscriptions.add(
+      this.onCenterChange
+        .pipe(sample(interval(500)))
+        .subscribe((center: Point) => {
+          this.calculateCurrentCanvasGroup(center);
+          if (center && center !== null) {
+            this.setReady(true);
+          }
+        }),
+    );
 
     this.subscriptions.add(
       this.canvasService.onCanvasGroupIndexChange.subscribe(
@@ -357,15 +343,6 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.onOsdReadyChange.subscribe((state: boolean) => {
-        if (state) {
-          this.initialCanvasGroupLoaded();
-          this.currentCenter.next(this.viewer?.viewport.getCenter(true));
-        }
-      }),
-    );
-
-    this.subscriptions.add(
       this.viewerLayoutService.onChange.subscribe((state: ViewerLayout) => {
         this.layoutPages();
       }),
@@ -378,12 +355,6 @@ export class ViewerService {
           this.highlightCurrentHit();
           this.goToCanvas(hit.index, false);
         }
-      }),
-    );
-
-    this.subscriptions.add(
-      this.onRotationChange.subscribe((rotation: number) => {
-        this.layoutPages();
       }),
     );
 
@@ -401,7 +372,7 @@ export class ViewerService {
   }
 
   layoutPages() {
-    if (this.osdIsReady.getValue()) {
+    if (this.isReady()) {
       const currentCanvasIndex = this.canvasService.currentCanvasIndex;
       this.destroy(true);
       this.setUpViewer(this.manifest, this.config);
@@ -441,7 +412,7 @@ export class ViewerService {
    * to keep current search-state and rotation
    */
   destroy(layoutSwitch?: boolean) {
-    this.osdIsReady.next(false);
+    this.setReady(false);
     this.currentCenter.next({ x: 0, y: 0 });
     if (this.viewer != null && this.viewer.isOpen()) {
       if (this.viewer.container != null) {
@@ -459,7 +430,7 @@ export class ViewerService {
       this.altoService.destroy();
       this.currentSearch = null;
       this.iiifContentSearchService.destroy();
-      this.rotation.next(0);
+      this.rotationState.set(0);
       this.modeService.destroy();
       this.unsubscribe();
     }
@@ -513,7 +484,7 @@ export class ViewerService {
   }
 
   rotate(): void {
-    if (this.osdIsReady.getValue()) {
+    if (this.isReady()) {
       if (this.viewer.drawer.canRotate()) {
         this.rotateToRight();
         this.highlightCurrentHit();
@@ -772,7 +743,7 @@ export class ViewerService {
     this.canvasService.setViewer(this.viewer);
     this.canvasService.setSvgNode(this.svgNode);
     this.canvasService.setViewingDirection(this.manifest.viewingDirection);
-    this.canvasService.setRotation(this.rotation.getValue());
+    this.canvasService.setRotation(this.rotation());
     this.canvasService.updateViewer();
   }
 
@@ -797,7 +768,7 @@ export class ViewerService {
     if (center) {
       const currentCanvasGroupIndex =
         this.canvasService.findClosestCanvasGroupIndex(center);
-      this.currentCanvasIndex.next(currentCanvasGroupIndex);
+      this.currentCanvasGroupIndexState.set(currentCanvasGroupIndex);
     }
   }
 
@@ -935,7 +906,7 @@ export class ViewerService {
 
     const newCanvasGroupIndex = this.canvasService.constrainToRange(
       calculateNextCanvasGroupStrategy.calculateNextCanvasGroup({
-        currentCanvasGroupCenter: this.currentCanvasIndex.getValue(),
+        currentCanvasGroupCenter: this.currentCanvasGroupIndex(),
         speed: speed,
         direction: direction,
         currentCanvasGroupIndex: currentCanvasGroupIndex,
@@ -979,7 +950,20 @@ export class ViewerService {
   }
 
   private rotateToRight() {
-    this.rotation.next((this.rotation.getValue() + 90) % 360);
+    this.rotationState.update((rotation) => (rotation + 90) % 360);
+    this.layoutPages();
+  }
+
+  private setReady(isReady: boolean): void {
+    if (this.isReady() === isReady) {
+      return;
+    }
+
+    this.isReadyState.set(isReady);
+    if (isReady) {
+      this.initialCanvasGroupLoaded();
+      this.currentCenter.next(this.viewer?.viewport.getCenter(true));
+    }
   }
 
   private showRotationIsNotSupportetMessage() {

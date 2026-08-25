@@ -1,7 +1,9 @@
-import { Component, signal, WritableSignal } from '@angular/core';
+import { Component, Injector, signal, WritableSignal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideAutoSpy } from 'jest-auto-spies';
+import { filter, firstValueFrom } from 'rxjs';
 import { mockIOS } from '../../test/navigator-mocks';
 import { testManifest } from '../../test/testManifest';
 import { AltoService } from '../alto-service/alto.service';
@@ -31,6 +33,7 @@ describe('ViewerService', () => {
   const config = new MimeViewerConfig();
   let snackBar: MatSnackBar;
   let hostFixture: ComponentFixture<TestHostComponent>;
+  let injector: Injector;
   let viewerLayoutService: ViewerLayoutService;
   let viewerService: ViewerService;
   let recognizedTextContentModeState: WritableSignal<RecognizedTextMode>;
@@ -50,13 +53,12 @@ describe('ViewerService', () => {
         provideAutoSpy(IiifContentSearchService, {
           observablePropsToSpyOn: ['onSelected'],
         }),
-        provideAutoSpy(StyleService, {
-          observablePropsToSpyOn: ['onChange'],
-        }),
+        StyleService,
         provideAutoSpy(AltoService),
       ],
     });
 
+    injector = TestBed.inject(Injector);
     viewerLayoutService = TestBed.inject(ViewerLayoutService);
     const altoService = TestBed.inject(AltoService) as any;
     recognizedTextContentModeState = signal(RecognizedTextMode.NONE);
@@ -100,59 +102,42 @@ describe('ViewerService', () => {
     expect(viewerService.currentSearch).toBeNull();
   });
 
-  it('should keep state of rotation on destroy when layoutSwitch = true', (done) => {
-    let rotation: number;
-    viewerService.onRotationChange.subscribe((serviceRotation: number) => {
-      rotation = serviceRotation;
-    });
+  it('should keep state of rotation on destroy when layoutSwitch = true', async () => {
     viewerService.setUpViewer(
       new ManifestBuilder(testManifest).build(),
       config,
     );
+    await waitForViewerReady();
 
-    viewerService.onOsdReadyChange.subscribe((state) => {
-      if (state) {
-        viewerService.rotate();
-        viewerService.destroy(true);
-        expect(rotation).toEqual(90);
-        done();
-      }
-    });
+    viewerService.rotate();
+    viewerService.destroy(true);
+
+    expect(viewerService.rotation()).toEqual(90);
   });
 
-  it('should set rotation to 0 on destroy', (done) => {
-    let rotation: number;
-    viewerService.onRotationChange.subscribe((serviceRotation: number) => {
-      rotation = serviceRotation;
-    });
+  it('should set rotation to 0 on destroy', async () => {
     viewerService.setUpViewer(
       new ManifestBuilder(testManifest).build(),
       config,
     );
+    await waitForViewerReady();
 
-    viewerService.onOsdReadyChange.subscribe((state) => {
-      if (state) {
-        viewerService.rotate();
-        viewerService.destroy(false);
-        expect(rotation).toEqual(0);
-        done();
-      }
-    });
+    viewerService.rotate();
+    viewerService.destroy(false);
+
+    expect(viewerService.rotation()).toEqual(0);
   });
 
-  it('should set viewer to null on destroy', (done) => {
+  it('should set viewer to null on destroy', async () => {
     viewerService.setUpViewer(
       new ManifestBuilder(testManifest).build(),
       config,
     );
+    await waitForViewerReady();
 
-    viewerService.onOsdReadyChange.subscribe((state) => {
-      if (state) {
-        viewerService.destroy(false);
-        expect(viewerService.getViewer()).toBeNull();
-        done();
-      }
-    });
+    viewerService.destroy(false);
+
+    expect(viewerService.getViewer()).toBeNull();
   });
 
   it('should hide pages in recognized-text-only mode', async () => {
@@ -177,27 +162,19 @@ describe('ViewerService', () => {
   });
 
   describe('rotate', () => {
-    it('should rotate if using webgl', (done) => {
+    it('should rotate if using webgl', async () => {
       viewerService.setUpViewer(
         new ManifestBuilder(testManifest).build(),
         config,
       );
+      await waitForViewerReady();
 
-      viewerService.onOsdReadyChange.subscribe((state) => {
-        if (state) {
-          viewerService.rotate();
-        }
-      });
+      viewerService.rotate();
 
-      viewerService.onRotationChange.subscribe((rotation: number) => {
-        if (rotation !== 0) {
-          expect(rotation).toBe(90);
-          done();
-        }
-      });
+      expect(viewerService.rotation()).toBe(90);
     });
 
-    it('should show error message if using html', (done) => {
+    it('should show error message if using html', async () => {
       mockIOS();
       const openSpy = jest.spyOn(snackBar, 'open');
       viewerService.setUpViewer(
@@ -206,15 +183,19 @@ describe('ViewerService', () => {
       );
       const viewer = viewerService.getViewer();
       viewer.useCanvas = false;
+      await waitForViewerReady();
 
-      viewerService.onOsdReadyChange.subscribe((state) => {
-        if (state) {
-          viewerService.rotate();
+      viewerService.rotate();
 
-          expect(openSpy).toHaveBeenCalledTimes(1);
-          done();
-        }
-      });
+      expect(openSpy).toHaveBeenCalledTimes(1);
     });
   });
+
+  function waitForViewerReady(): Promise<boolean> {
+    return firstValueFrom(
+      toObservable(viewerService.isReady, { injector }).pipe(
+        filter((isReady) => isReady),
+      ),
+    );
+  }
 });

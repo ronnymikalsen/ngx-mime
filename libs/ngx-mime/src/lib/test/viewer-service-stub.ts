@@ -1,14 +1,17 @@
-import { Observable, Subject } from 'rxjs';
+import { signal, Signal } from '@angular/core';
 import { Hit } from '../core/models/hit';
 
 export class ViewerServiceStub {
-  canvasGroupChanged = new Subject<number>();
-  get onCanvasGroupIndexChange(): Observable<number> {
-    return this.canvasGroupChanged.asObservable();
+  readonly currentCanvasGroupIndex: Signal<number>;
+  private readonly currentCanvasGroupIndexState = signal(0);
+
+  constructor() {
+    this.currentCanvasGroupIndex =
+      this.currentCanvasGroupIndexState.asReadonly();
   }
 
   setCanvasGroupIndexChange(canvasIndex: number) {
-    this.canvasGroupChanged.next(canvasIndex);
+    this.currentCanvasGroupIndexState.set(canvasIndex);
   }
 
   public goToPreviousCanvasGroup(): void {}

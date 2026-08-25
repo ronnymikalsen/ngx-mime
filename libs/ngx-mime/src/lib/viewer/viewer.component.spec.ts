@@ -1,10 +1,12 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideAutoSpy } from 'jest-auto-spies';
 import 'openseadragon';
+import { filter, firstValueFrom } from 'rxjs';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
 import { ContentSearchDialogService } from '../content-search-dialog/content-search-dialog.service';
 import { AccessKeysService } from '../core/access-keys-handler-service/access-keys.service';
@@ -38,6 +40,7 @@ describe('ViewerComponent', () => {
   const config: MimeViewerConfig = new MimeViewerConfig();
   const osdAnimationTime = 4000;
   let comp: ViewerComponent;
+  let injector: Injector;
   let testHostComponent: TestHostComponent;
   let testHostFixture: ComponentFixture<TestHostComponent>;
   let viewerService: ViewerService;
@@ -99,6 +102,7 @@ describe('ViewerComponent', () => {
     testHostComponent = testHostFixture.componentInstance;
     testHostComponent.manifestUri = 'dummyURI1';
 
+    injector = TestBed.inject(Injector);
     viewerService = TestBed.inject(ViewerService);
     canvasService = TestBed.inject(CanvasService);
     modeService = TestBed.inject(ModeService);
@@ -218,40 +222,34 @@ describe('ViewerComponent', () => {
     );
   });
 
-  it('should return to home zoom', (done) => {
+  it('should return to home zoom', async () => {
     testHostFixture.detectChanges();
+    await waitForViewerReady();
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
-    viewerService.onOsdReadyChange.subscribe((state: boolean) => {
-      if (state) {
-        setTimeout(() => {
-          const overlay = viewerService.getOverlays()[0];
-          const viewer = viewerService.getViewer();
+    const overlay = viewerService.getOverlays()[0];
+    const viewer = viewerService.getViewer();
 
-          // Make sure zooming actually works, or else test will always be true
-          const startZoom = viewer.viewport.getZoom(false);
-          viewerService.zoomIn();
-          const newZoom = viewer.viewport.getZoom(false);
-          expect(newZoom).toBeGreaterThan(startZoom);
+    // Make sure zooming actually works, or else test will always be true
+    const startZoom = viewer.viewport.getZoom(false);
+    viewerService.zoomIn();
+    const newZoom = viewer.viewport.getZoom(false);
+    expect(newZoom).toBeGreaterThan(startZoom);
 
-          // Return to home
-          viewerService.home();
+    // Return to home
+    viewerService.home();
 
-          const overlayWidth = getAttributeAsInt(overlay, 'width');
-          const overlayHeight = getAttributeAsInt(overlay, 'height');
-          const viewportHeight = Math.round(viewer.viewport.getBounds().height);
-          const viewportWidth = Math.round(viewer.viewport.getBounds().width);
-          expect(
-            overlayHeight === viewportHeight || overlayWidth === viewportWidth,
-          ).toEqual(true);
-
-          done();
-        }, 600);
-      }
-    });
+    const overlayWidth = getAttributeAsInt(overlay, 'width');
+    const overlayHeight = getAttributeAsInt(overlay, 'height');
+    const viewportHeight = Math.round(viewer.viewport.getBounds().height);
+    const viewportWidth = Math.round(viewer.viewport.getBounds().width);
+    expect(
+      overlayHeight === viewportHeight || overlayWidth === viewportWidth,
+    ).toEqual(true);
   });
 
   // @TODO need to find a way to test this in jest
-  xit('should return to home after resize', (done) => {
+  xit('should return to home after resize', async () => {
     testHostFixture.detectChanges();
 
     const viewer = viewerService.getViewer();
@@ -261,69 +259,59 @@ describe('ViewerComponent', () => {
     );
     const element = openseadragonDE.nativeElement;
     let viewportHeight, viewportWidth;
+    await waitForViewerReady();
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
-    viewerService.onOsdReadyChange.subscribe((state: boolean) => {
-      if (state) {
-        setTimeout(() => {
-          const startMinZoomLevel = viewer.viewport.minZoomLevel;
-          viewportHeight = Math.round(viewer.viewport.getBounds().height);
-          viewportWidth = Math.round(viewer.viewport.getBounds().width);
+    const startMinZoomLevel = viewer.viewport.minZoomLevel;
+    viewportHeight = Math.round(viewer.viewport.getBounds().height);
+    viewportWidth = Math.round(viewer.viewport.getBounds().width);
 
-          const overlayWidth = getAttributeAsInt(overlay, 'width');
-          const overlayHeight = getAttributeAsInt(overlay, 'height');
+    const overlayWidth = getAttributeAsInt(overlay, 'width');
+    const overlayHeight = getAttributeAsInt(overlay, 'height');
 
-          // Starting out at home
-          expect(
-            overlayHeight === viewportHeight || overlayWidth === viewportWidth,
-          ).toEqual(true);
+    // Starting out at home
+    expect(
+      overlayHeight === viewportHeight || overlayWidth === viewportWidth,
+    ).toEqual(true);
 
-          // Resize OSD
-          element.style.display = 'block';
-          element.style.width = '800px';
-          element.style.height = '400px';
-          element.dispatchEvent(new Event('resize'));
-          Object.defineProperty(window, 'innerHeight', {
-            writable: true,
-            configurable: true,
-            value: 150,
-          });
-
-          window.dispatchEvent(new Event('resize'));
-
-          expect(window.innerHeight).toBe(150);
-
-          setTimeout(() => {
-            viewportHeight = Math.round(viewer.viewport.getBounds().height);
-            viewportWidth = Math.round(viewer.viewport.getBounds().width);
-
-            expect(
-              overlayHeight !== viewportHeight &&
-                overlayWidth !== viewportWidth,
-            ).toBe(true);
-
-            // Return to home
-            mimeResizeServiceStub.triggerResize();
-
-            setTimeout(() => {
-              // Confirm that minimum zoom level is updated
-              const endMinZoomLevel = viewer.viewport.minZoomLevel;
-              expect(endMinZoomLevel).toBeGreaterThan(startMinZoomLevel);
-
-              viewportHeight = Math.round(viewer.viewport.getBounds().height);
-              viewportWidth = Math.round(viewer.viewport.getBounds().width);
-
-              // Returned to home
-              expect(
-                overlayHeight === viewportHeight ||
-                  overlayWidth === viewportWidth,
-              ).toBe(true);
-
-              done();
-            }, 600);
-          }, 600);
-        }, 600);
-      }
+    // Resize OSD
+    element.style.display = 'block';
+    element.style.width = '800px';
+    element.style.height = '400px';
+    element.dispatchEvent(new Event('resize'));
+    Object.defineProperty(window, 'innerHeight', {
+      writable: true,
+      configurable: true,
+      value: 150,
     });
+
+    window.dispatchEvent(new Event('resize'));
+
+    expect(window.innerHeight).toBe(150);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    viewportHeight = Math.round(viewer.viewport.getBounds().height);
+    viewportWidth = Math.round(viewer.viewport.getBounds().width);
+
+    expect(
+      overlayHeight !== viewportHeight && overlayWidth !== viewportWidth,
+    ).toBe(true);
+
+    // Return to home
+    mimeResizeServiceStub.triggerResize();
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    // Confirm that minimum zoom level is updated
+    const endMinZoomLevel = viewer.viewport.minZoomLevel;
+    expect(endMinZoomLevel).toBeGreaterThan(startMinZoomLevel);
+
+    viewportHeight = Math.round(viewer.viewport.getBounds().height);
+    viewportWidth = Math.round(viewer.viewport.getBounds().width);
+
+    // Returned to home
+    expect(
+      overlayHeight === viewportHeight || overlayWidth === viewportWidth,
+    ).toBe(true);
   });
 
   it('should return overlay-index if target is an overlay', () => {
@@ -424,27 +412,22 @@ describe('ViewerComponent', () => {
     expect(selectedMode).toEqual(ViewerMode.DASHBOARD);
   });
 
-  it('should emit when canvas group number changes', (done) => {
+  it('should emit when canvas group number changes', async () => {
     testHostFixture.detectChanges();
     let currentCanvasIndex: number;
     comp.canvasChanged.subscribe(
       (canvasIndex: number) => (currentCanvasIndex = canvasIndex),
     );
-    viewerService.onOsdReadyChange.subscribe((state: boolean) => {
-      if (state) {
-        setTimeout(() => {
-          viewerService.goToCanvasGroup(1, false);
-        }, 100);
+    await waitForViewerReady();
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-        setTimeout(() => {
-          expect(currentCanvasIndex).toEqual(1);
-          done();
-        }, osdAnimationTime);
-      }
-    });
+    viewerService.goToCanvasGroup(1, false);
+    await new Promise((resolve) => setTimeout(resolve, osdAnimationTime));
+
+    expect(currentCanvasIndex).toEqual(1);
   });
 
-  it('should stay on same tile after a ViewerLayout change', (done) => {
+  it('should stay on same tile after a ViewerLayout change', async () => {
     // Need to set canvasIndex on input of component to trigger previous occuring bug
     testHostComponent.canvasIndex = 3;
     testHostComponent.config = new MimeViewerConfig({
@@ -452,20 +435,16 @@ describe('ViewerComponent', () => {
     });
 
     testHostFixture.detectChanges();
+    await waitForViewerReady();
 
-    viewerService.onOsdReadyChange.subscribe((state: boolean) => {
-      if (state) {
-        expect(canvasService.currentCanvasIndex).toEqual(3);
+    expect(canvasService.currentCanvasIndex).toEqual(3);
 
-        viewerService.goToCanvas(7, false);
-        expect(canvasService.currentCanvasIndex).toEqual(7);
+    viewerService.goToCanvas(7, false);
+    expect(canvasService.currentCanvasIndex).toEqual(7);
 
-        viewerLayoutService.setLayout(ViewerLayout.TWO_PAGE);
+    viewerLayoutService.setLayout(ViewerLayout.TWO_PAGE);
 
-        expect(canvasService.currentCanvasIndex).toEqual(7);
-        done();
-      }
-    });
+    expect(canvasService.currentCanvasIndex).toEqual(7);
   });
 
   it('should emit when q changes', () => {
@@ -490,20 +469,16 @@ describe('ViewerComponent', () => {
     );
   });
 
-  it('should open viewer on canvas index if present', (done) => {
+  it('should open viewer on canvas index if present', async () => {
     testHostComponent.canvasIndex = 12;
     testHostComponent.config = new MimeViewerConfig({
       initViewerLayout: ViewerLayout.ONE_PAGE,
     });
 
     testHostFixture.detectChanges();
+    await waitForViewerReady();
 
-    viewerService.onOsdReadyChange.subscribe((state: boolean) => {
-      if (state) {
-        expect(canvasService.currentCanvasIndex).toEqual(12);
-        done();
-      }
-    });
+    expect(canvasService.currentCanvasIndex).toEqual(12);
   });
 
   describe('header', () => {
@@ -611,22 +586,18 @@ describe('ViewerComponent', () => {
   });
 
   // By.css() query does not find SVG elements https://github.com/angular/angular/pull/15372
-  xit('should add a mask around the canvas group', (done) => {
-    viewerService.onOsdReadyChange.subscribe((state: boolean) => {
-      if (state) {
-        setTimeout(() => {
-          const leftCanvasGroupMask = testHostFixture.debugElement.query(
-            By.css('[data-testid="mime-left-page-mask"]'),
-          );
-          const rightCanvasGroupMask = testHostFixture.debugElement.query(
-            By.css('[data-testid="mime-right-page-mask"]'),
-          );
-          expect(leftCanvasGroupMask).not.toBeNull();
-          expect(rightCanvasGroupMask).not.toBeNull();
-          done();
-        }, 600);
-      }
-    });
+  xit('should add a mask around the canvas group', async () => {
+    await waitForViewerReady();
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    const leftCanvasGroupMask = testHostFixture.debugElement.query(
+      By.css('[data-testid="mime-left-page-mask"]'),
+    );
+    const rightCanvasGroupMask = testHostFixture.debugElement.query(
+      By.css('[data-testid="mime-right-page-mask"]'),
+    );
+    expect(leftCanvasGroupMask).not.toBeNull();
+    expect(rightCanvasGroupMask).not.toBeNull();
   });
 
   describe('Fab button for toggling OSD controls', () => {
@@ -698,6 +669,14 @@ describe('ViewerComponent', () => {
     return testHostFixture.debugElement.query(By.css('mime-osd-toolbar'))
       .nativeElement;
   };
+
+  function waitForViewerReady(): Promise<boolean> {
+    return firstValueFrom(
+      toObservable(viewerService.isReady, { injector }).pipe(
+        filter((isReady) => isReady),
+      ),
+    );
+  }
 
   function pinchOut() {
     viewerService

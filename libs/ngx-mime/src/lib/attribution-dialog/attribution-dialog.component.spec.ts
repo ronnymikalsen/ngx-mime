@@ -25,9 +25,7 @@ describe('AttributionDialogComponent', () => {
         MimeViewerIntl,
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
         provideAutoSpy(AttributionDialogResizeService),
-        provideAutoSpy(StyleService, {
-          observablePropsToSpyOn: ['onChange'],
-        }),
+        StyleService,
         provideAutoSpy(AccessKeysService),
       ],
     }).compileComponents();
