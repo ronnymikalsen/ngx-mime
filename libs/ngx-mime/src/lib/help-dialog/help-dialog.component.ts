@@ -44,10 +44,12 @@ export class HelpDialogComponent {
     ),
     { initialValue: 0 },
   );
-  readonly tabHeight = computed(() => {
+  readonly tabHeight = computed(() => this.getTabHeight());
+
+  private getTabHeight(): { maxHeight: string } {
     const height = this.isHandsetOrTabletInPortrait()
       ? window.innerHeight - 128
       : this.mimeHeight() - 220;
     return { maxHeight: `${height}px` };
-  });
+  }
 }

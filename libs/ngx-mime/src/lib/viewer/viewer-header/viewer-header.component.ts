@@ -45,28 +45,16 @@ export class ViewerHeaderComponent {
     Boolean(this.manifest()?.service),
   );
   readonly isFullscreenEnabled = inject(FullscreenService).isEnabled();
-  readonly isInFullscreen = (() => {
-    const fullscreenService = inject(FullscreenService);
-    return toSignal(
-      fullscreenService.onChange.pipe(
-        map(() => fullscreenService.isFullscreen()),
-      ),
-      { initialValue: fullscreenService.isFullscreen() },
-    );
-  })();
+  readonly isInFullscreen = this.createIsInFullscreenSignal();
   readonly fullscreenLabel = computed(() =>
     this.isInFullscreen()
       ? this.intl().exitFullScreenLabel
       : this.intl().fullScreenLabel,
   );
-  readonly isPagedManifest = computed(() => {
-    const manifest = this.manifest();
-    return manifest ? ManifestUtils.isManifestPaged(manifest) : false;
-  });
-  readonly hasRecognizedTextContent = computed(() => {
-    const manifest = this.manifest();
-    return manifest ? ManifestUtils.hasRecognizedTextContent(manifest) : false;
-  });
+  readonly isPagedManifest = computed(() => this.isCurrentManifestPaged());
+  readonly hasRecognizedTextContent = computed(() =>
+    this.currentManifestHasRecognizedTextContent(),
+  );
   private readonly informationDialogService = inject(InformationDialogService);
   private readonly contentSearchDialogService = inject(
     ContentSearchDialogService,
@@ -105,5 +93,25 @@ export class ViewerHeaderComponent {
 
   toggleFullscreen(): void {
     return this.mimeDomHelper.toggleFullscreen();
+  }
+
+  private createIsInFullscreenSignal() {
+    const fullscreenService = inject(FullscreenService);
+    return toSignal(
+      fullscreenService.onChange.pipe(
+        map(() => fullscreenService.isFullscreen()),
+      ),
+      { initialValue: fullscreenService.isFullscreen() },
+    );
+  }
+
+  private isCurrentManifestPaged(): boolean {
+    const manifest = this.manifest();
+    return manifest ? ManifestUtils.isManifestPaged(manifest) : false;
+  }
+
+  private currentManifestHasRecognizedTextContent(): boolean {
+    const manifest = this.manifest();
+    return manifest ? ManifestUtils.hasRecognizedTextContent(manifest) : false;
   }
 }

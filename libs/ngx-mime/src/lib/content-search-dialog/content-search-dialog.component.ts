@@ -103,32 +103,15 @@ export class ContentSearchDialogComponent {
   readonly currentHit = toSignal(inject(IiifContentSearchService).onSelected, {
     initialValue: null,
   });
-  readonly tabHeight = computed(() => ({
-    maxHeight: this.isHandsetOrTabletInPortrait()
-      ? `${window.innerHeight - 128}px`
-      : `${this.mimeHeight() - 320}px`,
-  }));
+  readonly tabHeight = computed(() => this.getTabHeight());
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
   private readonly contentSearchNavigationService = inject(
     ContentSearchNavigationService,
   );
 
   constructor() {
-    afterRenderEffect(() => {
-      const searchResult = this.searchResult();
-      if (searchResult.size() > 0) {
-        this.resultContainer().nativeElement.focus();
-      } else {
-        this.qEl().nativeElement.focus();
-      }
-    });
-
-    afterRenderEffect(() => {
-      const currentHit = this.currentHit();
-      if (currentHit !== null) {
-        this.hitList()[currentHit.id]?.nativeElement.focus();
-      }
-    });
+    afterRenderEffect(() => this.focusSearchInputOrResults());
+    afterRenderEffect(() => this.focusCurrentHit());
   }
 
   async onSubmit(event: SubmitEvent): Promise<void> {
@@ -155,5 +138,28 @@ export class ContentSearchDialogComponent {
     if (manifest) {
       this.iiifContentSearchService.search(manifest, query);
     }
+  }
+
+  private focusSearchInputOrResults(): void {
+    const searchResult = this.searchResult();
+    if (searchResult.size() > 0) {
+      this.resultContainer().nativeElement.focus();
+    } else {
+      this.qEl().nativeElement.focus();
+    }
+  }
+
+  private focusCurrentHit(): void {
+    const currentHit = this.currentHit();
+    if (currentHit !== null) {
+      this.hitList()[currentHit.id]?.nativeElement.focus();
+    }
+  }
+
+  private getTabHeight(): { maxHeight: string } {
+    const height = this.isHandsetOrTabletInPortrait()
+      ? window.innerHeight - 128
+      : this.mimeHeight() - 320;
+    return { maxHeight: `${height}px` };
   }
 }

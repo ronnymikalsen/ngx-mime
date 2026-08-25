@@ -64,26 +64,17 @@ export class ViewDialogComponent {
   readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
     initialValue: null,
   });
-  readonly isPagedManifest = computed(() => {
-    const manifest = this.manifest();
-    return manifest ? ManifestUtils.isManifestPaged(manifest) : false;
-  });
-  readonly hasRecognizedTextContent = computed(() => {
-    const manifest = this.manifest();
-    return manifest ? ManifestUtils.hasRecognizedTextContent(manifest) : false;
-  });
+  readonly isPagedManifest = computed(() => this.isCurrentManifestPaged());
+  readonly hasRecognizedTextContent = computed(() =>
+    this.currentManifestHasRecognizedTextContent(),
+  );
   readonly mimeHeight = toSignal(
     inject(MimeResizeService).onResize.pipe(
       map((dimensions) => dimensions.height),
     ),
     { initialValue: 0 },
   );
-  readonly tabHeight = computed(() => {
-    const height = this.isHandsetOrTabletInPortrait()
-      ? window.innerHeight - 128
-      : this.mimeHeight() - 220;
-    return { maxHeight: `${height}px` };
-  });
+  readonly tabHeight = computed(() => this.getTabHeight());
   private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly altoService = inject(AltoService);
 
@@ -105,5 +96,22 @@ export class ViewDialogComponent {
 
   showRecognizedTextContentOnly(): void {
     this.altoService.showRecognizedTextContentOnly();
+  }
+
+  private isCurrentManifestPaged(): boolean {
+    const manifest = this.manifest();
+    return manifest ? ManifestUtils.isManifestPaged(manifest) : false;
+  }
+
+  private currentManifestHasRecognizedTextContent(): boolean {
+    const manifest = this.manifest();
+    return manifest ? ManifestUtils.hasRecognizedTextContent(manifest) : false;
+  }
+
+  private getTabHeight(): { maxHeight: string } {
+    const height = this.isHandsetOrTabletInPortrait()
+      ? window.innerHeight - 128
+      : this.mimeHeight() - 220;
+    return { maxHeight: `${height}px` };
   }
 }

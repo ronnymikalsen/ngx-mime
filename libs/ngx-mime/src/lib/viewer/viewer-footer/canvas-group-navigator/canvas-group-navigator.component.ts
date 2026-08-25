@@ -43,31 +43,15 @@ export class CanvasGroupNavigatorComponent {
   readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
     initialValue: null,
   });
-  readonly currentViewingDirection = computed<Direction>(() => {
-    const manifest = this.manifest();
-    return !manifest || manifest.viewingDirection === ViewingDirection.LTR
-      ? ViewingDirection.LTR
-      : ViewingDirection.RTL;
-  });
+  readonly currentViewingDirection = computed<Direction>(() =>
+    this.getCurrentViewingDirection(),
+  );
   readonly numberOfCanvasGroups = toSignal(
     inject(CanvasService).onNumberOfCanvasGroupsChange,
     { initialValue: 0 },
   );
-  readonly numberOfCanvases = (() => {
-    const canvasService = inject(CanvasService);
-    return toSignal(
-      canvasService.onNumberOfCanvasGroupsChange.pipe(
-        map(() => canvasService.numberOfCanvases),
-      ),
-      { initialValue: canvasService.numberOfCanvases },
-    );
-  })();
-  readonly serviceCanvasGroupIndex = (() => {
-    const canvasService = inject(CanvasService);
-    return toSignal(canvasService.onCanvasGroupIndexChange, {
-      initialValue: canvasService.currentCanvasGroupIndex,
-    });
-  })();
+  readonly numberOfCanvases = this.createNumberOfCanvasesSignal();
+  readonly serviceCanvasGroupIndex = this.createCanvasGroupIndexSignal();
   readonly currentCanvasGroupIndex = linkedSignal(() =>
     this.serviceCanvasGroupIndex(),
   );
@@ -108,5 +92,29 @@ export class CanvasGroupNavigatorComponent {
 
   openCanvasGroupDialog(): void {
     this.canvasGroupDialogService.toggle();
+  }
+
+  private getCurrentViewingDirection(): Direction {
+    const manifest = this.manifest();
+    return !manifest || manifest.viewingDirection === ViewingDirection.LTR
+      ? ViewingDirection.LTR
+      : ViewingDirection.RTL;
+  }
+
+  private createNumberOfCanvasesSignal() {
+    const canvasService = inject(CanvasService);
+    return toSignal(
+      canvasService.onNumberOfCanvasGroupsChange.pipe(
+        map(() => canvasService.numberOfCanvases),
+      ),
+      { initialValue: canvasService.numberOfCanvases },
+    );
+  }
+
+  private createCanvasGroupIndexSignal() {
+    const canvasService = inject(CanvasService);
+    return toSignal(canvasService.onCanvasGroupIndexChange, {
+      initialValue: canvasService.currentCanvasGroupIndex,
+    });
   }
 }

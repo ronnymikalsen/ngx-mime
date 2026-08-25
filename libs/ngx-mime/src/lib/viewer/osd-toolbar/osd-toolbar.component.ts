@@ -30,13 +30,7 @@ import { ViewerService } from '../../core/viewer-service/viewer.service';
 export class OsdToolbarComponent {
   @ViewChild('container', { static: true }) container!: ElementRef;
   readonly intl = injectMimeViewerIntlSignal();
-  readonly isZoomed = (() => {
-    const modeService = inject(ModeService);
-    return toSignal(
-      modeService.onChange.pipe(map(() => modeService.isPageZoomed())),
-      { initialValue: modeService.isPageZoomed() },
-    );
-  })();
+  readonly isZoomed = this.createIsZoomedSignal();
   readonly isWeb = toSignal(
     inject(BreakpointObserver)
       .observe([Breakpoints.Web])
@@ -96,5 +90,13 @@ export class OsdToolbarComponent {
 
   goToNextCanvasGroup(): void {
     this.viewerService.goToNextCanvasGroup();
+  }
+
+  private createIsZoomedSignal() {
+    const modeService = inject(ModeService);
+    return toSignal(
+      modeService.onChange.pipe(map(() => modeService.isPageZoomed())),
+      { initialValue: modeService.isPageZoomed() },
+    );
   }
 }

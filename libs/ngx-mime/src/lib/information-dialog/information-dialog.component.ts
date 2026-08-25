@@ -66,12 +66,7 @@ export class InformationDialogComponent {
     ),
     { initialValue: 0 },
   );
-  readonly tabHeight = computed(() => {
-    const height = this.isHandsetOrTabletInPortrait()
-      ? window.innerHeight - 128
-      : this.mimeHeight() - 288;
-    return { maxHeight: `${height}px` };
-  });
+  readonly tabHeight = computed(() => this.getTabHeight());
   private readonly dialogRef =
     inject<MatDialogRef<InformationDialogComponent>>(MatDialogRef);
 
@@ -79,5 +74,12 @@ export class InformationDialogComponent {
     if (this.isHandsetOrTabletInPortrait()) {
       this.dialogRef.close();
     }
+  }
+
+  private getTabHeight(): { maxHeight: string } {
+    const height = this.isHandsetOrTabletInPortrait()
+      ? window.innerHeight - 128
+      : this.mimeHeight() - 288;
+    return { maxHeight: `${height}px` };
   }
 }

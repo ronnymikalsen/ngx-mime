@@ -40,26 +40,18 @@ export class AttributionDialogComponent {
   readonly manifest = toSignal(inject(IiifManifestService).currentManifest, {
     initialValue: null,
   });
-  readonly backgroundColor = (() => {
-    const styleService = inject(StyleService);
-    const color = toSignal(styleService.onChange, { initialValue: undefined });
-    return computed(() => {
-      const value = color();
-      return value ? styleService.convertToRgba(value, 0.3) : null;
-    });
-  })();
+  readonly backgroundColor = computed(() => this.getBackgroundColor());
+  private readonly styleService = inject(StyleService);
+  private readonly styleColor = toSignal(this.styleService.onChange, {
+    initialValue: undefined,
+  });
   private readonly attributionDialogResizeService = inject(
     AttributionDialogResizeService,
   );
   private readonly accessKeysHandlerService = inject(AccessKeysService);
 
   constructor() {
-    afterRenderEffect(() => {
-      this.manifest();
-      this.intl();
-      this.attributionDialogResizeService.el = this.container();
-      this.attributionDialogResizeService.markForCheck();
-    });
+    afterRenderEffect(() => this.updateDialogSize());
   }
 
   @HostListener('keydown', ['$event'])
@@ -69,6 +61,18 @@ export class AttributionDialogComponent {
 
   @HostListener('window:resize')
   onResize(): void {
+    this.attributionDialogResizeService.markForCheck();
+  }
+
+  private getBackgroundColor(): string | null {
+    const color = this.styleColor();
+    return color ? this.styleService.convertToRgba(color, 0.3) : null;
+  }
+
+  private updateDialogSize(): void {
+    this.manifest();
+    this.intl();
+    this.attributionDialogResizeService.el = this.container();
     this.attributionDialogResizeService.markForCheck();
   }
 }

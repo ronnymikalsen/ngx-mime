@@ -49,19 +49,8 @@ export class ContentSearchNavigatorComponent {
     ),
     { initialValue: false },
   );
-  readonly isHitOnActiveCanvasGroup = (() => {
-    const canvasService = inject(CanvasService);
-    const navigationService = inject(ContentSearchNavigationService);
-    return toSignal(
-      canvasService.onCanvasGroupIndexChange.pipe(
-        map((canvasGroupIndex) => {
-          navigationService.update(canvasGroupIndex);
-          return navigationService.getHitOnActiveCanvasGroup();
-        }),
-      ),
-      { initialValue: false },
-    );
-  })();
+  readonly isHitOnActiveCanvasGroup =
+    this.createIsHitOnActiveCanvasGroupSignal();
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
   private readonly contentSearchNavigationService = inject(
     ContentSearchNavigationService,
@@ -85,5 +74,19 @@ export class ContentSearchNavigatorComponent {
 
   goToPreviousHit(): void {
     this.contentSearchNavigationService.goToPreviousHit();
+  }
+
+  private createIsHitOnActiveCanvasGroupSignal() {
+    const canvasService = inject(CanvasService);
+    const navigationService = inject(ContentSearchNavigationService);
+    return toSignal(
+      canvasService.onCanvasGroupIndexChange.pipe(
+        map((canvasGroupIndex) => {
+          navigationService.update(canvasGroupIndex);
+          return navigationService.getHitOnActiveCanvasGroup();
+        }),
+      ),
+      { initialValue: false },
+    );
   }
 }
