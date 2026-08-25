@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { form, FormField, submit } from '@angular/forms/signals';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -26,12 +26,12 @@ import { ThemePickerComponent } from './theme-picker/theme-picker.component';
 export class NavbarComponent {
   private readonly router = inject(Router);
 
-  @Input() sidenav!: MatSidenav;
+  readonly sidenav = input.required<MatSidenav>();
   readonly manifestModel = signal({ uri: '' });
   readonly manifestForm = form(this.manifestModel);
 
   toggle() {
-    this.sidenav.toggle();
+    this.sidenav().toggle();
   }
 
   async onSubmit(event: SubmitEvent): Promise<void> {

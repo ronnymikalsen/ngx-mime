@@ -3,7 +3,7 @@ import {
   Component,
   computed,
   inject,
-  Input,
+  input,
   linkedSignal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -44,7 +44,7 @@ export class CanvasGroupNavigatorComponent {
   private readonly canvasGroupDialogService = inject(CanvasGroupDialogService);
   readonly intl = injectMimeViewerIntlSignal();
 
-  @Input() searchResult!: SearchResult;
+  readonly searchResult = input.required<SearchResult>();
   readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });

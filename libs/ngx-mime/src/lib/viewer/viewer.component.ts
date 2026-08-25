@@ -5,22 +5,21 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
   HostListener,
   inject,
-  Input,
+  input,
   linkedSignal,
   NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
+  output,
   signal,
   SimpleChanges,
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { outputToObservable, toSignal } from '@angular/core/rxjs-interop';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { interval, Subscription } from 'rxjs';
@@ -112,17 +111,18 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     },
   );
 
-  @Input() manifestUri: string | null = null;
-  @Input() q!: string;
-  @Input() canvasIndex = 0;
-  @Input() config: MimeViewerConfig = new MimeViewerConfig();
-  @Input() tabIndex = 0;
-  @Output() viewerModeChanged: EventEmitter<ViewerMode> = new EventEmitter();
-  @Output() canvasChanged: EventEmitter<number> = new EventEmitter();
-  @Output() qChanged: EventEmitter<string> = new EventEmitter();
-  @Output() manifestChanged: EventEmitter<Manifest> = new EventEmitter();
-  @Output() recognizedTextContentModeChanged: EventEmitter<RecognizedTextMode> =
-    new EventEmitter();
+  readonly manifestUri = input<string | null>(null);
+  readonly q = input<string>();
+  readonly canvasIndex = input(0);
+  readonly config = input<MimeViewerConfig>(new MimeViewerConfig());
+  readonly tabIndex = input(0);
+  readonly viewerModeChanged = output<ViewerMode>();
+  readonly canvasChanged = output<number>();
+  readonly qChanged = output<string>();
+  readonly manifestChanged = output<Manifest>();
+  readonly recognizedTextContentModeChanged = output<RecognizedTextMode>();
+  private readonly activeManifestUri = linkedSignal(() => this.manifestUri());
+  private readonly manifestChanges = outputToObservable(this.manifestChanged);
   readonly recognizedTextMode = RecognizedTextMode;
   id = 'ngx-mime-mimeViewer';
   openseadragonId = 'openseadragon';
@@ -192,19 +192,21 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   onDrop(event: any) {
     event.preventDefault();
     event.stopPropagation();
-    if (this.config.isDropEnabled) {
+    if (this.config().isDropEnabled) {
       const url = event.dataTransfer.getData('URL');
       const params = new URL(url).searchParams;
       const manifestUri = params.get('manifest');
       const startCanvasId = params.get('canvas');
       if (manifestUri) {
-        this.manifestUri = manifestUri.startsWith('//')
-          ? `${location.protocol}${manifestUri}`
-          : manifestUri;
+        this.activeManifestUri.set(
+          manifestUri.startsWith('//')
+            ? `${location.protocol}${manifestUri}`
+            : manifestUri,
+        );
         this.cleanup();
         this.loadManifest();
         if (startCanvasId) {
-          this.manifestChanged.pipe(take(1)).subscribe((manifest) => {
+          this.manifestChanges.pipe(take(1)).subscribe((manifest) => {
             const canvasIndex = manifest.sequences
               ? manifest.sequences[0]?.canvases?.findIndex(
                   (c) => c.id === startCanvasId,
@@ -246,22 +248,24 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
           if (manifest) {
             this.initialize();
             this.currentManifest = manifest;
-            this.manifestChanged.next(manifest);
+            this.manifestChanged.emit(manifest);
             this.viewerLayoutService.init(
               ManifestUtils.isManifestPaged(manifest),
             );
             // OpenSeadragon needs its host element to exist before setup.
             this.changeDetectorRef.detectChanges();
-            this.viewerService.setUpViewer(manifest, this.config);
+            const config = this.config();
+            this.viewerService.setUpViewer(manifest, config);
             this.altoService.initialize();
-            if (this.config.attributionDialogEnabled && manifest.attribution) {
+            if (config.attributionDialogEnabled && manifest.attribution) {
               this.attributionDialogService.open(
-                this.config.attributionDialogHideTimeout,
+                config.attributionDialogHideTimeout,
               );
             }
 
-            if (this.q) {
-              this.iiifContentSearchService.search(manifest, this.q);
+            const q = this.q();
+            if (q) {
+              this.iiifContentSearchService.search(manifest, q);
             }
           }
         },
@@ -273,10 +277,10 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
         // Don't reset current page when switching layout
         if (
           state &&
-          this.canvasIndex &&
+          this.canvasIndex() &&
           !this.canvasService.currentCanvasGroupIndex
         ) {
-          this.viewerService.goToCanvas(this.canvasIndex, false);
+          this.viewerService.goToCanvas(this.canvasIndex(), false);
         }
       }),
     );
@@ -302,12 +306,13 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
     this.subscriptions.add(
       this.modeService.onChange.subscribe((mode: ModeChanges) => {
-        if (mode.currentValue !== undefined) {
-          this.toggleToolbarsState(mode.currentValue);
+        const currentMode = mode.currentValue;
+        if (currentMode !== undefined) {
+          this.toggleToolbarsState(currentMode);
         }
         if (
           mode.previousValue === ViewerMode.DASHBOARD &&
-          mode.currentValue === ViewerMode.PAGE
+          currentMode === ViewerMode.PAGE
         ) {
           this.viewerState.viewDialogState.isOpen =
             this.viewDialogService.isOpen();
@@ -326,7 +331,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             this.helpDialogService.close();
           });
         }
-        if (mode.currentValue === ViewerMode.DASHBOARD) {
+        if (currentMode === ViewerMode.DASHBOARD) {
           this.zone.run(() => {
             if (this.viewerState.viewDialogState.isOpen) {
               this.viewDialogService.open();
@@ -344,9 +349,11 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
             }
           });
         }
-        this.zone.run(() => {
-          this.viewerModeChanged.emit(mode.currentValue);
-        });
+        if (currentMode !== undefined) {
+          this.zone.run(() => {
+            this.viewerModeChanged.emit(currentMode);
+          });
+        }
       }),
     );
 
@@ -389,32 +396,32 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['config']) {
-      this.viewerService.setConfig(this.config);
-      this.viewerLayoutService.setConfig(this.config);
-      this.iiifContentSearchService.setConfig(this.config);
-      this.altoService.setConfig(this.config);
-      this.modeService.setConfig(this.config);
+      const config = this.config();
+      this.viewerService.setConfig(config);
+      this.viewerLayoutService.setConfig(config);
+      this.iiifContentSearchService.setConfig(config);
+      this.altoService.setConfig(config);
+      this.modeService.setConfig(config);
       this.modeService.initialize();
     }
 
     if (changes['manifestUri']) {
       this.cleanup();
-      this.modeService.mode = this.config.initViewerMode;
-      this.manifestUri = changes['manifestUri'].currentValue;
+      this.modeService.mode = this.config().initViewerMode;
       this.loadManifest();
     }
 
     if (changes['q']) {
-      this.q = changes['q'].currentValue;
-      if (this.currentManifest) {
-        this.iiifContentSearchService.search(this.currentManifest, this.q);
+      const q = this.q();
+      if (this.currentManifest && q !== undefined) {
+        this.iiifContentSearchService.search(this.currentManifest, q);
       }
     }
 
     if (changes['canvasIndex']) {
-      this.canvasIndex = changes['canvasIndex'].currentValue;
+      const canvasIndex = this.canvasIndex();
       if (this.currentManifest) {
-        this.viewerService.goToCanvas(this.canvasIndex, true);
+        this.viewerService.goToCanvas(canvasIndex, true);
       }
     }
   }
@@ -432,13 +439,13 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       switch (mode) {
         case ViewerMode.DASHBOARD:
           this.showHeaderAndFooterState.set(true);
-          if (this.config.navigationControlEnabled) {
+          if (this.config().navigationControlEnabled) {
             this.osdToolbarState.set(false);
           }
           break;
         case ViewerMode.PAGE:
           this.showHeaderAndFooterState.set(false);
-          if (this.config.navigationControlEnabled) {
+          if (this.config().navigationControlEnabled) {
             this.osdToolbarState.set(true);
           }
           break;
@@ -468,7 +475,10 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private loadManifest(): void {
-    this.iiifManifestService.load(this.manifestUri).pipe(take(1)).subscribe();
+    this.iiifManifestService
+      .load(this.activeManifestUri())
+      .pipe(take(1))
+      .subscribe();
   }
 
   private initialize() {

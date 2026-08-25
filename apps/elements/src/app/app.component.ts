@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import {
   MimeModule,
   MimeViewerConfig,
@@ -11,13 +11,14 @@ import {
   imports: [MimeModule],
 })
 export class AppComponent implements OnInit {
-  @Input() manifestUri!: string;
-  @Input() config?: string;
+  readonly manifestUri = input.required<string>();
+  readonly config = input<string>();
   mimeConfig = new MimeViewerConfig();
 
   ngOnInit() {
-    if (this.config) {
-      this.mimeConfig = Object.assign(this.mimeConfig, JSON.parse(this.config));
+    const config = this.config();
+    if (config) {
+      this.mimeConfig = Object.assign(this.mimeConfig, JSON.parse(config));
     }
   }
 }

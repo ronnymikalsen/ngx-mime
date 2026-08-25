@@ -1,9 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   inject,
-  Output,
+  output,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
@@ -19,8 +18,7 @@ export class TocComponent {
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly viewerService = inject(ViewerService);
 
-  @Output()
-  canvasChanged: EventEmitter<number> = new EventEmitter();
+  readonly canvasChanged = output<number>();
   readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
     initialValue: null,
   });

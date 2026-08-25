@@ -18,7 +18,8 @@ describe('AppComponent', () => {
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.componentRef.setInput('manifestUri', '');
+    await fixture.whenStable();
   });
 
   it('should create the app', () => {
