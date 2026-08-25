@@ -47,16 +47,7 @@ export class ContentSearchNavigatorComponent {
   readonly isLastHit = computed(
     () => this.currentHit() === this.searchResult().size() - 1,
   );
-  readonly invert = toSignal(
-    this.iiifManifestService.currentManifest.pipe(
-      map(
-        (manifest) =>
-          manifest?.viewingDirection !== undefined &&
-          manifest.viewingDirection !== ViewingDirection.LTR,
-      ),
-    ),
-    { initialValue: false },
-  );
+  readonly invert = computed(() => this.shouldInvert());
   readonly isHitOnActiveCanvasGroup = toSignal(
     this.canvasService.onCanvasGroupIndexChange.pipe(
       map((canvasGroupIndex) => {
@@ -85,5 +76,15 @@ export class ContentSearchNavigatorComponent {
 
   goToPreviousHit(): void {
     this.contentSearchNavigationService.goToPreviousHit();
+  }
+
+  private shouldInvert(): boolean {
+    const viewingDirection =
+      this.iiifManifestService.manifest()?.viewingDirection;
+
+    return (
+      viewingDirection !== undefined &&
+      viewingDirection !== ViewingDirection.LTR
+    );
   }
 }

@@ -103,14 +103,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   private readonly platform = inject(Platform);
   private readonly snackBar = inject(MatSnackBar);
   readonly intl = injectMimeViewerIntlSignal();
-  private readonly errorMessageSource = toSignal(
-    this.iiifManifestService.errorMessage,
-    {
-      initialValue: null,
-      equal: () => false,
-    },
-  );
-
   readonly manifestUri = input<string | null>(null);
   readonly q = input<string>();
   readonly canvasIndex = input(0);
@@ -132,7 +124,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   );
   readonly showHeaderAndFooterState = signal(false);
   readonly osdToolbarState = signal(false);
-  readonly errorMessage = linkedSignal(() => this.errorMessageSource());
+  readonly errorMessage = linkedSignal(() => this.iiifManifestService.error());
   private readonly header =
     viewChild.required<ViewerHeaderComponent>('mimeHeader');
   private readonly footer =
@@ -145,9 +137,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   private readonly activeManifestUri = linkedSignal(() => this.manifestUri());
   private currentManifest!: Manifest | null;
   private pendingStartCanvasId: string | null = null;
-  private readonly viewerLayout = toSignal(this.viewerLayoutService.onChange, {
-    initialValue: null,
-  });
+  private readonly viewerLayout = this.viewerLayoutService.viewerLayout;
   private viewerState = new ViewerState();
 
   constructor() {

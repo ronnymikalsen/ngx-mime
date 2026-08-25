@@ -131,7 +131,7 @@ export class AccessKeysService {
 
   private goToLastCanvasGroup() {
     this.viewerService.goToCanvasGroup(
-      this.canvasService.numberOfCanvasGroups - 1,
+      this.canvasService.canvasGroupCount() - 1,
       false,
     );
   }

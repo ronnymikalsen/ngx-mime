@@ -455,7 +455,7 @@ describe('ViewerComponent', () => {
 
     comp.qChanged.subscribe((q: string) => expect(q).toEqual('dummyquery'));
 
-    iiifContentSearchServiceStub._currentQ.next('dummyquery');
+    iiifContentSearchServiceStub.setQuery('dummyquery');
   });
 
   it('should emit when manifest changes', () => {
@@ -465,7 +465,7 @@ describe('ViewerComponent', () => {
       expect(m.id).toEqual('dummyid'),
     );
 
-    iiifManifestServiceStub._currentManifest.next(
+    iiifManifestServiceStub.setManifest(
       new Manifest({
         id: 'dummyid',
       }),

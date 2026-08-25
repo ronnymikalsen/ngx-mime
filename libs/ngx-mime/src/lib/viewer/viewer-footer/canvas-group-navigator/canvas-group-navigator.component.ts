@@ -6,13 +6,11 @@ import {
   input,
   linkedSignal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { map } from 'rxjs';
 import { CanvasGroupDialogService } from '../../../canvas-group-dialog/canvas-group-dialog.service';
 import { IiifManifestService } from '../../../core/iiif-manifest-service/iiif-manifest-service';
 import { AccessKeys } from '../../../core/models/AccessKeys';
@@ -45,28 +43,15 @@ export class CanvasGroupNavigatorComponent {
   readonly intl = injectMimeViewerIntlSignal();
 
   readonly searchResult = input.required<SearchResult>();
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
+  readonly manifest = this.iiifManifestService.manifest;
   readonly currentViewingDirection = computed<Direction>(() =>
     this.getCurrentViewingDirection(),
   );
-  readonly numberOfCanvasGroups = toSignal(
-    this.canvasService.onNumberOfCanvasGroupsChange,
-    { initialValue: 0 },
-  );
-  readonly numberOfCanvases = toSignal(
-    this.canvasService.onNumberOfCanvasGroupsChange.pipe(
-      map(() => this.canvasService.numberOfCanvases),
-    ),
-    { initialValue: this.canvasService.numberOfCanvases },
-  );
-  readonly serviceCanvasGroupIndex = toSignal(
-    this.canvasService.onCanvasGroupIndexChange,
-    { initialValue: this.canvasService.currentCanvasGroupIndex },
-  );
+  readonly canvasGroupCount = this.canvasService.canvasGroupCount;
+  readonly canvasCount = this.canvasService.canvasCount;
+  readonly canvasGroupIndex = this.canvasService.canvasGroupIndex;
   readonly currentCanvasGroupIndex = linkedSignal(() =>
-    this.serviceCanvasGroupIndex(),
+    this.canvasGroupIndex(),
   );
   readonly canvasGroupLabel = computed(() =>
     this.canvasService.getCanvasGroupLabel(this.currentCanvasGroupIndex()),
@@ -75,7 +60,7 @@ export class CanvasGroupNavigatorComponent {
     () => this.currentCanvasGroupIndex() === 0,
   );
   readonly isLastCanvasGroup = computed(
-    () => this.currentCanvasGroupIndex() === this.numberOfCanvasGroups() - 1,
+    () => this.currentCanvasGroupIndex() === this.canvasGroupCount() - 1,
   );
   readonly ViewingDirection = ViewingDirection;
 

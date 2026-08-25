@@ -107,7 +107,7 @@ describe('ContentSearchDialogComponent', () => {
     breakpointObserver.setMatches(true);
     jest.spyOn(iiifContentSearchServiceStub, 'selected');
     jest.spyOn(dialogRef, 'close');
-    iiifContentSearchServiceStub._currentSearchResult.next(
+    iiifContentSearchServiceStub.setSearchResult(
       new SearchResult({
         q: 'dummysearch',
         hits: [
@@ -132,7 +132,7 @@ describe('ContentSearchDialogComponent', () => {
     breakpointObserver.setMatches(false);
     jest.spyOn(iiifContentSearchServiceStub, 'selected');
     jest.spyOn(dialogRef, 'close');
-    iiifContentSearchServiceStub._currentSearchResult.next(
+    iiifContentSearchServiceStub.setSearchResult(
       new SearchResult({
         q: 'dummysearch',
         hits: [
@@ -161,7 +161,7 @@ describe('ContentSearchDialogComponent', () => {
       By.css('.content-search-result-container'),
     );
     const spy = jest.spyOn(searchResultContainer.nativeElement, 'focus');
-    iiifManifestServiceStub._currentManifest.next(testManifest);
+    iiifManifestServiceStub.setManifest(testManifest);
 
     await fixture.whenStable();
 
@@ -169,7 +169,7 @@ describe('ContentSearchDialogComponent', () => {
     const event = new KeyboardEvent('keypress', { key: 'Enter' });
     searchInput.nativeElement.dispatchEvent(event);
 
-    iiifContentSearchServiceStub._currentSearchResult.next(new SearchResult());
+    iiifContentSearchServiceStub.setSearchResult(new SearchResult());
 
     await fixture.whenStable();
 
@@ -184,7 +184,7 @@ describe('ContentSearchDialogComponent', () => {
       By.css('.content-search-result-container'),
     );
     const spy = jest.spyOn(searchResultContainer.nativeElement, 'focus');
-    iiifManifestServiceStub._currentManifest.next(testManifest);
+    iiifManifestServiceStub.setManifest(testManifest);
 
     await fixture.whenStable();
 
@@ -192,7 +192,7 @@ describe('ContentSearchDialogComponent', () => {
     const event = new KeyboardEvent('keypress', { key: 'Enter' });
     searchInput.nativeElement.dispatchEvent(event);
 
-    iiifContentSearchServiceStub._currentSearchResult.next(
+    iiifContentSearchServiceStub.setSearchResult(
       new SearchResult({
         hits: [new Hit({ id: 1 }), new Hit({ id: 2 })],
       }),

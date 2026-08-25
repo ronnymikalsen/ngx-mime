@@ -38,7 +38,7 @@ describe('TocComponent', () => {
     iiifManifestService = TestBed.inject<any>(IiifManifestService);
     viewerService = TestBed.inject(ViewerService);
 
-    iiifManifestService._currentManifest.next(
+    iiifManifestService.setManifest(
       new Manifest({
         sequences: [
           {

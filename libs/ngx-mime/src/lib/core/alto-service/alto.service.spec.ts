@@ -106,8 +106,11 @@ describe('AltoService', () => {
     service.initialize();
 
     iiifManifestService.load('fakeUrl').subscribe(() => {
-      const canvases =
-        iiifManifestService._currentManifest.value.sequences[0].canvases;
+      const manifest = iiifManifestService.manifest();
+      if (!manifest) {
+        throw new Error('Expected the manifest to be loaded');
+      }
+      const canvases = manifest.sequences[0].canvases;
       canvases[0].altoUrl = undefined;
       canvases[1].altoUrl = undefined;
 

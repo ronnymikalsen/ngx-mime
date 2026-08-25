@@ -110,7 +110,7 @@ describe('InformationDialogComponent', () => {
     const manifest = new Manifest({
       structures: [new Structure()],
     });
-    iiifManifestService._currentManifest.next(manifest);
+    iiifManifestService.setManifest(manifest);
     intl.tocLabel = 'TocTestLabel';
     await fixture.whenStable();
     fixture.detectChanges();
@@ -121,7 +121,7 @@ describe('InformationDialogComponent', () => {
 
   it('should hide toc', async () => {
     const manifest = new Manifest();
-    iiifManifestService._currentManifest.next(manifest);
+    iiifManifestService.setManifest(manifest);
 
     fixture.detectChanges();
 
@@ -135,7 +135,7 @@ describe('InformationDialogComponent', () => {
     jest.spyOn(viewerService, 'goToCanvas').mockImplementation(() => {});
     jest.spyOn(dialogRef, 'close');
 
-    iiifManifestService._currentManifest.next(
+    iiifManifestService.setManifest(
       new Manifest({
         metadata: [
           new Metadata('label1', 'value1'),

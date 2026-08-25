@@ -19,9 +19,7 @@ export class TocComponent {
   private readonly viewerService = inject(ViewerService);
 
   readonly canvasChanged = output<number>();
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
+  readonly manifest = this.iiifManifestService.manifest;
   readonly currentCanvasGroupIndex = toSignal(
     this.viewerService.onCanvasGroupIndexChange,
     { initialValue: 0 },

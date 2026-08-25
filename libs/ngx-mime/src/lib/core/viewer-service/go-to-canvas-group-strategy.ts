@@ -121,7 +121,7 @@ export class DefaultGoToCanvasGroupStrategy implements GoToCanvasGroupStrategy {
   public goToNextCanvasGroup(currentCanvasIndex: number): void {
     if (
       this.canvasService.currentCanvasGroupIndex <
-      this.canvasService.numberOfCanvasGroups
+      this.canvasService.canvasGroupCount()
     ) {
       const viewportCenter = this.getViewportCenter();
       const currentCanvasGroupIndex =

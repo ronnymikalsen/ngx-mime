@@ -55,12 +55,12 @@ export class CanvasGroupDialogComponent {
   private readonly canvasService = inject(CanvasService);
   readonly intl = injectMimeViewerIntlSignal();
 
-  readonly numberOfCanvases = this.canvasService.numberOfCanvases;
+  readonly canvasCount = this.canvasService.canvasCount;
   readonly canvasGroupModel = signal({ canvasGroup: Number.NaN });
   readonly canvasGroupForm = form(this.canvasGroupModel, (path) => {
     required(path.canvasGroup);
     min(path.canvasGroup, 1);
-    max(path.canvasGroup, this.numberOfCanvases);
+    max(path.canvasGroup, () => this.canvasCount());
   });
   readonly canvasGroupDoesNotExist = computed(() =>
     this.canvasGroupForm

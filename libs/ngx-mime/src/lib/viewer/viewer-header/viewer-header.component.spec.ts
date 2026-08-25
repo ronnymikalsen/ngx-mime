@@ -35,6 +35,7 @@ import { HelpDialogService } from '../../help-dialog/help-dialog.service';
 import { InformationDialogConfigStrategyFactory } from '../../information-dialog/information-dialog-config-strategy-factory';
 import { InformationDialogComponent } from '../../information-dialog/information-dialog.component';
 import { InformationDialogService } from '../../information-dialog/information-dialog.service';
+import { IiifContentSearchServiceStub } from '../../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
 import { MockBreakpointObserver } from '../../test/mock-breakpoint-observer';
 import { ViewDialogConfigStrategyFactory } from '../../view-dialog/view-dialog-config-strategy-factory';
@@ -93,15 +94,14 @@ describe('ViewerHeaderComponent', () => {
           observablePropsToSpyOn: ['onResize'],
         }),
         provideAutoSpy(MimeDomHelper),
-        provideAutoSpy(ViewerLayoutService, {
-          observablePropsToSpyOn: ['onChange'],
-        }),
+        ViewerLayoutService,
         provideAutoSpy(AltoService, {
           observablePropsToSpyOn: ['onRecognizedTextContentModeChange$'],
         }),
-        provideAutoSpy(IiifContentSearchService, {
-          observablePropsToSpyOn: ['onChange', 'isSearching', 'onSelected'],
-        }),
+        {
+          provide: IiifContentSearchService,
+          useClass: IiifContentSearchServiceStub,
+        },
         provideAutoSpy(ContentSearchNavigationService),
         { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
@@ -340,7 +340,7 @@ describe('ViewerHeaderComponent', () => {
   };
 
   const setCurrentManifest = (manifest: Manifest) => {
-    iiifManifestServiceStub._currentManifest.next(manifest);
+    iiifManifestServiceStub.setManifest(manifest);
   };
 
   const getViewMenuButton = async () =>

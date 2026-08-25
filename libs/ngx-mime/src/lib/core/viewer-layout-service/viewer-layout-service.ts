@@ -1,24 +1,25 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { inject, Injectable, signal, Signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ViewerLayout } from '../models/viewer-layout';
 
 @Injectable()
 export class ViewerLayoutService {
+  readonly viewerLayout: Signal<ViewerLayout>;
+  readonly onChange: Observable<ViewerLayout>;
   private readonly breakpointObserver = inject(BreakpointObserver);
   private config = new MimeViewerConfig();
-  private _layout!: ViewerLayout;
-  private readonly subject: BehaviorSubject<ViewerLayout> =
-    new BehaviorSubject<ViewerLayout>(this.config.initViewerLayout);
+  private readonly viewerLayoutState = signal(this.config.initViewerLayout);
 
-  get onChange(): Observable<ViewerLayout> {
-    return this.subject.asObservable().pipe(distinctUntilChanged());
+  constructor() {
+    this.viewerLayout = this.viewerLayoutState.asReadonly();
+    this.onChange = toObservable(this.viewerLayout);
   }
 
   get layout(): ViewerLayout {
-    return this._layout;
+    return this.viewerLayout();
   }
 
   init(isPagedManifest?: boolean): void {
@@ -27,11 +28,9 @@ export class ViewerLayoutService {
       isPagedManifest &&
       !this.isHandsetOrTabletInPortrait()
     ) {
-      this._layout = ViewerLayout.TWO_PAGE;
-      this.change();
+      this.setLayout(ViewerLayout.TWO_PAGE);
     } else {
-      this._layout = ViewerLayout.ONE_PAGE;
-      this.change();
+      this.setLayout(ViewerLayout.ONE_PAGE);
     }
   }
 
@@ -40,20 +39,15 @@ export class ViewerLayoutService {
   }
 
   setLayout(viewerLayout: ViewerLayout) {
-    this._layout = viewerLayout;
-    this.change();
+    this.viewerLayoutState.set(viewerLayout);
   }
 
   toggle() {
-    if (this._layout === ViewerLayout.TWO_PAGE) {
+    if (this.viewerLayout() === ViewerLayout.TWO_PAGE) {
       this.setLayout(ViewerLayout.ONE_PAGE);
-    } else if (this._layout === ViewerLayout.ONE_PAGE) {
+    } else if (this.viewerLayout() === ViewerLayout.ONE_PAGE) {
       this.setLayout(ViewerLayout.TWO_PAGE);
     }
-  }
-
-  private change() {
-    this.subject.next(this._layout);
   }
 
   private isHandsetOrTabletInPortrait(): boolean {

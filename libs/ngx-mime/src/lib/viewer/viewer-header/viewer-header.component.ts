@@ -47,9 +47,7 @@ export class ViewerHeaderComponent {
   readonly mimeHeaderAfter = viewChild.required('mimeHeaderAfter', {
     read: ViewContainerRef,
   });
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
+  readonly manifest = this.iiifManifestService.manifest;
   readonly isContentSearchEnabled = computed(() =>
     Boolean(this.manifest()?.service),
   );

@@ -43,9 +43,7 @@ export class OsdToolbarComponent {
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
+  readonly manifest = this.iiifManifestService.manifest;
   readonly invert = computed(
     () => this.manifest()?.viewingDirection === ViewingDirection.LTR,
   );
@@ -53,15 +51,12 @@ export class OsdToolbarComponent {
     this.viewerService.onCanvasGroupIndexChange,
     { initialValue: 0 },
   );
-  readonly numberOfCanvasGroups = toSignal(
-    this.canvasService.onNumberOfCanvasGroupsChange,
-    { initialValue: 0 },
-  );
+  readonly canvasGroupCount = this.canvasService.canvasGroupCount;
   readonly isFirstCanvasGroup = computed(
     () => this.currentCanvasGroupIndex() === 0,
   );
   readonly isLastCanvasGroup = computed(
-    () => this.currentCanvasGroupIndex() === this.numberOfCanvasGroups() - 1,
+    () => this.currentCanvasGroupIndex() === this.canvasGroupCount() - 1,
   );
   readonly fabState = signal<'closed' | 'open'>('closed');
   readonly fabIcon = computed(() =>

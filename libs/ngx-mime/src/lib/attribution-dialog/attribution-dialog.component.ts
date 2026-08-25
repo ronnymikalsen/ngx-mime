@@ -44,16 +44,19 @@ export class AttributionDialogComponent {
   readonly intl = injectMimeViewerIntlSignal();
 
   readonly container = viewChild.required<ElementRef<HTMLElement>>('container');
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
+  readonly manifest = this.iiifManifestService.manifest;
   private readonly styleColor = toSignal(this.styleService.onChange, {
     initialValue: undefined,
   });
   readonly backgroundColor = computed(() => this.getBackgroundColor());
 
   constructor() {
-    afterRenderEffect(() => this.updateDialogSize());
+    afterRenderEffect(() => {
+      // Manifest content and translations can change the dialog dimensions.
+      this.manifest();
+      this.intl();
+      this.updateDialogSize();
+    });
   }
 
   @HostListener('keydown', ['$event'])
@@ -73,8 +76,6 @@ export class AttributionDialogComponent {
   }
 
   private updateDialogSize(): void {
-    this.manifest();
-    this.intl();
     this.attributionDialogResizeService.el = this.container();
     this.attributionDialogResizeService.markForCheck();
   }

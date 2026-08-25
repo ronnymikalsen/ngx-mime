@@ -12,7 +12,6 @@ import { MatDivider } from '@angular/material/divider';
 import { MatToolbar } from '@angular/material/toolbar';
 import { map } from 'rxjs';
 import { IiifContentSearchService } from '../../core/iiif-content-search-service/iiif-content-search.service';
-import { SearchResult } from '../../core/models/search-result';
 import { CanvasGroupNavigatorComponent } from './canvas-group-navigator/canvas-group-navigator.component';
 import { ContentSearchNavigatorComponent } from './content-search-navigator/content-search-navigator.component';
 
@@ -38,9 +37,7 @@ export class ViewerFooterComponent {
   readonly mimeFooterAfter = viewChild.required('mimeFooterAfter', {
     read: ViewContainerRef,
   });
-  readonly searchResult = toSignal(this.iiifContentSearchService.onChange, {
-    initialValue: new SearchResult(),
-  });
+  readonly searchResult = this.iiifContentSearchService.searchResult;
   readonly isXSmall = toSignal(
     this.breakpointObserver
       .observe([Breakpoints.XSmall])

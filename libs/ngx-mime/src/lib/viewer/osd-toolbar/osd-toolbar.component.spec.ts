@@ -128,10 +128,7 @@ describe('OsdToolbarComponent', () => {
     });
 
     it('should disable next button when viewer is on last canvas group', async () => {
-      jest
-        .spyOn(canvasService, 'numberOfCanvasGroups', 'get')
-        .mockReturnValue(10);
-
+      canvasService.setCanvasGroupCount(10);
       viewerService.setCanvasGroupIndexChange(9);
       await fixture.whenStable();
       await toggleOsdControls();

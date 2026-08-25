@@ -103,7 +103,7 @@ describe('CanvasGroupNavigatorComponent', () => {
   });
 
   it('should enable both navigation buttons when viewer is on second canvas group', async () => {
-    canvasService._currentCanvasGroupIndex.next(1);
+    canvasService.setCanvasGroupIndexChange(1);
     await testHostFixture.whenStable();
 
     const previousButton = await getPreviousButton();
@@ -113,7 +113,7 @@ describe('CanvasGroupNavigatorComponent', () => {
   });
 
   it('should disable previous button when viewer is on first canvas group', async () => {
-    canvasService._currentCanvasGroupIndex.next(0);
+    canvasService.setCanvasGroupIndexChange(0);
     await testHostFixture.whenStable();
 
     const previousButton = await getPreviousButton();
@@ -121,9 +121,9 @@ describe('CanvasGroupNavigatorComponent', () => {
   });
 
   it('should disable next button when viewer is on last canvas group', async () => {
-    canvasService._currentNumberOfCanvasGroups.next(10);
+    canvasService.setCanvasGroupCount(10);
 
-    canvasService._currentCanvasGroupIndex.next(9);
+    canvasService.setCanvasGroupIndexChange(9);
     await testHostFixture.whenStable();
     const nextButton = await getNextButton();
 
@@ -135,7 +135,7 @@ describe('CanvasGroupNavigatorComponent', () => {
 
     expect(component.currentCanvasGroupIndex()).toBe(3);
 
-    canvasService._currentCanvasGroupIndex.next(4);
+    canvasService.setCanvasGroupIndexChange(4);
     await testHostFixture.whenStable();
 
     expect(component.currentCanvasGroupIndex()).toBe(4);
@@ -154,7 +154,7 @@ describe('CanvasGroupNavigatorComponent', () => {
   it('should display previous canvas group', async () => {
     spy = jest.spyOn(viewerService, 'goToPreviousCanvasGroup');
 
-    canvasService._currentCanvasGroupIndex.next(9);
+    canvasService.setCanvasGroupIndexChange(9);
 
     await testHostFixture.whenStable();
     const previousButton = await getPreviousButton();
@@ -166,7 +166,7 @@ describe('CanvasGroupNavigatorComponent', () => {
   });
 
   it('should disable previous and next button if there is only one canvas', async () => {
-    canvasService._currentNumberOfCanvasGroups.next(1);
+    canvasService.setCanvasGroupCount(1);
     await testHostFixture.whenStable();
     const previousButton = await getPreviousButton();
     const nextButton = await getNextButton();

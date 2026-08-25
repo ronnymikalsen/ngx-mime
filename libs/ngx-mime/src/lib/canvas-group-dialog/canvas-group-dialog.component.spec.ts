@@ -96,7 +96,7 @@ describe('CanvasGroupDialogComponent', () => {
 
   describe('error messages', () => {
     it('should show a error message if user enters a canvas group number index that does not exists', async () => {
-      canvasService._currentNumberOfCanvasGroups.next(10);
+      canvasService.setCanvasGroupCount(10);
 
       component.canvasGroupModel.set({ canvasGroup: 11 });
       component.canvasGroupForm.canvasGroup().markAsTouched();

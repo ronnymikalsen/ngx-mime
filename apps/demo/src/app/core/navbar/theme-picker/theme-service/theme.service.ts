@@ -1,4 +1,4 @@
-import { EventEmitter, inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal, Signal } from '@angular/core';
 import { StyleManagerService } from './../style-manager/style-manager.service';
 
 export interface SiteTheme {
@@ -11,7 +11,7 @@ export interface SiteTheme {
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   static readonly storageKey = 'docs-theme-storage-current';
-  onThemeUpdate: EventEmitter<SiteTheme> = new EventEmitter<SiteTheme>();
+  readonly currentTheme: Signal<SiteTheme>;
   private readonly styleManagerService = inject(StyleManagerService);
   private readonly themes: SiteTheme[] = [
     {
@@ -38,6 +38,11 @@ export class ThemeService {
       isDefault: false,
     },
   ];
+  private readonly currentThemeState = signal(this.getStoredTheme());
+
+  constructor() {
+    this.currentTheme = this.currentThemeState.asReadonly();
+  }
 
   getAllThemes() {
     return this.themes;
@@ -54,7 +59,7 @@ export class ThemeService {
       }
     } catch (e) {}
 
-    this.onThemeUpdate.emit(theme);
+    this.currentThemeState.set(theme);
   }
 
   getStoredTheme(): SiteTheme {

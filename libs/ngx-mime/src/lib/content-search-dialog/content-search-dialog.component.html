@@ -57,7 +57,7 @@
             mat-icon-button
             [attr.aria-label]="intl().clearSearchLabel"
             [matTooltip]="intl().clearSearchLabel"
-            [disabled]="isSearching()"
+            [disabled]="searching()"
             (click)="clear()"
           >
             <mat-icon class="icon">clear</mat-icon>
@@ -71,7 +71,7 @@
       [ngStyle]="tabHeight()"
     >
       <div class="content-search-result grid grid-cols-1 gap-y-2">
-        @if (!isSearching()) {
+        @if (!searching()) {
           <input type="hidden" class="numberOfHits" [value]="numberOfHits()" />
           @if (currentSearch().length > 0) {
             @if (numberOfHits() > 0) {
@@ -99,7 +99,7 @@
               >
                 <mat-card
                   appearance="outlined"
-                  [class.selected]="currentHit()?.id === hit.id"
+                  [class.selected]="selectedHit()?.id === hit.id"
                 >
                   <mat-card-content>
                     <div class="flex items-start justify-between">
@@ -115,7 +115,7 @@
             }
           </div>
         }
-        @if (isSearching()) {
+        @if (searching()) {
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         }
       </div>

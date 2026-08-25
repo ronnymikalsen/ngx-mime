@@ -6,7 +6,7 @@
   >
     <mat-slider
       class="navigation-slider"
-      [max]="numberOfCanvasGroups() - 1"
+      [max]="canvasGroupCount() - 1"
       (keydown)="onSliderHotKey($event)"
     >
       <input
@@ -24,7 +24,7 @@
   >
     <span data-testid="currentCanvasGroupLabel">{{ canvasGroupLabel() }}</span
     ><span>/</span
-    ><span data-testid="numOfCanvasGroups">{{ numberOfCanvases() }}</span>
+    ><span data-testid="numOfCanvasGroups">{{ canvasCount() }}</span>
   </button>
   <div class="navigation-buttons">
     @if (currentViewingDirection() === ViewingDirection.LTR) {

@@ -30,15 +30,13 @@ export class AppComponent {
     this.isHandsetOrTabletInPortrait() ? 'over' : 'side',
   );
   readonly sidenavIsOpen = computed(() => !this.isHandsetOrTabletInPortrait());
-  private readonly theme = toSignal(this.themeService.onThemeUpdate, {
-    initialValue: this.themeService.getStoredTheme(),
-  });
+  private readonly currentTheme = this.themeService.currentTheme;
 
   constructor() {
     effect(() => {
       const overlayClasses =
         this.overlayContainer.getContainerElement().classList;
-      overlayClasses.add(this.theme().name);
+      overlayClasses.add(this.currentTheme().name);
     });
   }
 }

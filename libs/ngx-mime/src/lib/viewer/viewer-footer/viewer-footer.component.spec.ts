@@ -80,7 +80,7 @@ describe('ViewerFooterComponent', () => {
     sr.add(new Hit());
 
     breakpointObserver.setMatches(false);
-    iiifContentSearchServiceStub._currentSearchResult.next(sr);
+    iiifContentSearchServiceStub.setSearchResult(sr);
 
     await fixture.whenStable();
     expect(cmp.showPageNavigator()).toBeTruthy();
@@ -91,7 +91,7 @@ describe('ViewerFooterComponent', () => {
     const sr = new SearchResult();
     sr.add(new Hit());
 
-    iiifContentSearchServiceStub._currentSearchResult.next(sr);
+    iiifContentSearchServiceStub.setSearchResult(sr);
     breakpointObserver.setMatches(true);
 
     await fixture.whenStable();

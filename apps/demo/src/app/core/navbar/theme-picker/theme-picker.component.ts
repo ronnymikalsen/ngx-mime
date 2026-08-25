@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import { MatGridList, MatGridTile } from '@angular/material/grid-list';
 import { MatIcon } from '@angular/material/icon';
@@ -27,9 +26,7 @@ export class ThemePickerComponent {
   private readonly themeService = inject(ThemeService);
 
   readonly themes = this.themeService.getAllThemes();
-  readonly currentTheme = toSignal(this.themeService.onThemeUpdate, {
-    initialValue: this.themeService.getStoredTheme(),
-  });
+  readonly currentTheme = this.themeService.currentTheme;
 
   constructor() {
     this.installTheme(this.currentTheme());

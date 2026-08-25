@@ -92,7 +92,7 @@ describe('ViewDialogComponent', () => {
   });
 
   it('should show page layout toggle group if manifest is paged', async () => {
-    iiifManifestService._currentManifest.next(TestManifests.aDefault());
+    iiifManifestService.setManifest(TestManifests.aDefault());
 
     await fixture.whenStable();
 
@@ -105,7 +105,7 @@ describe('ViewDialogComponent', () => {
   });
 
   it('should hide page layout toggle group if manifest is not paged', async () => {
-    iiifManifestService._currentManifest.next(TestManifests.aEmpty());
+    iiifManifestService.setManifest(TestManifests.aEmpty());
 
     await fixture.whenStable();
 
@@ -118,9 +118,7 @@ describe('ViewDialogComponent', () => {
   });
 
   it('should show digital text toggle group if digital text is available', async () => {
-    iiifManifestService._currentManifest.next(
-      TestManifests.withDigitalTextContent(),
-    );
+    iiifManifestService.setManifest(TestManifests.withDigitalTextContent());
 
     await fixture.whenStable();
 
@@ -134,7 +132,7 @@ describe('ViewDialogComponent', () => {
   });
 
   it('should hide digital text toggle group if digital text is not available', async () => {
-    iiifManifestService._currentManifest.next(TestManifests.aEmpty());
+    iiifManifestService.setManifest(TestManifests.aEmpty());
 
     await fixture.whenStable();
 

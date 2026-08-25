@@ -1,50 +1,68 @@
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { signal, Signal } from '@angular/core';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { ManifestBuilder } from '../core/builders/iiif/v2/manifest.builder';
 import { Manifest } from './../core/models/manifest';
 import { testManifest } from './testManifest';
 
 export class IiifManifestServiceStub {
-  public _currentManifest = new BehaviorSubject<Manifest | null>(
-    new Manifest(),
+  readonly manifest: Signal<Manifest | null>;
+  readonly error: Signal<string | null>;
+  readonly currentManifest: Observable<Manifest | null>;
+  readonly errorMessage: Observable<string | null>;
+  private readonly manifestSignal = signal<Manifest | null>(new Manifest());
+  private readonly errorSignal = signal<string | null>(null);
+  private readonly currentManifestState = new BehaviorSubject<Manifest | null>(
+    this.manifestSignal(),
   );
-  public _errorMessage = new Subject<string | null>();
+  private readonly errorMessageState = new BehaviorSubject<string | null>(
+    this.errorSignal(),
+  );
 
-  get currentManifest(): Observable<Manifest | null> {
-    return this._currentManifest.asObservable();
-  }
-
-  get errorMessage(): Observable<string | null> {
-    return this._errorMessage.asObservable();
+  constructor() {
+    this.manifest = this.manifestSignal.asReadonly();
+    this.error = this.errorSignal.asReadonly();
+    this.currentManifest = this.currentManifestState.asObservable();
+    this.errorMessage = this.errorMessageState.asObservable();
   }
 
   load(manifestUri: string): Observable<boolean> {
     if (manifestUri) {
       const manifest = new ManifestBuilder(testManifest).build();
       if (manifest && manifest.tileSource) {
-        this._currentManifest.next(manifest);
+        this.setManifest(manifest);
 
         return of(true);
       } else {
-        this._errorMessage.next('Manifest is not valid');
+        this.setError('Manifest is not valid');
 
         return of(false);
       }
     } else {
-      this._errorMessage.next('ManifestUri is missing');
+      this.setError('ManifestUri is missing');
 
       return of(false);
     }
   }
 
   resetCurrentManifest() {
-    this._currentManifest.next(null);
+    this.setManifest(null);
   }
 
   resetErrorMessage() {
-    this._errorMessage.next(null);
+    this.setError(null);
   }
 
   destroy(): void {}
 
   public search(manifest: Manifest, q: string): void {}
+
+  setManifest(manifest: Manifest | null): void {
+    this.manifestSignal.set(manifest);
+    this.currentManifestState.next(manifest);
+  }
+
+  setError(error: string | null): void {
+    this.errorSignal.set(error);
+    this.errorMessageState.next(error);
+  }
 }

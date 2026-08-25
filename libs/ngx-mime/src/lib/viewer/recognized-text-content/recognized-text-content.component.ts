@@ -10,7 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map, scan } from 'rxjs';
+import { scan } from 'rxjs';
 import { AltoService } from '../../core/alto-service/alto.service';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { HighlightService } from '../../core/highlight-service/highlight.service';
@@ -42,9 +42,7 @@ export class RecognizedTextContentComponent {
   readonly recognizedTextContentContainer = viewChild.required<
     ElementRef<HTMLElement>
   >('recognizedTextContentContainer');
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
+  readonly manifest = this.iiifManifestService.manifest;
   readonly isLoading = toSignal(this.altoService.isLoading$, {
     initialValue: false,
   });
@@ -55,9 +53,8 @@ export class RecognizedTextContentComponent {
     this.altoService.currentCanvasGroupHasTextSource$,
     { initialValue: undefined },
   );
-  readonly selectedHit = toSignal(
-    this.iiifContentSearchService.onSelected.pipe(map((hit) => hit?.id)),
-    { initialValue: undefined },
+  readonly selectedHit = computed(
+    () => this.iiifContentSearchService.selectedHit()?.id,
   );
   readonly textContentRevision = toSignal(
     this.altoService.onTextContentReady$.pipe(
@@ -91,7 +88,11 @@ export class RecognizedTextContentComponent {
 
   constructor() {
     afterRenderEffect(() => this.scrollToTopOnTextContentChange());
-    afterRenderEffect(() => this.highlightSelectedHit());
+    afterRenderEffect(() => {
+      // Recognized text changes replace the elements that contain highlights.
+      this.recognizedTextState();
+      this.highlightSelectedHit();
+    });
   }
 
   private scrollToTopOnTextContentChange(): void {
@@ -103,7 +104,6 @@ export class RecognizedTextContentComponent {
   }
 
   private highlightSelectedHit(): void {
-    this.recognizedTextState();
     const selectedHit = this.selectedHit();
     if (selectedHit !== undefined) {
       this.highlightService.highlightSelectedHit(this.viewerId(), selectedHit);

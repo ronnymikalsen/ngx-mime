@@ -36,7 +36,6 @@ import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest
 import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { Hit } from '../core/models/hit';
-import { SearchResult } from '../core/models/search-result';
 import { ContentSearchNavigationService } from '../core/navigation/content-search-navigation-service/content-search-navigation.service';
 
 @Component({
@@ -91,12 +90,8 @@ export class ContentSearchDialogComponent {
     this.mimeResizeService.onResize.pipe(map(({ height }) => height)),
     { initialValue: 0 },
   );
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
-  readonly searchResult = toSignal(this.iiifContentSearchService.onChange, {
-    initialValue: new SearchResult(),
-  });
+  readonly manifest = this.iiifManifestService.manifest;
+  readonly searchResult = this.iiifContentSearchService.searchResult;
   readonly searchModel = linkedSignal(() => ({
     query: this.searchResult().q,
   }));
@@ -104,12 +99,8 @@ export class ContentSearchDialogComponent {
   readonly hits = computed(() => this.searchResult().hits);
   readonly currentSearch = linkedSignal(() => this.searchResult().q);
   readonly numberOfHits = computed(() => this.searchResult().size());
-  readonly isSearching = toSignal(this.iiifContentSearchService.isSearching, {
-    initialValue: false,
-  });
-  readonly currentHit = toSignal(this.iiifContentSearchService.onSelected, {
-    initialValue: null,
-  });
+  readonly searching = this.iiifContentSearchService.searching;
+  readonly selectedHit = this.iiifContentSearchService.selectedHit;
   readonly tabHeight = computed(() => this.getTabHeight());
 
   constructor() {
@@ -153,9 +144,9 @@ export class ContentSearchDialogComponent {
   }
 
   private focusCurrentHit(): void {
-    const currentHit = this.currentHit();
-    if (currentHit !== null) {
-      this.hitList()[currentHit.id]?.nativeElement.focus();
+    const selectedHit = this.selectedHit();
+    if (selectedHit !== null) {
+      this.hitList()[selectedHit.id]?.nativeElement.focus();
     }
   }
 

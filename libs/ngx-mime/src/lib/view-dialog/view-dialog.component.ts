@@ -58,18 +58,14 @@ export class ViewDialogComponent {
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
-  readonly viewerLayout = toSignal(this.viewerLayoutService.onChange, {
-    initialValue: ViewerLayout.ONE_PAGE,
-  });
+  readonly viewerLayout = this.viewerLayoutService.viewerLayout;
   readonly recognizedTextMode = toSignal(
     this.altoService.onRecognizedTextContentModeChange$.pipe(
       map((changes: RecognizedTextModeChanges) => changes.currentValue),
     ),
     { initialValue: RecognizedTextMode.NONE },
   );
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
+  readonly manifest = this.iiifManifestService.manifest;
   readonly isPagedManifest = computed(() => this.isCurrentManifestPaged());
   readonly hasRecognizedTextContent = computed(() =>
     this.currentManifestHasRecognizedTextContent(),

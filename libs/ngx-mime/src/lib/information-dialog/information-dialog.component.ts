@@ -61,9 +61,7 @@ export class InformationDialogComponent {
       .pipe(map(({ matches }) => matches)),
     { initialValue: false },
   );
-  readonly manifest = toSignal(this.iiifManifestService.currentManifest, {
-    initialValue: null,
-  });
+  readonly manifest = this.iiifManifestService.manifest;
   readonly showToc = computed(() =>
     Boolean(this.manifest()?.structures?.length),
   );

@@ -12,6 +12,7 @@ import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manif
 import { MimeViewerIntl } from '../../core/intl';
 import { Hit } from '../../core/models/hit';
 import { Canvas, Manifest, Sequence } from '../../core/models/manifest';
+import { IiifContentSearchServiceStub } from '../../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
 import { RecognizedTextContentComponent } from './recognized-text-content.component';
 
@@ -44,9 +45,10 @@ describe('RecognizedTextContentComponent', () => {
             'currentCanvasGroupHasTextSource$',
           ],
         }),
-        provideAutoSpy(IiifContentSearchService, {
-          observablePropsToSpyOn: ['onSelected'],
-        }),
+        {
+          provide: IiifContentSearchService,
+          useClass: IiifContentSearchServiceStub,
+        },
         provideAutoSpy(HighlightService, ['highlightSelectedHit']),
       ],
     }).compileComponents();
@@ -152,7 +154,7 @@ describe('RecognizedTextContentComponent', () => {
   });
 
   it('should announce when recognized text is unavailable for the current view', async () => {
-    iiifManifestService._currentManifest.next(
+    iiifManifestService.setManifest(
       new Manifest({
         sequences: [
           new Sequence({ canvases: [new Canvas({ altoUrl: 'alto.xml' })] }),
@@ -293,7 +295,7 @@ describe('RecognizedTextContentComponent', () => {
   it('should highlight the selected search hit', async () => {
     await fixture.whenStable();
     canvasService.getCanvasesPerCanvasGroup.calledWith(0).nextWith([0, 1]);
-    iiifContentSearchService.onSelected.nextWith(createMockHit(1, 'test '));
+    iiifContentSearchService.setSelected(createMockHit(1, 'test '));
 
     await fixture.whenStable();
 
@@ -305,7 +307,7 @@ describe('RecognizedTextContentComponent', () => {
 
   it('should reapply the selected hit when text content is ready', async () => {
     await fixture.whenStable();
-    iiifContentSearchService.onSelected.nextWith(createMockHit(1, 'test '));
+    iiifContentSearchService.setSelected(createMockHit(1, 'test '));
     await fixture.whenStable();
     highlightService.highlightSelectedHit.mockClear();
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0]);

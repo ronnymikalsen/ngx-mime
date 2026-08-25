@@ -2,33 +2,29 @@ import { HttpClientModule } from '@angular/common/http';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { provideAutoSpy, Spy } from 'jest-auto-spies';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../../core/intl';
 import { Manifest, Metadata } from '../../core/models/manifest';
+import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
 import { MetadataComponent } from './metadata.component';
 
 describe('MetadataComponent', () => {
   let component: MetadataComponent;
   let fixture: ComponentFixture<MetadataComponent>;
-  let iiifManifestServiceSpy: Spy<IiifManifestService>;
+  let iiifManifestService: IiifManifestServiceStub;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HttpClientModule, MetadataComponent],
       providers: [
         MimeViewerIntl,
-        provideAutoSpy(IiifManifestService, {
-          observablePropsToSpyOn: ['currentManifest'],
-        }),
+        { provide: IiifManifestService, useClass: IiifManifestServiceStub },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MetadataComponent);
     component = fixture.componentInstance;
-    iiifManifestServiceSpy = TestBed.inject(
-      IiifManifestService,
-    ) as Spy<IiifManifestService>;
+    iiifManifestService = TestBed.inject<any>(IiifManifestService);
     await fixture.whenStable();
   });
 
@@ -37,7 +33,7 @@ describe('MetadataComponent', () => {
   });
 
   it('should display metadata', async () => {
-    iiifManifestServiceSpy.currentManifest.nextWith(
+    iiifManifestService.setManifest(
       new Manifest({
         metadata: [
           new Metadata('label1', 'value1'),
@@ -54,7 +50,7 @@ describe('MetadataComponent', () => {
   });
 
   it('should display attribution', async () => {
-    iiifManifestServiceSpy.currentManifest.nextWith(
+    iiifManifestService.setManifest(
       new Manifest({
         attribution: 'This is a test attribution',
       }),
@@ -67,7 +63,7 @@ describe('MetadataComponent', () => {
   });
 
   it('should display license', async () => {
-    iiifManifestServiceSpy.currentManifest.nextWith(
+    iiifManifestService.setManifest(
       new Manifest({
         license: 'https://wiki.creativecommons.org/wiki/CC0',
       }),
@@ -82,7 +78,7 @@ describe('MetadataComponent', () => {
   });
 
   it('should display logo', async () => {
-    iiifManifestServiceSpy.currentManifest.nextWith(
+    iiifManifestService.setManifest(
       new Manifest({
         logo: 'http://example.com/dummylogo.jpg',
       }),
