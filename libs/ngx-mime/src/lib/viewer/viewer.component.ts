@@ -101,7 +101,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly zone = inject(NgZone);
   private readonly platform = inject(Platform);
-  snackBar = inject(MatSnackBar);
+  private readonly snackBar = inject(MatSnackBar);
   readonly intl = injectMimeViewerIntlSignal();
   private readonly errorMessageSource = toSignal(
     this.iiifManifestService.errorMessage,
