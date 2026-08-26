@@ -7,6 +7,7 @@ import { ViewerSpinnerComponent } from './viewer-spinner.component';
 describe('ViewerSpinnerComponent', () => {
   let component: ViewerSpinnerComponent;
   let fixture: ComponentFixture<ViewerSpinnerComponent>;
+  let spinnerService: SpinnerService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -17,6 +18,7 @@ describe('ViewerSpinnerComponent', () => {
 
     fixture = TestBed.createComponent(ViewerSpinnerComponent);
     component = fixture.componentInstance;
+    spinnerService = TestBed.inject(SpinnerService);
     fixture.detectChanges();
   });
 
@@ -25,8 +27,6 @@ describe('ViewerSpinnerComponent', () => {
   });
 
   it('should show spinner', async () => {
-    const spinnerService = TestBed.inject(SpinnerService);
-
     spinnerService.show();
     await fixture.whenStable();
 

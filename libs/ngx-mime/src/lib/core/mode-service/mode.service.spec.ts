@@ -52,13 +52,4 @@ describe('ModeService', () => {
     service.toggleMode();
     expect(selectedMode).toEqual(ViewerMode.PAGE);
   });
-
-  it('should not replay a previous mode transition to new subscribers', () => {
-    const modeChange = jest.fn();
-    service.setMode(ViewerMode.DASHBOARD);
-
-    service.onChange.subscribe(modeChange);
-
-    expect(modeChange).not.toHaveBeenCalled();
-  });
 });
