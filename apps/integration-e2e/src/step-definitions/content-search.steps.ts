@@ -93,15 +93,18 @@ Then(
 Then(
   'the page with hit number {word} should be displayed',
   async function (this: CustomWorld, hit: string) {
-    const currentPageString =
-      await this.viewerPage.getCurrentCanvasGroupLabel();
-
     if (hit === '1') {
-      expect(currentPageString.includes('7')).toBeTruthy();
+      await expect
+        .poll(() => this.viewerPage.getCurrentCanvasGroupLabel())
+        .toContain('7');
     } else if (hit === '3') {
-      expect(currentPageString.includes('20')).toBeTruthy();
+      await expect
+        .poll(() => this.viewerPage.getCurrentCanvasGroupLabel())
+        .toContain('20');
     } else if (hit === '5' || hit === '6') {
-      expect(currentPageString.includes('38')).toBeTruthy();
+      await expect
+        .poll(() => this.viewerPage.getCurrentCanvasGroupLabel())
+        .toContain('38');
     }
   },
 );

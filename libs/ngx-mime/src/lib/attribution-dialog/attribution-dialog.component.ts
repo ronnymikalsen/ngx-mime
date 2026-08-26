@@ -51,7 +51,9 @@ export class AttributionDialogComponent {
       // Manifest content and translations can change the dialog dimensions.
       this.manifest();
       this.intl();
-      this.updateDialogSize();
+      const container = this.container();
+
+      this.updateDialogSize(container);
     });
   }
 
@@ -71,8 +73,8 @@ export class AttributionDialogComponent {
     return color ? this.styleService.convertToRgba(color, 0.3) : null;
   }
 
-  private updateDialogSize(): void {
-    this.attributionDialogResizeService.el = this.container();
+  private updateDialogSize(container: ElementRef<HTMLElement>): void {
+    this.attributionDialogResizeService.el = container;
     this.attributionDialogResizeService.markForCheck();
   }
 }

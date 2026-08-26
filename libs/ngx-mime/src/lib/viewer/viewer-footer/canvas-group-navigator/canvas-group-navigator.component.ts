@@ -1,11 +1,5 @@
 import { Dir, Direction } from '@angular/cdk/bidi';
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  linkedSignal,
-} from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
@@ -49,10 +43,7 @@ export class CanvasGroupNavigatorComponent {
   );
   readonly canvasGroupCount = this.canvasService.canvasGroupCount;
   readonly canvasCount = this.canvasService.canvasCount;
-  readonly canvasGroupIndex = this.canvasService.canvasGroupIndex;
-  readonly currentCanvasGroupIndex = linkedSignal(() =>
-    this.canvasGroupIndex(),
-  );
+  readonly currentCanvasGroupIndex = this.canvasService.canvasGroupIndex;
   readonly canvasGroupLabel = computed(() =>
     this.canvasService.getCanvasGroupLabel(this.currentCanvasGroupIndex()),
   );
@@ -74,7 +65,6 @@ export class CanvasGroupNavigatorComponent {
 
   onSliderChange(event: Event): void {
     const value = parseInt((event.target as HTMLInputElement).value);
-    this.currentCanvasGroupIndex.set(value);
     this.viewerService.goToCanvasGroup(value, false);
   }
 

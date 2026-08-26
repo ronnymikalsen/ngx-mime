@@ -63,18 +63,18 @@ When('the user double taps', async function (this: CustomWorld) {
 Then(
   'the current zoom level has increased',
   async function (this: CustomWorld) {
-    expect(await this.viewerPage.getZoomLevel()).toBeGreaterThan(
-      previousZoomLevel,
-    );
+    await expect
+      .poll(() => this.viewerPage.getZoomLevel())
+      .toBeGreaterThan(previousZoomLevel);
   },
 );
 
 Then(
   'the current zoom level has decreased',
   async function (this: CustomWorld) {
-    expect(await this.viewerPage.getZoomLevel()).toBeLessThan(
-      previousZoomLevel,
-    );
+    await expect
+      .poll(() => this.viewerPage.getZoomLevel())
+      .toBeLessThan(previousZoomLevel);
   },
 );
 
@@ -92,7 +92,7 @@ Then(
 );
 
 Then('the current zoom level is home', async function (this: CustomWorld) {
-  expect(
-    await this.viewerPage.isCurrentCanvasGroupFittedViewport(),
-  ).toBeTruthy();
+  await expect
+    .poll(() => this.viewerPage.isCurrentCanvasGroupFittedViewport())
+    .toBeTruthy();
 });

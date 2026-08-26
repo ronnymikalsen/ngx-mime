@@ -469,7 +469,7 @@ describe('ViewerComponent', () => {
     );
   });
 
-  it('should open viewer on canvas index if present', async () => {
+  it('should open on the initial canvas without resetting later navigation', async () => {
     testHostComponent.canvasIndex = 12;
     testHostComponent.config = new MimeViewerConfig({
       initViewerLayout: ViewerLayout.ONE_PAGE,
@@ -479,6 +479,11 @@ describe('ViewerComponent', () => {
     await waitForViewerReady();
 
     expect(canvasService.currentCanvasIndex).toEqual(12);
+
+    viewerService.goToCanvasGroup(0, false);
+    testHostFixture.detectChanges();
+
+    expect(canvasService.currentCanvasIndex).toEqual(0);
   });
 
   describe('header', () => {

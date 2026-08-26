@@ -142,8 +142,24 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.helpDialogService.viewContainerRef = this.viewContainerRef;
     this.canvasGroupDialogService.viewContainerRef = this.viewContainerRef;
     this.resizeService.el = this.el;
-    effect(() => this.emitRecognizedTextContentMode());
-    effect(() => this.goToInitialCanvasWhenReady(this.viewerService.isReady()));
+    effect(() => {
+      const mode = this.recognizedTextContentMode();
+
+      this.emitRecognizedTextContentMode(mode);
+    });
+    effect(() => {
+      const isReady = this.viewerService.isReady();
+      const canvasIndex = untracked(this.canvasIndex);
+      const currentCanvasGroupIndex = untracked(
+        this.canvasService.canvasGroupIndex,
+      );
+
+      this.goToInitialCanvasWhenReady(
+        isReady,
+        canvasIndex,
+        currentCanvasGroupIndex,
+      );
+    });
   }
 
   get mimeHeaderBeforeRef(): ViewContainerRef {
@@ -372,14 +388,17 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     };
   }
 
-  private goToInitialCanvasWhenReady(isReady: boolean): void {
+  private goToInitialCanvasWhenReady(
+    isReady: boolean,
+    canvasIndex: number,
+    currentCanvasGroupIndex: number,
+  ): void {
     if (!isReady) {
       return;
     }
 
-    const canvasIndex = untracked(this.canvasIndex);
     // Don't reset current page when switching layout.
-    if (canvasIndex && !this.canvasService.currentCanvasGroupIndex) {
+    if (canvasIndex && !currentCanvasGroupIndex) {
       this.viewerService.goToCanvas(canvasIndex, false);
     }
   }
@@ -445,10 +464,8 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.resizeService.initialize();
   }
 
-  private emitRecognizedTextContentMode(): void {
-    this.recognizedTextContentModeChanged.emit(
-      this.recognizedTextContentMode(),
-    );
+  private emitRecognizedTextContentMode(mode: RecognizedTextMode): void {
+    this.recognizedTextContentModeChanged.emit(mode);
   }
 
   private cleanup() {

@@ -40,13 +40,14 @@ export class ViewerComponent {
   constructor() {
     effect(() => {
       if (this.manifestUris().length === 0) {
-        this.redirectToFirstManifest();
+        const iiifVersion = this.iiifVersion();
+
+        this.redirectToFirstManifest(iiifVersion);
       }
     });
   }
 
-  private redirectToFirstManifest(): void {
-    const iiifVersion = this.iiifVersion();
+  private redirectToFirstManifest(iiifVersion: string): void {
     const firstManifestUri =
       this.manifestService.getManifests(iiifVersion)[0].uri;
     this.router.navigate(['demo'], {

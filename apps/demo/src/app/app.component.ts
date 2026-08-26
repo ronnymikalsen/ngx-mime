@@ -34,9 +34,15 @@ export class AppComponent {
 
   constructor() {
     effect(() => {
-      const overlayClasses =
-        this.overlayContainer.getContainerElement().classList;
-      overlayClasses.add(this.currentTheme().name);
+      const themeName = this.currentTheme().name;
+
+      this.applyThemeToOverlay(themeName);
     });
+  }
+
+  private applyThemeToOverlay(themeName: string): void {
+    const overlayClasses =
+      this.overlayContainer.getContainerElement().classList;
+    overlayClasses.add(themeName);
   }
 }

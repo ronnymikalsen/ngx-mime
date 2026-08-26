@@ -69,26 +69,38 @@ export class RecognizedTextContentComponent {
   private lastScrolledTextContentRevision = 0;
 
   constructor() {
-    afterRenderEffect(() => this.scrollToTopOnTextContentChange());
+    afterRenderEffect(() => {
+      const revision = this.textContentRevision();
+      const container = this.recognizedTextContentContainer();
+
+      this.scrollToTopOnTextContentChange(revision, container);
+    });
     afterRenderEffect(() => {
       // Recognized text changes replace the elements that contain highlights.
       this.recognizedTextState();
-      this.highlightSelectedHit();
+      const viewerId = this.viewerId();
+      const selectedHit = this.selectedHit();
+
+      this.highlightSelectedHit(viewerId, selectedHit);
     });
   }
 
-  private scrollToTopOnTextContentChange(): void {
-    const revision = this.textContentRevision();
+  private scrollToTopOnTextContentChange(
+    revision: number,
+    container: ElementRef<HTMLElement>,
+  ): void {
     if (revision > this.lastScrolledTextContentRevision) {
-      this.recognizedTextContentContainer().nativeElement.scrollTop = 0;
+      container.nativeElement.scrollTop = 0;
       this.lastScrolledTextContentRevision = revision;
     }
   }
 
-  private highlightSelectedHit(): void {
-    const selectedHit = this.selectedHit();
+  private highlightSelectedHit(
+    viewerId: string,
+    selectedHit: number | undefined,
+  ): void {
     if (selectedHit !== undefined) {
-      this.highlightService.highlightSelectedHit(this.viewerId(), selectedHit);
+      this.highlightService.highlightSelectedHit(viewerId, selectedHit);
     }
   }
 

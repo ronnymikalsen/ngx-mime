@@ -130,15 +130,14 @@ describe('CanvasGroupNavigatorComponent', () => {
     expect(await nextButton?.isDisabled()).toBeTruthy();
   });
 
-  it('should reset a local slider value when the service index changes', async () => {
-    component.currentCanvasGroupIndex.set(3);
+  it('should reflect canvas group index changes from the service', () => {
+    canvasService.setCanvasGroupIndexChange(5);
 
-    expect(component.currentCanvasGroupIndex()).toBe(3);
+    expect(component.currentCanvasGroupIndex()).toBe(5);
 
-    canvasService.setCanvasGroupIndexChange(4);
-    await testHostFixture.whenStable();
+    canvasService.setCanvasGroupIndexChange(0);
 
-    expect(component.currentCanvasGroupIndex()).toBe(4);
+    expect(component.currentCanvasGroupIndex()).toBe(0);
   });
 
   it('should display next canvas group', async () => {

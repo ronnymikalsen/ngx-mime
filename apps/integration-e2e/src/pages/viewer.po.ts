@@ -42,12 +42,12 @@ export class ViewerPage {
   readonly openseadragonContainer: Locator;
   readonly attribution: Locator;
   readonly recognizedTextContentRegion: Locator;
+  readonly currentCanvasGroupLabel: Locator;
   private isElements = false;
   private attributionCloseButton: Locator;
   private navigationSlider: Locator;
   private canvasGroupsButton: Locator;
   private canvasGroupInput: Locator;
-  private currentCanvasGroupLabel: Locator;
   private numOfCanvasGroups: Locator;
   private informationDialogButton: Locator;
   private informationContainer: Locator;
@@ -640,10 +640,14 @@ export class ViewerPage {
   }
 
   async sendKeyboardEvent(key: string): Promise<void> {
-    await this.setFocusOnViewer();
-    await this.page.keyboard.press(key);
+    await this.pressKeyboardEvent(key);
 
     return this.animations.waitFor();
+  }
+
+  async pressKeyboardEvent(key: string): Promise<void> {
+    await this.setFocusOnViewer();
+    await this.page.keyboard.press(key);
   }
 
   async visibleCanvasGroups(): Promise<boolean[]> {

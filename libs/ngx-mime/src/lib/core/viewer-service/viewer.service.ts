@@ -93,11 +93,11 @@ export class ViewerService {
     this.isCanvasPressed = this.isCanvasPressedState.asReadonly();
     this.isReady = this.isReadyState.asReadonly();
     this.rotation = this.rotationState.asReadonly();
-    effect(() =>
-      this.applyRecognizedTextContentMode(
-        this.altoService.recognizedTextContentMode(),
-      ),
-    );
+    effect(() => {
+      const mode = this.altoService.recognizedTextContentMode();
+
+      this.applyRecognizedTextContentMode(mode);
+    });
     this.id = this.generateRandomId('ngx-mime-mimeViewer');
     this.openseadragonId = this.generateRandomId('openseadragon');
   }

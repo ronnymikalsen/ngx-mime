@@ -25,10 +25,17 @@ export class CanvasGroupMask {
     injector: Injector,
   ) {
     this.viewer = viewer;
-    this.colorEffect = effect(() => this.updateBackgroundColor(), {
-      injector,
-      manualCleanup: true,
-    });
+    this.colorEffect = effect(
+      () => {
+        const color = this.styleService.color();
+
+        this.updateBackgroundColor(color);
+      },
+      {
+        injector,
+        manualCleanup: true,
+      },
+    );
   }
 
   public initialize(pageBounds: Rect, visible: boolean): void {
@@ -138,8 +145,7 @@ export class CanvasGroupMask {
       .style('fill', this.backgroundColor);
   }
 
-  private updateBackgroundColor(): void {
-    const color = this.styleService.color();
+  private updateBackgroundColor(color: string | undefined): void {
     if (!color) {
       return;
     }

@@ -104,8 +104,19 @@ export class ContentSearchDialogComponent {
   readonly tabHeight = computed(() => this.getTabHeight());
 
   constructor() {
-    afterRenderEffect(() => this.focusSearchInputOrResults());
-    afterRenderEffect(() => this.focusCurrentHit());
+    afterRenderEffect(() => {
+      const hasResults = this.searchResult().size() > 0;
+      const resultContainer = this.resultContainer();
+      const searchInput = this.qEl();
+
+      this.focusSearchInputOrResults(hasResults, resultContainer, searchInput);
+    });
+    afterRenderEffect(() => {
+      const selectedHit = this.selectedHit();
+      const hitList = this.hitList();
+
+      this.focusCurrentHit(selectedHit, hitList);
+    });
   }
 
   async onSubmit(event: SubmitEvent): Promise<void> {
@@ -134,19 +145,24 @@ export class ContentSearchDialogComponent {
     }
   }
 
-  private focusSearchInputOrResults(): void {
-    const searchResult = this.searchResult();
-    if (searchResult.size() > 0) {
-      this.resultContainer().nativeElement.focus();
+  private focusSearchInputOrResults(
+    hasResults: boolean,
+    resultContainer: ElementRef<HTMLElement>,
+    searchInput: ElementRef<HTMLInputElement>,
+  ): void {
+    if (hasResults) {
+      resultContainer.nativeElement.focus();
     } else {
-      this.qEl().nativeElement.focus();
+      searchInput.nativeElement.focus();
     }
   }
 
-  private focusCurrentHit(): void {
-    const selectedHit = this.selectedHit();
+  private focusCurrentHit(
+    selectedHit: Hit | null,
+    hitList: readonly ElementRef[],
+  ): void {
     if (selectedHit !== null) {
-      this.hitList()[selectedHit.id]?.nativeElement.focus();
+      hitList[selectedHit.id]?.nativeElement.focus();
     }
   }
 
