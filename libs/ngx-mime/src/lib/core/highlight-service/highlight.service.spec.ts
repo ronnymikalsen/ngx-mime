@@ -79,8 +79,8 @@ describe('HighlightService', () => {
     );
   });
 
-  it('should select all matching hits within the specified viewer', () => {
-    fixture.detectChanges();
+  it('should select all matching hits within the specified viewer', async () => {
+    await fixture.whenStable();
 
     highlightService.highlightSelectedHit('viewer-1', 1);
 

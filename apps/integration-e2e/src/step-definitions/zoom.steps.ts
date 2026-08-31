@@ -79,15 +79,17 @@ Then(
 );
 
 Then('the view should be all zoomed out', async function (this: CustomWorld) {
-  expect(await this.viewerPage.getZoomLevel()).toEqual(
-    await this.viewerPage.getMinZoom(),
-  );
+  const minZoom = await this.viewerPage.getMinZoom();
+
+  await expect.poll(() => this.viewerPage.getZoomLevel()).toEqual(minZoom);
 });
 
 Then(
   'the view should be vertically centered',
   async function (this: CustomWorld) {
-    expect(await this.viewerPage.isVerticallyCentered()).toBeTruthy();
+    await expect
+      .poll(() => this.viewerPage.isVerticallyCentered())
+      .toBeTruthy();
   },
 );
 

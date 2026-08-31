@@ -3,6 +3,7 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldHarness } from '@angular/material/form-field/testing';
 import { MatInputHarness } from '@angular/material/input/testing';
@@ -32,6 +33,8 @@ describe('CanvasGroupDialogComponent', () => {
 
   let intl: MimeViewerIntl;
   let canvasService: CanvasServiceStub;
+  let viewerService: ViewerService;
+  let dialogRef: MatDialogRefStub;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -63,6 +66,8 @@ describe('CanvasGroupDialogComponent', () => {
 
     intl = TestBed.inject(MimeViewerIntl);
     canvasService = TestBed.inject(CanvasService) as CanvasServiceStub;
+    viewerService = TestBed.inject(ViewerService);
+    dialogRef = TestBed.inject(MatDialogRef) as unknown as MatDialogRefStub;
     await fixture.whenStable();
   });
 
@@ -77,9 +82,32 @@ describe('CanvasGroupDialogComponent', () => {
 
     expect(await input.getValue()).toBe('');
     expect(await input.getType()).toBe('number');
-    expect(typeof component.canvasGroupModel().canvasGroup).toBe('number');
-    expect(Number.isNaN(component.canvasGroupModel().canvasGroup)).toBe(true);
+    expect(typeof component.canvasGroupModel()).toBe('number');
+    expect(Number.isNaN(component.canvasGroupModel())).toBe(true);
     expect(component.canvasGroupForm().invalid()).toBe(true);
+  });
+
+  it('should go to the entered page and close the dialog on submit', async () => {
+    jest
+      .spyOn(canvasService, 'findCanvasGroupByCanvasIndex')
+      .mockReturnValue(4);
+    const goToCanvasGroup = jest
+      .spyOn(viewerService, 'goToCanvasGroup')
+      .mockImplementation();
+    const closeDialog = jest.spyOn(dialogRef, 'close');
+    const input = await loader.getHarness(
+      MatInputHarness.with({ selector: '.go-to-canvas-group-input' }),
+    );
+    const submitButton = await loader.getHarness(
+      MatButtonHarness.with({ text: 'OK' }),
+    );
+
+    await input.setValue('5');
+    await submitButton.click();
+    await fixture.whenStable();
+
+    expect(goToCanvasGroup).toHaveBeenCalledWith(4, false);
+    expect(closeDialog).toHaveBeenCalled();
   });
 
   it('should re-render when the i18n labels have changed', async () => {
@@ -98,8 +126,8 @@ describe('CanvasGroupDialogComponent', () => {
     it('should show a error message if user enters a canvas group number index that does not exists', async () => {
       canvasService.setCanvasGroupCount(10);
 
-      component.canvasGroupModel.set({ canvasGroup: 11 });
-      component.canvasGroupForm.canvasGroup().markAsTouched();
+      component.canvasGroupModel.set(11);
+      component.canvasGroupForm().markAsTouched();
       await fixture.whenStable();
 
       const canvasGroupDoesNotExistsError =

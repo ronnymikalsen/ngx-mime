@@ -30,11 +30,10 @@ export class AppComponent {
     this.isHandsetOrTabletInPortrait() ? 'over' : 'side',
   );
   readonly sidenavIsOpen = computed(() => !this.isHandsetOrTabletInPortrait());
-  private readonly currentTheme = this.themeService.currentTheme;
 
   constructor() {
     effect(() => {
-      const themeName = this.currentTheme().name;
+      const themeName = this.themeService.currentTheme().name;
 
       this.applyThemeToOverlay(themeName);
     });

@@ -19,7 +19,6 @@ describe('ViewerSpinnerComponent', () => {
     fixture = TestBed.createComponent(ViewerSpinnerComponent);
     component = fixture.componentInstance;
     spinnerService = TestBed.inject(SpinnerService);
-    fixture.detectChanges();
   });
 
   it('should be created', () => {

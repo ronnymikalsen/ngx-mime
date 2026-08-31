@@ -83,10 +83,10 @@ describe('InformationDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display desktop toolbar', () => {
+  it('should display desktop toolbar', async () => {
     breakpointObserver.setMatches(false);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
       By.css('mat-toolbar[data-testid="desktop-toolbar"]'),
@@ -94,10 +94,10 @@ describe('InformationDialogComponent', () => {
     expect(heading).not.toBeNull();
   });
 
-  it('should display mobile toolbar', () => {
+  it('should display mobile toolbar', async () => {
     breakpointObserver.setMatches(true);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
       By.css('mat-toolbar[data-testid="mobile-toolbar"]'),
@@ -106,14 +106,12 @@ describe('InformationDialogComponent', () => {
   });
 
   it('should show toc', async () => {
-    fixture.detectChanges();
     const manifest = new Manifest({
       structures: [new Structure()],
     });
     iiifManifestService.setManifest(manifest);
     intl.tocLabel = 'TocTestLabel';
     await fixture.whenStable();
-    fixture.detectChanges();
 
     const tabGroup = await loader.getHarness(MatTabGroupHarness);
     expect(await tabGroup.getTabs({ label: intl.tocLabel })).toHaveLength(1);
@@ -123,14 +121,12 @@ describe('InformationDialogComponent', () => {
     const manifest = new Manifest();
     iiifManifestService.setManifest(manifest);
 
-    fixture.detectChanges();
-
     await fixture.whenStable();
     const tabGroup = await loader.getHarness(MatTabGroupHarness);
     expect(await tabGroup.getTabs({ label: intl.tocLabel })).toHaveLength(0);
   });
 
-  it('should close information dialog when selecting a canvas group in TOC when on mobile', () => {
+  it('should close information dialog when selecting a canvas group in TOC when on mobile', async () => {
     breakpointObserver.setMatches(true);
     jest.spyOn(viewerService, 'goToCanvas').mockImplementation(() => {});
     jest.spyOn(dialogRef, 'close');
@@ -176,7 +172,7 @@ describe('InformationDialogComponent', () => {
     );
     intl.tocLabel = 'TocTestLabel';
     component.selectedIndex.set(1);
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const divs: DebugElement[] = fixture.debugElement.queryAll(
       By.css('.toc-link'),

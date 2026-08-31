@@ -55,9 +55,9 @@ When(
 Then(
   'page {word} is displayed',
   async function (this: CustomWorld, canvasGroupIndex: string) {
-    const currentCanvasGroupString =
-      await this.viewerPage.getCurrentCanvasGroupLabel();
-    expect(currentCanvasGroupString.includes(canvasGroupIndex)).toBeTruthy();
+    await expect(this.viewerPage.currentCanvasGroupLabel).toContainText(
+      canvasGroupIndex,
+    );
   },
 );
 

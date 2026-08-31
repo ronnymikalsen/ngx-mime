@@ -62,7 +62,6 @@ describe('ViewDialogComponent', () => {
     breakpointObserver = TestBed.inject(
       BreakpointObserver,
     ) as MockBreakpointObserver;
-    fixture.detectChanges();
   });
 
   it('should be created', () => {

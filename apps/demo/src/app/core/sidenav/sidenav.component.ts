@@ -42,26 +42,30 @@ export class SidenavComponent {
   readonly queryParamMap = toSignal(this.activatedRoute.queryParamMap, {
     initialValue: convertToParamMap({}),
   });
-  readonly iiifVersionModel = linkedSignal(() => ({
-    version: this.queryParamMap().get('v') ?? '3',
-  }));
+  readonly iiifVersionModel = linkedSignal(
+    () => this.queryParamMap().get('v') ?? '3',
+  );
   readonly iiifVersionForm = form(this.iiifVersionModel);
   readonly manifests = computed(() =>
-    this.manifestService.getManifests(this.iiifVersionModel().version),
+    this.manifestService.getManifests(this.iiifVersionModel()),
   );
   readonly selectedManifest = linkedSignal(() => {
-    const manifestUris = this.queryParamMap().getAll('manifestUri');
+    const queryParamMap = this.queryParamMap();
+    const iiifVersion = queryParamMap.get('v') ?? '3';
+    const manifestUris = queryParamMap.getAll('manifestUri');
 
-    return this.manifests().find(
-      (manifest) =>
-        manifest.uri.length === manifestUris.length &&
-        manifest.uri.every((uri, index) => uri === manifestUris[index]),
-    )?.label;
+    return this.manifestService
+      .getManifests(iiifVersion)
+      .find(
+        (manifest) =>
+          manifest.uri.length === manifestUris.length &&
+          manifest.uri.every((uri, index) => uri === manifestUris[index]),
+      )?.label;
   });
 
   selectIiifVersion(version: string): void {
     const selectedManifest = this.selectedManifest();
-    this.iiifVersionModel.set({ version });
+
     if (selectedManifest) {
       const manifest = this.manifestService
         .getManifests(version)

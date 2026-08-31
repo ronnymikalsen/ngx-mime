@@ -1,5 +1,5 @@
 import { Component, inject, input, signal } from '@angular/core';
-import { form, FormField, submit } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField, MatInput } from '@angular/material/input';
@@ -17,6 +17,7 @@ import { ThemePickerComponent } from './theme-picker/theme-picker.component';
     MatIconButton,
     MatIcon,
     FormField,
+    FormRoot,
     MatFormField,
     MatInput,
     MatButton,
@@ -27,21 +28,22 @@ export class NavbarComponent {
   private readonly router = inject(Router);
 
   readonly sidenav = input.required<MatSidenav>();
-  readonly manifestModel = signal({ uri: '' });
-  readonly manifestForm = form(this.manifestModel);
+  readonly manifestModel = signal('');
+  readonly manifestForm = form(this.manifestModel, {
+    submission: {
+      action: async () => this.navigateToManifest(),
+    },
+  });
 
   toggle() {
     this.sidenav().toggle();
   }
 
-  async onSubmit(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
-    await submit(this.manifestForm, async () => {
-      await this.router.navigate(['demo'], {
-        queryParams: {
-          manifestUri: this.manifestModel().uri,
-        },
-      });
+  private async navigateToManifest(): Promise<void> {
+    await this.router.navigate(['demo'], {
+      queryParams: {
+        manifestUri: this.manifestModel(),
+      },
     });
   }
 }

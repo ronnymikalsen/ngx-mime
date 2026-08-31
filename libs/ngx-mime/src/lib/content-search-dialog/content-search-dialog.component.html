@@ -29,7 +29,7 @@
     </mat-toolbar>
   }
   <mat-dialog-content class="content-search-form">
-    <form (submit)="onSubmit($event)">
+    <form [formRoot]="searchForm">
       <mat-form-field class="content-search-box">
         <button
           type="submit"
@@ -45,11 +45,11 @@
           cdkFocusInitial
           matInput
           class="content-search-input"
-          [formField]="searchForm.query"
+          [formField]="searchForm"
           [attr.aria-label]="intl().searchLabel"
           autocomplete="off"
         />
-        @if (searchModel().query) {
+        @if (searchModel()) {
           <button
             type="button"
             class="clearSearchButton"

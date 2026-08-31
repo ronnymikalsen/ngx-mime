@@ -57,9 +57,9 @@ Then(
   async function (this: CustomWorld) {
     await this.viewerPage.openViewMenu();
 
-    expect(
-      await this.viewerPage.isRecognizedTextContentButtonsPresent(),
-    ).toBeTruthy();
+    await expect
+      .poll(() => this.viewerPage.isRecognizedTextContentButtonsPresent())
+      .toBeTruthy();
   },
 );
 

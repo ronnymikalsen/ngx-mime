@@ -36,10 +36,10 @@ describe('HelpDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display desktop toolbar', () => {
+  it('should display desktop toolbar', async () => {
     breakpointObserver.setMatches(false);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
       By.css('.heading-desktop'),
@@ -47,10 +47,10 @@ describe('HelpDialogComponent', () => {
     expect(heading).not.toBeNull();
   });
 
-  it('should display mobile toolbar', () => {
+  it('should display mobile toolbar', async () => {
     breakpointObserver.setMatches(true);
 
-    fixture.detectChanges();
+    await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
       By.css('.heading-desktop'),

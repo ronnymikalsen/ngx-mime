@@ -1,6 +1,7 @@
 import { signal, Signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { MimeViewerConfig } from '../core/mime-viewer-config';
+import { Manifest } from '../core/models/manifest';
 import { Hit } from './../core/models/hit';
 import { SearchResult } from './../core/models/search-result';
 
@@ -44,6 +45,10 @@ export class IiifContentSearchServiceStub {
   }
 
   destroy() {}
+
+  search(_manifest: Manifest, query: string): void {
+    this.setQuery(query);
+  }
 
   setQuery(query: string): void {
     this.querySignal.set(query);

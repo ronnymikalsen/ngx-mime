@@ -11,7 +11,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { form, FormField, submit } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { MatIconButton } from '@angular/material/button';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import {
@@ -51,6 +51,7 @@ import { ContentSearchNavigationService } from '../core/navigation/content-searc
     MatDialogTitle,
     MatDialogContent,
     FormField,
+    FormRoot,
     MatFormField,
     MatPrefix,
     MatInput,
@@ -92,10 +93,12 @@ export class ContentSearchDialogComponent {
   );
   readonly manifest = this.iiifManifestService.manifest;
   readonly searchResult = this.iiifContentSearchService.searchResult;
-  readonly searchModel = linkedSignal(() => ({
-    query: this.searchResult().q,
-  }));
-  readonly searchForm = form(this.searchModel);
+  readonly searchModel = linkedSignal(() => this.searchResult().q);
+  readonly searchForm = form(this.searchModel, {
+    submission: {
+      action: async () => this.search(),
+    },
+  });
   readonly hits = computed(() => this.searchResult().hits);
   readonly currentSearch = linkedSignal(() => this.searchResult().q);
   readonly numberOfHits = computed(() => this.searchResult().size());
@@ -119,13 +122,8 @@ export class ContentSearchDialogComponent {
     });
   }
 
-  async onSubmit(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
-    await submit(this.searchForm, async () => this.search());
-  }
-
   clear(): void {
-    this.searchModel.set({ query: '' });
+    this.searchModel.set('');
     this.search();
   }
 
@@ -137,7 +135,7 @@ export class ContentSearchDialogComponent {
   }
 
   private search(): void {
-    const query = this.searchModel().query;
+    const query = this.searchModel();
     const manifest = this.manifest();
     this.currentSearch.set(query);
     if (manifest) {

@@ -7,6 +7,7 @@ import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatInputHarness } from '@angular/material/input/testing';
 import { By } from '@angular/platform-browser';
 import { provideAutoSpy } from 'jest-auto-spies';
 import { CanvasService } from '../core/canvas-service/canvas-service';
@@ -79,6 +80,21 @@ describe('ContentSearchDialogComponent', () => {
 
   it('should be created', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should search the current manifest for the entered query on submit', async () => {
+    iiifManifestServiceStub.setManifest(testManifest);
+    const search = jest.spyOn(iiifContentSearchServiceStub, 'search');
+    const input = await getSearchInput();
+    const submitButton = await loader.getHarness(
+      MatButtonHarness.with({ buttonType: 'submit' }),
+    );
+
+    await input.setValue('dummysearch');
+    await submitButton.click();
+    await fixture.whenStable();
+
+    expect(search).toHaveBeenCalledWith(testManifest, 'dummysearch');
   });
 
   it('should display desktop toolbar', async () => {
@@ -165,9 +181,7 @@ describe('ContentSearchDialogComponent', () => {
 
     await fixture.whenStable();
 
-    searchInput.nativeElement.setAttribute('value', 'dummyvalue');
-    const event = new KeyboardEvent('keypress', { key: 'Enter' });
-    searchInput.nativeElement.dispatchEvent(event);
+    await submitSearch('dummyvalue');
 
     iiifContentSearchServiceStub.setSearchResult(new SearchResult());
 
@@ -188,9 +202,7 @@ describe('ContentSearchDialogComponent', () => {
 
     await fixture.whenStable();
 
-    searchInput.nativeElement.setAttribute('value', 'dummyvalue');
-    const event = new KeyboardEvent('keypress', { key: 'Enter' });
-    searchInput.nativeElement.dispatchEvent(event);
+    await submitSearch('dummyvalue');
 
     iiifContentSearchServiceStub.setSearchResult(
       new SearchResult({
@@ -204,19 +216,31 @@ describe('ContentSearchDialogComponent', () => {
   });
 
   it('should only show clear button on input', async () => {
-    const searchInput: DebugElement = fixture.debugElement.query(
-      By.css('.content-search-input'),
-    );
+    const searchInput = await getSearchInput();
 
     expect(await getButtonCount()).toEqual(2);
 
-    searchInput.nativeElement.value = 'dummyvalue';
-    searchInput.nativeElement.dispatchEvent(new Event('input'));
-
-    await fixture.whenStable();
+    await searchInput.setValue('dummyvalue');
 
     expect(await getButtonCount()).toBe(3);
   });
+
+  async function getSearchInput(): Promise<MatInputHarness> {
+    return loader.getHarness(
+      MatInputHarness.with({ selector: '.content-search-input' }),
+    );
+  }
+
+  async function submitSearch(query: string): Promise<void> {
+    const input = await getSearchInput();
+    const submitButton = await loader.getHarness(
+      MatButtonHarness.with({ buttonType: 'submit' }),
+    );
+
+    await input.setValue(query);
+    await submitButton.click();
+    await fixture.whenStable();
+  }
 
   async function getButtonCount() {
     const buttons = await loader.getAllHarnesses(MatButtonHarness);

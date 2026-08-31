@@ -94,17 +94,11 @@ Then(
   'the page with hit number {word} should be displayed',
   async function (this: CustomWorld, hit: string) {
     if (hit === '1') {
-      await expect
-        .poll(() => this.viewerPage.getCurrentCanvasGroupLabel())
-        .toContain('7');
+      await expect(this.viewerPage.currentCanvasGroupLabel).toContainText('7');
     } else if (hit === '3') {
-      await expect
-        .poll(() => this.viewerPage.getCurrentCanvasGroupLabel())
-        .toContain('20');
+      await expect(this.viewerPage.currentCanvasGroupLabel).toContainText('20');
     } else if (hit === '5' || hit === '6') {
-      await expect
-        .poll(() => this.viewerPage.getCurrentCanvasGroupLabel())
-        .toContain('38');
+      await expect(this.viewerPage.currentCanvasGroupLabel).toContainText('38');
     }
   },
 );
@@ -113,7 +107,9 @@ Then(
   'hit number {int} should be highlighted',
   async function (this: CustomWorld, hit: number) {
     const hitIndex = hit - 1;
-    expect(await this.contentSearchPage.isSelected(hitIndex)).toBeTruthy();
+    await expect
+      .poll(() => this.contentSearchPage.isSelected(hitIndex))
+      .toBeTruthy();
   },
 );
 
@@ -138,9 +134,9 @@ Then(
 );
 
 Then('the hit should be marked', async function (this: CustomWorld) {
-  const isSelected: boolean =
-    await this.contentSearchPage.hitIsSelected(selectedHitIndex);
-  expect(isSelected).toBeTruthy();
+  await expect
+    .poll(() => this.contentSearchPage.hitIsSelected(selectedHitIndex))
+    .toBeTruthy();
 });
 
 Then('the hit should be visible', async function (this: CustomWorld) {

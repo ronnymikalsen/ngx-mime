@@ -1,7 +1,7 @@
 <h1 class="canvas-group-dialog-title" mat-dialog-title>{{
   intl().goToPageLabel
 }}</h1>
-<form (submit)="onSubmit($event)" novalidate autocomplete="off">
+<form [formRoot]="canvasGroupForm" autocomplete="off">
   <div mat-dialog-content>
     <mat-form-field [floatLabel]="'always'">
       <mat-label>{{ intl().enterPageNumber }}</mat-label>
@@ -9,7 +9,7 @@
         class="go-to-canvas-group-input"
         type="number"
         matInput
-        [formField]="canvasGroupForm.canvasGroup"
+        [formField]="canvasGroupForm"
       />
       @if (canvasGroupDoesNotExist()) {
         <mat-error>{{ intl().pageDoesNotExists }}</mat-error>

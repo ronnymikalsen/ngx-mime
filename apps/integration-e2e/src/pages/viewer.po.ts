@@ -43,6 +43,8 @@ export class ViewerPage {
   readonly attribution: Locator;
   readonly recognizedTextContentRegion: Locator;
   readonly currentCanvasGroupLabel: Locator;
+  readonly modeDashboard: Locator;
+  readonly modePage: Locator;
   private isElements = false;
   private attributionCloseButton: Locator;
   private navigationSlider: Locator;
@@ -62,8 +64,6 @@ export class ViewerPage {
   private canvasGroupOverlay: Locator;
   private singlePageViewButton: Locator;
   private twoPageViewButton: Locator;
-  private modeDashboard: Locator;
-  private modePage: Locator;
   private openseadragonCanvas: Locator;
   private recognizedTextContentSplitViewButton: Locator;
   private recognizedTextContentOnlyButton: Locator;

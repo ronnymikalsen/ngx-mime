@@ -62,7 +62,7 @@ Then(
 Then(/^the viewer should not change page$/, async function (this: CustomWorld) {
   await this.animations.waitFor();
 
-  expect(await this.viewerPage.getCurrentCanvasGroupLabel()).toEqual(
+  await expect(this.viewerPage.currentCanvasGroupLabel).toHaveText(
     previousCanvasGroupLabel,
   );
 });

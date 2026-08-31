@@ -8,10 +8,10 @@ import {
 import {
   form,
   FormField,
+  FormRoot,
   max,
   min,
   required,
-  submit,
 } from '@angular/forms/signals';
 import { MatButton } from '@angular/material/button';
 import {
@@ -38,6 +38,7 @@ import { ViewerService } from '../core/viewer-service/viewer.service';
   imports: [
     MatDialogTitle,
     FormField,
+    FormRoot,
     MatDialogContent,
     MatFormField,
     MatLabel,
@@ -56,27 +57,31 @@ export class CanvasGroupDialogComponent {
   readonly intl = injectMimeViewerIntlSignal();
 
   readonly canvasCount = this.canvasService.canvasCount;
-  readonly canvasGroupModel = signal({ canvasGroup: Number.NaN });
-  readonly canvasGroupForm = form(this.canvasGroupModel, (path) => {
-    required(path.canvasGroup);
-    min(path.canvasGroup, 1);
-    max(path.canvasGroup, () => this.canvasCount());
-  });
+  readonly canvasGroupModel = signal(Number.NaN);
+  readonly canvasGroupForm = form(
+    this.canvasGroupModel,
+    (path) => {
+      required(path);
+      min(path, 1);
+      max(path, () => this.canvasCount());
+    },
+    {
+      submission: {
+        action: async () => this.goToCanvasGroup(),
+      },
+    },
+  );
   readonly canvasGroupDoesNotExist = computed(() =>
-    this.canvasGroupForm
-      .canvasGroup()
+    this.canvasGroupForm()
       .errors()
       .some((error) => error.kind === 'max'),
   );
-  async onSubmit(event: SubmitEvent): Promise<void> {
-    event.preventDefault();
-    await submit(this.canvasGroupForm, async () => {
-      const pageNumber = this.canvasGroupModel().canvasGroup;
-      this.viewerService.goToCanvasGroup(
-        this.canvasService.findCanvasGroupByCanvasIndex(pageNumber - 1),
-        false,
-      );
-      this.dialogRef.close();
-    });
+  private goToCanvasGroup(): void {
+    const pageNumber = this.canvasGroupModel();
+    this.viewerService.goToCanvasGroup(
+      this.canvasService.findCanvasGroupByCanvasIndex(pageNumber - 1),
+      false,
+    );
+    this.dialogRef.close();
   }
 }

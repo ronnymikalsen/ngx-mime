@@ -6,7 +6,6 @@ import { AccessKeysService } from '../core/access-keys-handler-service/access-ke
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { MimeViewerIntl } from '../core/intl';
 import { Manifest } from '../core/models/manifest';
-import { StyleService } from '../core/style-service/style.service';
 import { IiifManifestServiceStub } from '../test/iiif-manifest-service-stub';
 import { AttributionDialogResizeService } from './attribution-dialog-resize.service';
 import { AttributionDialogComponent } from './attribution-dialog.component';
@@ -25,7 +24,6 @@ describe('AttributionDialogComponent', () => {
         MimeViewerIntl,
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
         provideAutoSpy(AttributionDialogResizeService),
-        StyleService,
         provideAutoSpy(AccessKeysService),
       ],
     }).compileComponents();
@@ -33,7 +31,6 @@ describe('AttributionDialogComponent', () => {
     fixture = TestBed.createComponent(AttributionDialogComponent);
     component = fixture.componentInstance;
     iiifManifestService = TestBed.inject<any>(IiifManifestService);
-    fixture.detectChanges();
   });
 
   it('should be created', () => {

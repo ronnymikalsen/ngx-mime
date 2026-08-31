@@ -1,7 +1,6 @@
 import {
   afterRenderEffect,
   Component,
-  computed,
   ElementRef,
   HostListener,
   inject,
@@ -18,7 +17,6 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { AccessKeysService } from '../core/access-keys-handler-service/access-keys.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
-import { StyleService } from '../core/style-service/style.service';
 import { AttributionDialogResizeService } from './attribution-dialog-resize.service';
 
 @Component({
@@ -35,7 +33,6 @@ import { AttributionDialogResizeService } from './attribution-dialog-resize.serv
 })
 export class AttributionDialogComponent {
   private readonly iiifManifestService = inject(IiifManifestService);
-  private readonly styleService = inject(StyleService);
   private readonly attributionDialogResizeService = inject(
     AttributionDialogResizeService,
   );
@@ -44,7 +41,6 @@ export class AttributionDialogComponent {
 
   readonly container = viewChild.required<ElementRef<HTMLElement>>('container');
   readonly manifest = this.iiifManifestService.manifest;
-  readonly backgroundColor = computed(() => this.getBackgroundColor());
 
   constructor() {
     afterRenderEffect(() => {
@@ -65,12 +61,6 @@ export class AttributionDialogComponent {
   @HostListener('window:resize')
   onResize(): void {
     this.attributionDialogResizeService.markForCheck();
-  }
-
-  private getBackgroundColor(): string | null {
-    const color = this.styleService.color();
-
-    return color ? this.styleService.convertToRgba(color, 0.3) : null;
   }
 
   private updateDialogSize(container: ElementRef<HTMLElement>): void {

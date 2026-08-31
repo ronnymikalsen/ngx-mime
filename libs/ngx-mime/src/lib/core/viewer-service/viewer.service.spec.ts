@@ -23,10 +23,10 @@ import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-serv
 import { ViewerService } from './viewer.service';
 
 @Component({
-  template: ` <div [id]="openseadragonId"></div> `,
+  template: ` <div [id]="openseadragonId()"></div> `,
 })
 class TestHostComponent {
-  openseadragonId: string | null = null;
+  readonly openseadragonId = signal<string | null>(null);
 }
 
 describe('ViewerService', () => {
@@ -69,9 +69,9 @@ describe('ViewerService', () => {
     viewerLayoutService.setLayout(ViewerLayout.TWO_PAGE);
     hostFixture = TestBed.createComponent(TestHostComponent);
     viewerService.initialize();
-    hostFixture.componentInstance.openseadragonId =
-      viewerService.openseadragonId;
-    hostFixture.detectChanges();
+    hostFixture.componentInstance.openseadragonId.set(
+      viewerService.openseadragonId,
+    );
     await hostFixture.whenStable();
   });
 
