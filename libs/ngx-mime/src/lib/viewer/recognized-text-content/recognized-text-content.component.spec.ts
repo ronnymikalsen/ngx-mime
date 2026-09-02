@@ -106,7 +106,6 @@ describe('RecognizedTextContentComponent', () => {
       .calledWith(1)
       .mockReturnValue(secondCanvasRecognizedTextContent);
     incrementTextContentRevision();
-
     await fixture.whenStable();
 
     const firstCanvasRecognizedTextContentEl: HTMLElement =
@@ -128,7 +127,6 @@ describe('RecognizedTextContentComponent', () => {
   it('should show recognized text that was loaded before initialization', async () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0]);
     altoService.getHtml.calledWith(0).mockReturnValue('cachedTextContent');
-
     await fixture.whenStable();
 
     expect(component.firstCanvasRecognizedTextContent()).toBe(
@@ -144,7 +142,6 @@ describe('RecognizedTextContentComponent', () => {
   it('should show error message', async () => {
     await fixture.whenStable();
     errorState.set('fakeError');
-
     await fixture.whenStable();
 
     const error: DebugElement = fixture.debugElement.query(
@@ -195,7 +192,6 @@ describe('RecognizedTextContentComponent', () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([4]);
     altoService.getHtml.calledWith(4).mockReturnValue('updatedTextContent');
     incrementTextContentRevision();
-
     await fixture.whenStable();
 
     const message: HTMLElement = fixture.nativeElement.querySelector(
@@ -211,7 +207,6 @@ describe('RecognizedTextContentComponent', () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([3, 4]);
     altoService.getHtml.mockReturnValue('updatedTextContent');
     incrementTextContentRevision();
-
     await fixture.whenStable();
 
     const message: HTMLElement = fixture.nativeElement.querySelector(
@@ -228,7 +223,6 @@ describe('RecognizedTextContentComponent', () => {
     altoService.getHtml.calledWith(3).mockReturnValue(undefined);
     altoService.getHtml.calledWith(4).mockReturnValue('updatedTextContent');
     incrementTextContentRevision();
-
     await fixture.whenStable();
 
     const message: HTMLElement = fixture.nativeElement.querySelector(
@@ -307,7 +301,6 @@ describe('RecognizedTextContentComponent', () => {
     await fixture.whenStable();
     canvasService.getCanvasesPerCanvasGroup.calledWith(0).nextWith([0, 1]);
     iiifContentSearchService.setSelected(createMockHit(1, 'test '));
-
     await fixture.whenStable();
 
     expect(highlightService.highlightSelectedHit).toHaveBeenCalledWith(
@@ -324,7 +317,6 @@ describe('RecognizedTextContentComponent', () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0]);
     altoService.getHtml.calledWith(0).mockReturnValue('fakeTextContent');
     incrementTextContentRevision();
-
     await fixture.whenStable();
 
     expect(highlightService.highlightSelectedHit).toHaveBeenCalledWith(

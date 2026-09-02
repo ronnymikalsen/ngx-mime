@@ -62,7 +62,6 @@ describe('OsdToolbarComponent', () => {
     component = fixture.componentInstance;
 
     breakpointObserver.setMatches(true);
-
     await fixture.whenStable();
   });
 
@@ -142,7 +141,6 @@ describe('OsdToolbarComponent', () => {
       await toggleOsdControls();
       const nextButton = await getNextButton();
       await nextButton.click();
-
       await fixture.whenStable();
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -155,7 +153,6 @@ describe('OsdToolbarComponent', () => {
       await toggleOsdControls();
       const previousButton = await getPreviousButton();
       await previousButton.click();
-
       await fixture.whenStable();
       expect(spy).toHaveBeenCalledTimes(1);
     });

@@ -99,7 +99,6 @@ describe('ContentSearchDialogComponent', () => {
 
   it('should display desktop toolbar', async () => {
     breakpointObserver.setMatches(false);
-
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -110,7 +109,6 @@ describe('ContentSearchDialogComponent', () => {
 
   it('should display mobile toolbar', async () => {
     breakpointObserver.setMatches(true);
-
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -153,7 +151,6 @@ describe('ContentSearchDialogComponent', () => {
         By.css('a[data-testid="hit"]'),
       );
       hits[0].triggerEventHandler('click', null);
-
       await fixture.whenStable();
       expect(iiifContentSearchServiceStub.selected).toHaveBeenCalled();
       if (shouldCloseDialog) {
@@ -170,13 +167,11 @@ describe('ContentSearchDialogComponent', () => {
     );
     const spy = jest.spyOn(searchResultContainer.nativeElement, 'focus');
     iiifManifestServiceStub.setManifest(testManifest);
-
     await fixture.whenStable();
 
     await submitSearch('dummyvalue');
 
     iiifContentSearchServiceStub.setSearchResult(new SearchResult());
-
     await fixture.whenStable();
 
     expect(spy).not.toHaveBeenCalled();
@@ -188,7 +183,6 @@ describe('ContentSearchDialogComponent', () => {
     );
     const spy = jest.spyOn(searchResultContainer.nativeElement, 'focus');
     iiifManifestServiceStub.setManifest(testManifest);
-
     await fixture.whenStable();
 
     await submitSearch('dummyvalue');
@@ -198,7 +192,6 @@ describe('ContentSearchDialogComponent', () => {
         hits: [new Hit({ id: 1 }), new Hit({ id: 2 })],
       }),
     );
-
     await fixture.whenStable();
 
     expect(spy).toHaveBeenCalled();

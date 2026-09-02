@@ -140,7 +140,6 @@ describe('ViewerHeaderComponent', () => {
   it('should re-render when the i18n labels have changed', async () => {
     intl.informationLabel = 'Metadata of the publication';
     intl.changes.next();
-
     await testHostFixture.whenStable();
     const informationDialogButton = await getInformationDialogButton();
     const ariaLabel = await getAriaLabel(informationDialogButton);
@@ -242,7 +241,6 @@ describe('ViewerHeaderComponent', () => {
       ...TestManifests.aEmpty(),
       service: new Service(),
     });
-
     await testHostFixture.whenStable();
 
     const contentSearchDialogbutton = await getContentSearchDialogButton();
@@ -252,7 +250,6 @@ describe('ViewerHeaderComponent', () => {
 
   it('should hide search button if manifest does not have a search service', async () => {
     setCurrentManifest(new Manifest());
-
     await testHostFixture.whenStable();
 
     expect(await getContentSearchDialogButton()).toBeNull();
@@ -263,7 +260,6 @@ describe('ViewerHeaderComponent', () => {
       label: 'Testlabel',
       viewingDirection: ViewingDirection.LTR,
     });
-
     await testHostFixture.whenStable();
 
     const label = testHostFixture.debugElement.query(
@@ -275,7 +271,6 @@ describe('ViewerHeaderComponent', () => {
 
   it('should show view menu button if digital text is available', async () => {
     setCurrentManifest(TestManifests.withDigitalTextContent());
-
     await testHostFixture.whenStable();
 
     expect(await getViewMenuButton()).not.toBeNull();
@@ -283,7 +278,6 @@ describe('ViewerHeaderComponent', () => {
 
   it('should show view menu button if manifest is paged', async () => {
     setCurrentManifest(TestManifests.aDefault());
-
     await testHostFixture.whenStable();
 
     expect(await getViewMenuButton()).not.toBeNull();
@@ -291,7 +285,6 @@ describe('ViewerHeaderComponent', () => {
 
   it('should hide view menu button if manifest is not paged and digital text is not available', async () => {
     setCurrentManifest(TestManifests.aEmpty());
-
     await testHostFixture.whenStable();
 
     expect(await getViewMenuButton()).toBeNull();

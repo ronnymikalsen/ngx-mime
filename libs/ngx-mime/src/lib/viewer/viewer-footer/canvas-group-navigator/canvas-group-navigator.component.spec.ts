@@ -154,12 +154,10 @@ describe('CanvasGroupNavigatorComponent', () => {
     spy = jest.spyOn(viewerService, 'goToPreviousCanvasGroup');
 
     canvasService.setCanvasGroupIndexChange(9);
-
     await testHostFixture.whenStable();
     const previousButton = await getPreviousButton();
 
     await previousButton?.click();
-
     await testHostFixture.whenStable();
     expect(spy).toHaveBeenCalledTimes(1);
   });

@@ -85,7 +85,6 @@ describe('InformationDialogComponent', () => {
 
   it('should display desktop toolbar', async () => {
     breakpointObserver.setMatches(false);
-
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -96,7 +95,6 @@ describe('InformationDialogComponent', () => {
 
   it('should display mobile toolbar', async () => {
     breakpointObserver.setMatches(true);
-
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -120,7 +118,6 @@ describe('InformationDialogComponent', () => {
   it('should hide toc', async () => {
     const manifest = new Manifest();
     iiifManifestService.setManifest(manifest);
-
     await fixture.whenStable();
     const tabGroup = await loader.getHarness(MatTabGroupHarness);
     expect(await tabGroup.getTabs({ label: intl.tocLabel })).toHaveLength(0);

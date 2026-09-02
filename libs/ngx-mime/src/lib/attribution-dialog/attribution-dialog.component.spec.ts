@@ -43,7 +43,6 @@ describe('AttributionDialogComponent', () => {
         attribution: 'This is a test attribution',
       }),
     );
-
     await fixture.whenStable();
 
     const attributionEl: HTMLElement =

@@ -38,7 +38,6 @@ describe('HelpDialogComponent', () => {
 
   it('should display desktop toolbar', async () => {
     breakpointObserver.setMatches(false);
-
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -49,7 +48,6 @@ describe('HelpDialogComponent', () => {
 
   it('should display mobile toolbar', async () => {
     breakpointObserver.setMatches(true);
-
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(

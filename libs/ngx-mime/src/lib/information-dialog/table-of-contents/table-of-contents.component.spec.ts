@@ -70,7 +70,6 @@ describe('TocComponent', () => {
         ],
       }),
     );
-
     await fixture.whenStable();
   });
 

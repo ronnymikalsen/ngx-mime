@@ -37,7 +37,6 @@ describe('AppComponent', () => {
       'config',
       JSON.stringify({ navigationControlEnabled: false }),
     );
-
     await fixture.whenStable();
 
     expect(component.mimeConfig().navigationControlEnabled).toBe(false);

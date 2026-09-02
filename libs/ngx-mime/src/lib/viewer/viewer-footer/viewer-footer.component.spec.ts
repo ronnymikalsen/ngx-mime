@@ -70,7 +70,6 @@ describe('ViewerFooterComponent', () => {
 
   it('should always show pageNavigator in desktop size', async () => {
     breakpointObserver.setMatches(false);
-
     await fixture.whenStable();
     expect(cmp.showPageNavigator()).toBeTruthy();
   });
@@ -81,7 +80,6 @@ describe('ViewerFooterComponent', () => {
 
     breakpointObserver.setMatches(false);
     iiifContentSearchServiceStub.setSearchResult(sr);
-
     await fixture.whenStable();
     expect(cmp.showPageNavigator()).toBeTruthy();
     expect(cmp.showContentSearchNavigator()).toBeTruthy();
@@ -93,7 +91,6 @@ describe('ViewerFooterComponent', () => {
 
     iiifContentSearchServiceStub.setSearchResult(sr);
     breakpointObserver.setMatches(true);
-
     await fixture.whenStable();
     expect(cmp.showPageNavigator()).toBeFalsy();
   });

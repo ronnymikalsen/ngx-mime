@@ -70,7 +70,6 @@ describe('ViewDialogComponent', () => {
 
   it('should display desktop toolbar', async () => {
     breakpointObserver.setMatches(false);
-
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -81,7 +80,6 @@ describe('ViewDialogComponent', () => {
 
   it('should display mobile toolbar', async () => {
     breakpointObserver.setMatches(true);
-
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -92,7 +90,6 @@ describe('ViewDialogComponent', () => {
 
   it('should show page layout toggle group if manifest is paged', async () => {
     iiifManifestService.setManifest(TestManifests.aDefault());
-
     await fixture.whenStable();
 
     const pageLayoutToggle = await loader.getHarnessOrNull(
@@ -105,7 +102,6 @@ describe('ViewDialogComponent', () => {
 
   it('should hide page layout toggle group if manifest is not paged', async () => {
     iiifManifestService.setManifest(TestManifests.aEmpty());
-
     await fixture.whenStable();
 
     const pageLayoutToggle = await loader.getHarnessOrNull(
@@ -118,7 +114,6 @@ describe('ViewDialogComponent', () => {
 
   it('should show digital text toggle group if digital text is available', async () => {
     iiifManifestService.setManifest(TestManifests.withDigitalTextContent());
-
     await fixture.whenStable();
 
     const recognizedTextContentToggle = await loader.getHarnessOrNull(
@@ -132,7 +127,6 @@ describe('ViewDialogComponent', () => {
 
   it('should hide digital text toggle group if digital text is not available', async () => {
     iiifManifestService.setManifest(TestManifests.aEmpty());
-
     await fixture.whenStable();
 
     const recognizedTextContentToggle = await loader.getHarnessOrNull(
