@@ -82,7 +82,6 @@ describe('CanvasGroupDialogComponent', () => {
 
     expect(await input.getValue()).toBe('');
     expect(await input.getType()).toBe('number');
-    expect(typeof component.canvasGroupModel()).toBe('number');
     expect(Number.isNaN(component.canvasGroupModel())).toBe(true);
     expect(component.canvasGroupForm().invalid()).toBe(true);
   });
