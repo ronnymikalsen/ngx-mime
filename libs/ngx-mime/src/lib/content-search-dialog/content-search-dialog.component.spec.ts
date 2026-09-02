@@ -119,55 +119,50 @@ describe('ContentSearchDialogComponent', () => {
     expect(heading).toBeNull();
   });
 
-  it('should go to hit and close dialog when selected on mobile', async () => {
-    breakpointObserver.setMatches(true);
-    jest.spyOn(iiifContentSearchServiceStub, 'selected');
-    jest.spyOn(dialogRef, 'close');
-    iiifContentSearchServiceStub.setSearchResult(
-      new SearchResult({
-        q: 'dummysearch',
-        hits: [
-          new Hit({
-            index: 0,
-            match: 'querystring',
-          }),
-        ],
-      }),
-    );
-    await fixture.whenStable();
+  it.each([
+    {
+      behavior: 'close the dialog on mobile',
+      isMobile: true,
+      shouldCloseDialog: true,
+    },
+    {
+      behavior: 'keep the dialog open on desktop',
+      isMobile: false,
+      shouldCloseDialog: false,
+    },
+  ])(
+    'should select a hit and $behavior',
+    async ({ isMobile, shouldCloseDialog }) => {
+      breakpointObserver.setMatches(isMobile);
+      jest.spyOn(iiifContentSearchServiceStub, 'selected');
+      jest.spyOn(dialogRef, 'close');
+      iiifContentSearchServiceStub.setSearchResult(
+        new SearchResult({
+          q: 'dummysearch',
+          hits: [
+            new Hit({
+              index: 0,
+              match: 'querystring',
+            }),
+          ],
+        }),
+      );
+      await fixture.whenStable();
 
-    const hits = fixture.debugElement.queryAll(By.css('a[data-testid="hit"]'));
-    hits[0].triggerEventHandler('click', null);
+      const hits = fixture.debugElement.queryAll(
+        By.css('a[data-testid="hit"]'),
+      );
+      hits[0].triggerEventHandler('click', null);
 
-    await fixture.whenStable();
-    expect(iiifContentSearchServiceStub.selected).toHaveBeenCalled();
-    expect(dialogRef.close).toHaveBeenCalled();
-  });
-
-  it('should go to hit and when selected on desktop', async () => {
-    breakpointObserver.setMatches(false);
-    jest.spyOn(iiifContentSearchServiceStub, 'selected');
-    jest.spyOn(dialogRef, 'close');
-    iiifContentSearchServiceStub.setSearchResult(
-      new SearchResult({
-        q: 'dummysearch',
-        hits: [
-          new Hit({
-            index: 0,
-            match: 'querystring',
-          }),
-        ],
-      }),
-    );
-    await fixture.whenStable();
-
-    const hits = fixture.debugElement.queryAll(By.css('a[data-testid="hit"]'));
-    hits[0].triggerEventHandler('click', null);
-
-    await fixture.whenStable();
-    expect(iiifContentSearchServiceStub.selected).toHaveBeenCalled();
-    expect(dialogRef.close).not.toHaveBeenCalled();
-  });
+      await fixture.whenStable();
+      expect(iiifContentSearchServiceStub.selected).toHaveBeenCalled();
+      if (shouldCloseDialog) {
+        expect(dialogRef.close).toHaveBeenCalled();
+      } else {
+        expect(dialogRef.close).not.toHaveBeenCalled();
+      }
+    },
+  );
 
   it('should remain in search input if content search return zero hits', async () => {
     const searchResultContainer = fixture.debugElement.query(
