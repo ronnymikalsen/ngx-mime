@@ -1,5 +1,4 @@
 import { signal, Signal } from '@angular/core';
-import { Hit } from '../core/models/hit';
 
 export class ViewerServiceStub {
   readonly currentCanvasGroupIndex: Signal<number>;
@@ -18,9 +17,9 @@ export class ViewerServiceStub {
 
   public goToNextCanvasGroup(): void {}
 
-  public goToCanvas(index: number): void {}
-
-  public setCurrentHit(hit: Hit): void {}
+  public goToCanvas(index: number): void {
+    this.setCanvasGroupIndexChange(index);
+  }
 
   zoomIn(): void {}
 }

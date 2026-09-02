@@ -14,7 +14,7 @@ export class CanvasGroups {
 
     if (canvasGroup.tileSourceAndRects) {
       canvasGroup.tileSourceAndRects.forEach(
-        (tileSourceAndRect: TileSourceAndRect, i: number) => {
+        (tileSourceAndRect: TileSourceAndRect) => {
           this.tileSourceAndRects.push(tileSourceAndRect);
         },
       );

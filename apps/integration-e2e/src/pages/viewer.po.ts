@@ -1,10 +1,6 @@
 import { Locator, Page } from 'playwright';
 import { Animations } from '../helpers/animations';
 
-const thumbStartPosition = <any>{ x: 600, y: 300 };
-const pointerPosition1 = <any>{ x: 650, y: 275 };
-const pointerPosition2 = <any>{ x: 750, y: 200 };
-
 export class ViewerPage {
   public static readonly bookShelf = [
     {
@@ -461,35 +457,6 @@ export class ViewerPage {
     return this.recognizedTextContentHits.nth(index).innerHTML();
   }
 
-  async swipe(startPoint: Point, endPoint: Point): Promise<void> {
-    // https://github.com/microsoft/playwright/issues/2903
-    // await browser
-    //   .touchActions()
-    //   .tapAndHold(startPoint)
-    //   .release(endPoint)
-    //   .perform();
-  }
-
-  async pinchOut(): Promise<void> {
-    // https://github.com/microsoft/playwright/issues/2903
-    // await browser
-    //   .touchActions()
-    //   .tapAndHold(thumbStartPosition)
-    //   .tapAndHold(pointerPosition1)
-    //   .move(pointerPosition2)
-    //   .perform();
-  }
-
-  async pinchIn(): Promise<void> {
-    // https://github.com/microsoft/playwright/issues/2903
-    // await browser
-    //   .touchActions()
-    //   .tapAndHold(thumbStartPosition)
-    //   .tapAndHold(pointerPosition2)
-    //   .move(pointerPosition1)
-    //   .perform();
-  }
-
   pan(point: Point): Promise<any> {
     return this.page.evaluate(
       `window.openSeadragonViewer.viewport.panTo({x: ${point.x}, y: ${point.y}});`,
@@ -514,15 +481,6 @@ export class ViewerPage {
 
   async dblClick(): Promise<void> {
     await this.openseadragonContainer.dblclick();
-  }
-
-  async dblTap(): Promise<void> {
-    // https://github.com/microsoft/playwright/issues/2903
-    // await browser
-    //   .findthis.page.locator('.openseadragon-canvas > canvas'))
-    //   .then((canvas: WebElement) => {
-    //     return browser.touchActions().tap(canvas).tap(canvas).perform();
-    //   });
   }
 
   async openOsdControls(): Promise<void> {

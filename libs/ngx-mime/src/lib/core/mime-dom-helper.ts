@@ -18,7 +18,7 @@ export class MimeDomHelper {
       } else {
         return this.createDimensions(el);
       }
-    } catch (e) {
+    } catch {
       return new Dimensions();
     }
   }

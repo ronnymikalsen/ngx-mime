@@ -16,10 +16,10 @@ describe('ClickService', () => {
     singleClickCounter = 0;
     doubleClickCounter = 0;
     service = new ClickService();
-    service.addSingleClickHandler((e) => {
+    service.addSingleClickHandler(() => {
       singleClickCounter++;
     });
-    service.addDoubleClickHandler((e) => {
+    service.addDoubleClickHandler(() => {
       doubleClickCounter++;
     });
   });

@@ -38,7 +38,7 @@ export class InformationDialogService {
   public initialize(): void {
     this.subscriptions = new Subscription();
     this.subscriptions.add(
-      this.mimeResizeService.onResize.subscribe((rect) => {
+      this.mimeResizeService.onResize.subscribe(() => {
         if (this.isOpen()) {
           const config = this.getDialogConfig();
           this.dialogRef?.updatePosition(config.position);

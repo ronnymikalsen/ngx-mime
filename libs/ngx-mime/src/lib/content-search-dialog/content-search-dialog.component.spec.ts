@@ -170,9 +170,6 @@ describe('ContentSearchDialogComponent', () => {
   });
 
   it('should remain in search input if content search return zero hits', async () => {
-    const searchInput = fixture.debugElement.query(
-      By.css('.content-search-input'),
-    );
     const searchResultContainer = fixture.debugElement.query(
       By.css('.content-search-result-container'),
     );
@@ -191,9 +188,6 @@ describe('ContentSearchDialogComponent', () => {
   });
 
   it('should set focus on search result if content search return hits', async () => {
-    const searchInput = fixture.debugElement.query(
-      By.css('.content-search-input'),
-    );
     const searchResultContainer = fixture.debugElement.query(
       By.css('.content-search-result-container'),
     );

@@ -15,7 +15,7 @@ export class StyleService {
     this.subscriptions = new Subscription();
     this.subscriptions.add(
       interval(1000).subscribe(() =>
-        this.colorState.set(this.getComputedBackgroundColor(1)),
+        this.colorState.set(this.getComputedBackgroundColor()),
       ),
     );
   }
@@ -28,7 +28,7 @@ export class StyleService {
     return rgbColor.replace(/rgb/i, 'rgba').replace(/\)/i, `,${opacity})`);
   }
 
-  private getComputedBackgroundColor(opacity: number): string | undefined {
+  private getComputedBackgroundColor(): string | undefined {
     const matAppBackground =
       document.getElementsByClassName('mat-app-background');
     const matSidenavContainer = document.getElementsByTagName(

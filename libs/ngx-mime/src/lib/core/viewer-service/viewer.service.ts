@@ -15,7 +15,6 @@ import { CanvasService } from '../canvas-service/canvas-service';
 import { ClickService } from '../click-service/click.service';
 import { createSvgOverlay } from '../ext/svg-overlay';
 import { IiifContentSearchService } from '../iiif-content-search-service/iiif-content-search.service';
-import { ManifestUtils } from '../iiif-manifest-service/iiif-manifest-utils';
 import { MimeViewerIntl } from '../intl';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ModeService } from '../mode-service/mode.service';
@@ -28,7 +27,6 @@ import { Point } from '../models/point';
 import { Rect } from '../models/rect';
 import { SearchResult } from '../models/search-result';
 import { Side } from '../models/side';
-import { ViewerLayout } from '../models/viewer-layout';
 import { ViewerOptions } from '../models/viewer-options';
 import { StyleService } from '../style-service/style.service';
 import { ViewerLayoutService } from '../viewer-layout-service/viewer-layout-service';
@@ -80,7 +78,6 @@ export class ViewerService {
   private readonly pinchStatus = new PinchStatus();
   private dragStartPosition: any;
   private manifest!: Manifest;
-  private isManifestPaged = false;
   private defaultKeyDownHandler: any;
   private zoomStrategy!: ZoomStrategy;
   private goToCanvasGroupStrategy!: GoToCanvasGroupStrategy;
@@ -229,7 +226,7 @@ export class ViewerService {
                 break;
             }
 
-            const currentOverlay: SVGRectElement = this.svgNode
+            this.svgNode
               .append('rect')
               .attr('mimeHitIndex', hit.id)
               .attr('x', x)
@@ -259,7 +256,6 @@ export class ViewerService {
       this.canvasService.addTileSources(this.tileSources);
 
       this.manifest = manifest;
-      this.isManifestPaged = ManifestUtils.isManifestPaged(this.manifest);
       this.viewer = new OpenSeadragon.Viewer(
         OptionsFactory.create(this.openseadragonId, this.config),
       );
@@ -343,7 +339,7 @@ export class ViewerService {
     );
 
     this.subscriptions.add(
-      this.viewerLayoutService.onChange.subscribe((state: ViewerLayout) => {
+      this.viewerLayoutService.onChange.subscribe(() => {
         this.layoutPages();
       }),
     );
@@ -470,7 +466,7 @@ export class ViewerService {
       }
       this.dragStatus = false;
     });
-    this.viewer.addHandler('animation', (e: any) => {
+    this.viewer.addHandler('animation', () => {
       this.currentCenter.next(this.viewer?.viewport.getCenter(true));
     });
   }

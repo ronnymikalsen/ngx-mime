@@ -57,7 +57,7 @@ export class ThemeService {
       if (!theme.isDefault) {
         this.styleManagerService.setStyle(theme.name, `${theme.name}.css`);
       }
-    } catch (e) {}
+    } catch {}
 
     this.currentThemeState.set(theme);
   }
@@ -67,7 +67,7 @@ export class ThemeService {
       return JSON.parse(
         window.localStorage[ThemeService.storageKey] || this.getDefaultTheme(),
       );
-    } catch (e) {
+    } catch {
       return this.getDefaultTheme();
     }
   }
@@ -75,7 +75,7 @@ export class ThemeService {
   clearStorage() {
     try {
       window.localStorage.removeItem(ThemeService.storageKey);
-    } catch (e) {}
+    } catch {}
   }
 
   private getDefaultTheme() {

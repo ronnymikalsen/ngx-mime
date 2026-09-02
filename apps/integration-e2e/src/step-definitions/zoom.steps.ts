@@ -22,16 +22,12 @@ Given('the view is zoomed in', async function (this: CustomWorld) {
   previousZoomLevel = await this.viewerPage.getZoomLevel();
 });
 
-When('the user pinch out', async function (this: CustomWorld) {
-  previousZoomLevel = await this.viewerPage.getZoomLevel();
-  await this.viewerPage.pinchOut();
-  await this.animations.waitFor();
+When('the user pinch out', async function () {
+  return 'pending';
 });
 
-When('the user pinch in', async function (this: CustomWorld) {
-  previousZoomLevel = await this.viewerPage.getZoomLevel();
-  await this.viewerPage.pinchIn();
-  await this.animations.waitFor();
+When('the user pinch in', async function () {
+  return 'pending';
 });
 
 When('the user click zoom in button', async function (this: CustomWorld) {
@@ -54,10 +50,8 @@ When('the user double click', async function (this: CustomWorld) {
   await this.animations.waitFor();
 });
 
-When('the user double taps', async function (this: CustomWorld) {
-  previousZoomLevel = await this.viewerPage.getZoomLevel();
-  await this.viewerPage.dblTap();
-  await this.animations.waitFor();
+When('the user double taps', async function () {
+  return 'pending';
 });
 
 Then(

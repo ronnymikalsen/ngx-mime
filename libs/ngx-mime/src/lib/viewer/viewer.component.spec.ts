@@ -683,48 +683,6 @@ describe('ViewerComponent', () => {
     );
   }
 
-  function pinchOut() {
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 40, lastDistance: 40 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 50, lastDistance: 40 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 60, lastDistance: 50 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 70, lastDistance: 60 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 80, lastDistance: 70 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 90, lastDistance: 80 });
-  }
-
-  function pinchIn() {
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 90, lastDistance: 90 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 80, lastDistance: 90 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 70, lastDistance: 80 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 60, lastDistance: 70 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 50, lastDistance: 60 });
-    viewerService
-      .getViewer()
-      .raiseEvent('canvas-pinch', { distance: 40, lastDistance: 50 });
-  }
-
   function getAttributeAsInt(
     element: any,
     attribute: string,

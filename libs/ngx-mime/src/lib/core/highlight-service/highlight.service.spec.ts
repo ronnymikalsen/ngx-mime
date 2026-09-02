@@ -20,7 +20,6 @@ import { HighlightService } from './highlight.service';
 export class TestHostComponent {}
 
 describe('HighlightService', () => {
-  let component: TestHostComponent;
   let highlightService: HighlightService;
   let fixture: ComponentFixture<TestHostComponent>;
 
@@ -30,7 +29,6 @@ describe('HighlightService', () => {
     });
     highlightService = TestBed.inject(HighlightService);
     fixture = TestBed.createComponent(TestHostComponent);
-    component = fixture.componentInstance;
   });
 
   it('should be created', () => {

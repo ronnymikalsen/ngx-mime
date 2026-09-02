@@ -67,7 +67,7 @@ export class IiifContentSearchService {
       )
       .subscribe(
         (res: SearchResult) => this.searchResultState.set(res),
-        (err: HttpErrorResponse) => this.handleError,
+        (err: HttpErrorResponse) => this.handleError(err),
       );
   }
 

@@ -1,5 +1,5 @@
 export class MediaStub {
-  isActive(m: string) {
+  isActive(_m: string) {
     return false;
   }
 }

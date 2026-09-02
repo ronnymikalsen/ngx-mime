@@ -17,11 +17,11 @@ export class MockBreakpointObserver extends BreakpointObserver {
     this.breakpoints.next({ matches, breakpoints: {} });
   }
 
-  override observe(value: string | readonly string[]): any {
+  override observe(_value: string | readonly string[]): any {
     return this.breakpoints.asObservable();
   }
 
-  override isMatched(query: string): boolean {
+  override isMatched(_query: string): boolean {
     return this.breakpoints.value.matches;
   }
 }

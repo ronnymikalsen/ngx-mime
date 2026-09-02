@@ -80,7 +80,7 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
         });
         spy = jest.spyOn(viewport, 'panTo');
 
-        const res = strategy.goToCanvasGroup({
+        strategy.goToCanvasGroup({
           canvasGroupIndex: 9,
           immediately: false,
         });
@@ -123,7 +123,7 @@ describe('DefaultGoToCanvasGroupStrategy ', () => {
         });
         spy = jest.spyOn(viewport, 'panTo');
 
-        const res = strategy.goToCanvasGroup({
+        strategy.goToCanvasGroup({
           canvasGroupIndex: 12,
           immediately: false,
         });

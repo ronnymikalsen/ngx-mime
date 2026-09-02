@@ -47,7 +47,7 @@ export function createSvgOverlay() {
         self.resize();
       });
 
-      this._viewer.addHandler('rotate', function (evt: any) {
+      this._viewer.addHandler('rotate', function () {
         self.resize();
       });
 

@@ -54,7 +54,7 @@ export class IiifManifestServiceStub {
 
   destroy(): void {}
 
-  public search(manifest: Manifest, q: string): void {}
+  public search(_manifest: Manifest, _q: string): void {}
 
   setManifest(manifest: Manifest | null): void {
     this.manifestSignal.set(manifest);

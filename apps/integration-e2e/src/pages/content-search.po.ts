@@ -57,7 +57,7 @@ export class ContentSearchPage {
         .waitFor();
 
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }
@@ -97,7 +97,7 @@ export class ContentSearchPage {
     } else {
       try {
         index = parseInt(hit, 10);
-      } catch (e) {
+      } catch {
         throw new Error(`Unrecognized value "${hit}`);
       }
     }

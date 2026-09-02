@@ -1,6 +1,5 @@
 import { signal, Signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { MimeViewerConfig } from '../core/mime-viewer-config';
 import { Manifest } from '../core/models/manifest';
 import { Hit } from './../core/models/hit';
 import { SearchResult } from './../core/models/search-result';
@@ -24,7 +23,6 @@ export class IiifContentSearchServiceStub {
   private readonly selectedHitState = new BehaviorSubject(
     this.selectedHitSignal(),
   );
-  private config!: MimeViewerConfig;
 
   constructor() {
     this.query = this.querySignal.asReadonly();
@@ -40,9 +38,7 @@ export class IiifContentSearchServiceStub {
     this.setSelected(hit);
   }
 
-  public setConfig(config: MimeViewerConfig) {
-    this.config = config;
-  }
+  public setConfig() {}
 
   destroy() {}
 

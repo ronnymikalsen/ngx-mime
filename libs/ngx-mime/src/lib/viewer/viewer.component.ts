@@ -296,9 +296,7 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.subscriptions.add(
       this.resizeService.onResize
         .pipe(
-          throttle((val) =>
-            interval(ViewerOptions.transitions.OSDAnimationTime),
-          ),
+          throttle(() => interval(ViewerOptions.transitions.OSDAnimationTime)),
         )
         .subscribe(() => {
           setTimeout(() => {
