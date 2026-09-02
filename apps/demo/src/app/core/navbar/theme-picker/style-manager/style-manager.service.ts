@@ -12,6 +12,7 @@ export class StyleManagerService {
       document.head.removeChild(existingLinkElement);
     }
   }
+
   private getLinkElementForKey(key: string) {
     return (
       this.getExistingLinkElementByKey(key) ||

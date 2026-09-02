@@ -16,6 +16,7 @@ export class MockBreakpointObserver extends BreakpointObserver {
   setMatches(matches: boolean): void {
     this.breakpoints.next({ matches, breakpoints: {} });
   }
+
   override observe(value: string | readonly string[]): any {
     return this.breakpoints.asObservable();
   }

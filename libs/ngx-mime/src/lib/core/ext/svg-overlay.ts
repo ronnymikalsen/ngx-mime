@@ -57,6 +57,7 @@ export function createSvgOverlay() {
 
       this.resize();
     }
+
     node() {
       return this._node;
     }

@@ -57,6 +57,7 @@ export class DesktopInformationDialogConfigStrategy
       viewContainerRef: viewContainerRef,
     };
   }
+
   private getPosition(el: ElementRef): Dimensions {
     const dimensions = this.mimeDomHelper.getBoundingClientRect(el);
 

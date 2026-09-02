@@ -381,6 +381,7 @@ export class ViewerPage {
         ' || document.msFullscreenElement != null)',
     );
   }
+
   async getSVGElement() {
     await this.svg.waitFor();
 

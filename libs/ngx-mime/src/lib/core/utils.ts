@@ -6,6 +6,7 @@ export class Utils {
   ): boolean {
     return Math.abs(thing - realThing) <= epsilon;
   }
+
   static shortenDecimals(zoom: any, precision: number): number {
     const short = Number(zoom).toPrecision(precision);
 

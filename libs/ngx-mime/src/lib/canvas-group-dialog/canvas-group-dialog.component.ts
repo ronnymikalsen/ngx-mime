@@ -76,6 +76,7 @@ export class CanvasGroupDialogComponent {
       .errors()
       .some((error) => error.kind === 'max'),
   );
+
   private goToCanvasGroup(): void {
     const pageNumber = this.canvasGroupModel();
     this.viewerService.goToCanvasGroup(
