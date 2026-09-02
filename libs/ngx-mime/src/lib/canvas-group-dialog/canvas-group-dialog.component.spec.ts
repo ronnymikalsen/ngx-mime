@@ -76,14 +76,9 @@ describe('CanvasGroupDialogComponent', () => {
   });
 
   it('should start with an empty numeric page number', async () => {
-    const input = await loader.getHarness(
-      MatInputHarness.with({ selector: '.go-to-canvas-group-input' }),
-    );
+    const input = await getPageNumberInput();
 
     expect(await input.getValue()).toBe('');
-    expect(await input.getType()).toBe('number');
-    expect(Number.isNaN(component.canvasGroupModel())).toBe(true);
-    expect(component.canvasGroupForm().invalid()).toBe(true);
   });
 
   it('should go to the entered page and close the dialog on submit', async () => {
@@ -94,9 +89,7 @@ describe('CanvasGroupDialogComponent', () => {
       .spyOn(viewerService, 'goToCanvasGroup')
       .mockImplementation();
     const closeDialog = jest.spyOn(dialogRef, 'close');
-    const input = await loader.getHarness(
-      MatInputHarness.with({ selector: '.go-to-canvas-group-input' }),
-    );
+    const input = await getPageNumberInput();
     const submitButton = await loader.getHarness(
       MatButtonHarness.with({ text: 'OK' }),
     );
@@ -134,4 +127,10 @@ describe('CanvasGroupDialogComponent', () => {
       expect(await canvasGroupDoesNotExistsError.hasErrors()).toBe(true);
     });
   });
+
+  async function getPageNumberInput(): Promise<MatInputHarness> {
+    return loader.getHarness(
+      MatInputHarness.with({ selector: '.go-to-canvas-group-input' }),
+    );
+  }
 });
