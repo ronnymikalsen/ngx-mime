@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { ManifestService } from '../manifest-service/manifest.service';
@@ -6,7 +6,8 @@ import { SidenavComponent } from './sidenav.component';
 
 describe('SidenavComponent', () => {
   let component: SidenavComponent;
-  let navigate: jest.MockedFunction<Router['navigate']>;
+  let fixture: ComponentFixture<SidenavComponent>;
+  let router: Router;
 
   beforeEach(() => {
     const queryParamMap = new BehaviorSubject(
@@ -15,25 +16,27 @@ describe('SidenavComponent', () => {
         v: '3',
       }),
     );
-    navigate = jest.fn().mockResolvedValue(true);
-
     TestBed.configureTestingModule({
+      imports: [SidenavComponent],
       providers: [
         ManifestService,
         { provide: ActivatedRoute, useValue: { queryParamMap } },
-        { provide: Router, useValue: { navigate } },
+        {
+          provide: Router,
+          useValue: { navigate: jest.fn().mockResolvedValue(true) },
+        },
       ],
     });
 
-    component = TestBed.runInInjectionContext(() => new SidenavComponent());
+    fixture = TestBed.createComponent(SidenavComponent);
+    component = fixture.componentInstance;
+    router = TestBed.inject(Router);
   });
 
   it('should load the equivalent manifest when the IIIF version changes', () => {
-    component.iiifVersionModel.set('2');
-
     component.selectIiifVersion('2');
 
-    expect(navigate).toHaveBeenCalledWith(['demo'], {
+    expect(router.navigate).toHaveBeenCalledWith(['demo'], {
       queryParams: {
         manifestUri: [
           'assets/fixtures/presentation/2/simple-ltr-manifest.json',
