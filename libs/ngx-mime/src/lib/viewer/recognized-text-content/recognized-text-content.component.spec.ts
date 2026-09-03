@@ -105,6 +105,7 @@ describe('RecognizedTextContentComponent', () => {
     altoService.getHtml
       .calledWith(1)
       .mockReturnValue(secondCanvasRecognizedTextContent);
+
     incrementTextContentRevision();
     await fixture.whenStable();
 
@@ -141,6 +142,7 @@ describe('RecognizedTextContentComponent', () => {
 
   it('should show error message', async () => {
     await fixture.whenStable();
+
     errorState.set('fakeError');
     await fixture.whenStable();
 
