@@ -25,6 +25,14 @@ describe('ViewerLayoutService', () => {
     expect(service).toBeTruthy();
   });
 
+  it('should expose responsive breakpoint matches as signals', () => {
+    breakpointObserver.setMatches(true);
+
+    expect(service.isHandsetOrTabletInPortrait()).toBe(true);
+    expect(service.isWeb()).toBe(true);
+    expect(service.isXSmall()).toBe(true);
+  });
+
   describe('Layout change', () => {
     it('should emit an event when the ViewerLayout is toggled', () => {
       service.setLayout(ViewerLayout.ONE_PAGE);

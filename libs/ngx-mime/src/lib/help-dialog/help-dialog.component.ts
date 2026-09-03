@@ -1,4 +1,3 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgStyle } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -14,6 +13,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { map } from 'rxjs';
 import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
+import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 
 @Component({
   selector: 'mime-help',
@@ -31,16 +31,12 @@ import { MimeResizeService } from '../core/mime-resize-service/mime-resize.servi
   ],
 })
 export class HelpDialogComponent {
-  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly mimeResizeService = inject(MimeResizeService);
 
   readonly intl = injectMimeViewerIntlSignal();
-  readonly isHandsetOrTabletInPortrait = toSignal(
-    this.breakpointObserver
-      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
-      .pipe(map(({ matches }) => matches)),
-    { initialValue: false },
-  );
+  readonly isHandsetOrTabletInPortrait =
+    this.viewerLayoutService.isHandsetOrTabletInPortrait;
   readonly mimeHeight = toSignal(
     this.mimeResizeService.onResize.pipe(
       map((dimensions) => dimensions.height),

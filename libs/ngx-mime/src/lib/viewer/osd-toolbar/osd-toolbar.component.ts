@@ -1,4 +1,3 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,16 +5,15 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatFabButton, MatMiniFabButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
-import { map } from 'rxjs';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
 import { ModeService } from '../../core/mode-service/mode.service';
 import { ViewingDirection } from '../../core/models/viewing-direction';
+import { ViewerLayoutService } from '../../core/viewer-layout-service/viewer-layout-service';
 import { ViewerService } from '../../core/viewer-service/viewer.service';
 
 @Component({
@@ -27,19 +25,14 @@ import { ViewerService } from '../../core/viewer-service/viewer.service';
 })
 export class OsdToolbarComponent {
   private readonly modeService = inject(ModeService);
-  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly viewerService = inject(ViewerService);
   private readonly canvasService = inject(CanvasService);
   readonly intl = injectMimeViewerIntlSignal();
 
   readonly isZoomed = this.modeService.isPageZoomed;
-  readonly isWeb = toSignal(
-    this.breakpointObserver
-      .observe([Breakpoints.Web])
-      .pipe(map(({ matches }) => matches)),
-    { initialValue: false },
-  );
+  readonly isWeb = this.viewerLayoutService.isWeb;
   readonly manifest = this.iiifManifestService.manifest;
   readonly invert = computed(
     () => this.manifest()?.viewingDirection === ViewingDirection.LTR,

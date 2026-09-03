@@ -1,17 +1,17 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideAutoSpy } from 'jest-auto-spies';
 import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
-import { MockBreakpointObserver } from '../test/mock-breakpoint-observer';
+import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
+import { ViewerLayoutServiceStub } from '../test/viewer-layout-service-stub';
 import { HelpDialogComponent } from './help-dialog.component';
 
 describe('HelpDialogComponent', () => {
   let component: HelpDialogComponent;
   let fixture: ComponentFixture<HelpDialogComponent>;
-  let breakpointObserver: MockBreakpointObserver;
+  let viewerLayoutServiceStub: ViewerLayoutServiceStub;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -21,15 +21,16 @@ describe('HelpDialogComponent', () => {
         provideAutoSpy(MimeResizeService, {
           observablePropsToSpyOn: ['onResize'],
         }),
-        { provide: BreakpointObserver, useClass: MockBreakpointObserver },
+        {
+          provide: ViewerLayoutService,
+          useClass: ViewerLayoutServiceStub,
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HelpDialogComponent);
     component = fixture.componentInstance;
-    breakpointObserver = TestBed.inject(
-      BreakpointObserver,
-    ) as MockBreakpointObserver;
+    viewerLayoutServiceStub = TestBed.inject<any>(ViewerLayoutService);
   });
 
   it('should be created', () => {
@@ -37,7 +38,6 @@ describe('HelpDialogComponent', () => {
   });
 
   it('should display desktop toolbar', async () => {
-    breakpointObserver.setMatches(false);
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -47,7 +47,7 @@ describe('HelpDialogComponent', () => {
   });
 
   it('should display mobile toolbar', async () => {
-    breakpointObserver.setMatches(true);
+    viewerLayoutServiceStub.useMobileViewport();
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(

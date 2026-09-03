@@ -1,4 +1,3 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgClass } from '@angular/common';
 import {
   Component,
@@ -7,11 +6,10 @@ import {
   viewChild,
   ViewContainerRef,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDivider } from '@angular/material/divider';
 import { MatToolbar } from '@angular/material/toolbar';
-import { map } from 'rxjs';
 import { IiifContentSearchService } from '../../core/iiif-content-search-service/iiif-content-search.service';
+import { ViewerLayoutService } from '../../core/viewer-layout-service/viewer-layout-service';
 import { CanvasGroupNavigatorComponent } from './canvas-group-navigator/canvas-group-navigator.component';
 import { ContentSearchNavigatorComponent } from './content-search-navigator/content-search-navigator.component';
 
@@ -29,7 +27,7 @@ import { ContentSearchNavigatorComponent } from './content-search-navigator/cont
 })
 export class ViewerFooterComponent {
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
-  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly viewerLayoutService = inject(ViewerLayoutService);
 
   readonly mimeFooterBefore = viewChild.required('mimeFooterBefore', {
     read: ViewContainerRef,
@@ -38,12 +36,7 @@ export class ViewerFooterComponent {
     read: ViewContainerRef,
   });
   readonly searchResult = this.iiifContentSearchService.searchResult;
-  readonly isXSmall = toSignal(
-    this.breakpointObserver
-      .observe([Breakpoints.XSmall])
-      .pipe(map(({ matches }) => matches)),
-    { initialValue: false },
-  );
+  readonly isXSmall = this.viewerLayoutService.isXSmall;
   readonly showContentSearchNavigator = computed(
     () => this.searchResult().size() > 0,
   );

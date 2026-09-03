@@ -1,7 +1,7 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { inject, Injectable, signal, Signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { map, Observable } from 'rxjs';
 import { MimeViewerConfig } from '../mime-viewer-config';
 import { ViewerLayout } from '../models/viewer-layout';
 
@@ -9,6 +9,9 @@ import { ViewerLayout } from '../models/viewer-layout';
 export class ViewerLayoutService {
   readonly viewerLayout: Signal<ViewerLayout>;
   readonly onChange: Observable<ViewerLayout>;
+  readonly isHandsetOrTabletInPortrait: Signal<boolean>;
+  readonly isWeb: Signal<boolean>;
+  readonly isXSmall: Signal<boolean>;
   private readonly breakpointObserver = inject(BreakpointObserver);
   private config = new MimeViewerConfig();
   private readonly viewerLayoutState = signal(this.config.initViewerLayout);
@@ -16,6 +19,24 @@ export class ViewerLayoutService {
   constructor() {
     this.viewerLayout = this.viewerLayoutState.asReadonly();
     this.onChange = toObservable(this.viewerLayout);
+    this.isHandsetOrTabletInPortrait = toSignal(
+      this.breakpointObserver
+        .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
+        .pipe(map(({ matches }) => matches)),
+      { initialValue: false },
+    );
+    this.isWeb = toSignal(
+      this.breakpointObserver
+        .observe([Breakpoints.Web])
+        .pipe(map(({ matches }) => matches)),
+      { initialValue: false },
+    );
+    this.isXSmall = toSignal(
+      this.breakpointObserver
+        .observe([Breakpoints.XSmall])
+        .pipe(map(({ matches }) => matches)),
+      { initialValue: false },
+    );
   }
 
   get layout(): ViewerLayout {
@@ -48,12 +69,5 @@ export class ViewerLayoutService {
     } else if (this.viewerLayout() === ViewerLayout.ONE_PAGE) {
       this.setLayout(ViewerLayout.TWO_PAGE);
     }
-  }
-
-  private isHandsetOrTabletInPortrait(): boolean {
-    return this.breakpointObserver.isMatched([
-      Breakpoints.Handset,
-      Breakpoints.TabletPortrait,
-    ]);
   }
 }

@@ -1,4 +1,3 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
@@ -21,7 +20,7 @@ import { AltoServiceStub } from '../test/alto-service-stub';
 import { IiifContentSearchServiceStub } from '../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../test/iiif-manifest-service-stub';
 import { MimeResizeServiceStub } from '../test/mime-resize-service-stub';
-import { MockBreakpointObserver } from '../test/mock-breakpoint-observer';
+import { ViewerLayoutServiceStub } from '../test/viewer-layout-service-stub';
 import { ViewerServiceStub } from '../test/viewer-service-stub';
 import { ViewDialogComponent } from './view-dialog.component';
 
@@ -30,7 +29,7 @@ describe('ViewDialogComponent', () => {
   let fixture: ComponentFixture<ViewDialogComponent>;
   let loader: HarnessLoader;
   let iiifManifestService: IiifManifestServiceStub;
-  let breakpointObserver: MockBreakpointObserver;
+  let viewerLayoutServiceStub: ViewerLayoutServiceStub;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -40,7 +39,6 @@ describe('ViewDialogComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         MimeViewerIntl,
-        ViewerLayoutService,
         CanvasService,
         HighlightService,
         { provide: AltoService, useClass: AltoServiceStub },
@@ -51,7 +49,10 @@ describe('ViewDialogComponent', () => {
           useClass: IiifContentSearchServiceStub,
         },
         { provide: MimeResizeService, useClass: MimeResizeServiceStub },
-        { provide: BreakpointObserver, useClass: MockBreakpointObserver },
+        {
+          provide: ViewerLayoutService,
+          useClass: ViewerLayoutServiceStub,
+        },
       ],
     }).compileComponents();
 
@@ -59,9 +60,7 @@ describe('ViewDialogComponent', () => {
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
     iiifManifestService = TestBed.inject<any>(IiifManifestService);
-    breakpointObserver = TestBed.inject(
-      BreakpointObserver,
-    ) as MockBreakpointObserver;
+    viewerLayoutServiceStub = TestBed.inject<any>(ViewerLayoutService);
   });
 
   it('should be created', () => {
@@ -69,7 +68,6 @@ describe('ViewDialogComponent', () => {
   });
 
   it('should display desktop toolbar', async () => {
-    breakpointObserver.setMatches(false);
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -79,7 +77,7 @@ describe('ViewDialogComponent', () => {
   });
 
   it('should display mobile toolbar', async () => {
-    breakpointObserver.setMatches(true);
+    viewerLayoutServiceStub.useMobileViewport();
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(

@@ -1,4 +1,3 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgStyle } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -43,7 +42,6 @@ import { IconComponent } from './icon/icon.component';
   ],
 })
 export class ViewDialogComponent {
-  private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly altoService = inject(AltoService);
   private readonly iiifManifestService = inject(IiifManifestService);
@@ -52,12 +50,8 @@ export class ViewDialogComponent {
 
   ViewerLayout: typeof ViewerLayout = ViewerLayout;
   readonly RecognizedTextMode = RecognizedTextMode;
-  readonly isHandsetOrTabletInPortrait = toSignal(
-    this.breakpointObserver
-      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
-      .pipe(map(({ matches }) => matches)),
-    { initialValue: false },
-  );
+  readonly isHandsetOrTabletInPortrait =
+    this.viewerLayoutService.isHandsetOrTabletInPortrait;
   readonly viewerLayout = this.viewerLayoutService.viewerLayout;
   readonly recognizedTextMode = this.altoService.recognizedTextContentMode;
   readonly manifest = this.iiifManifestService.manifest;

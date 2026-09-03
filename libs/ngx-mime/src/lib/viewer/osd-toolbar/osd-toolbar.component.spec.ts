@@ -1,10 +1,8 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonHarness } from '@angular/material/button/testing';
 import { By } from '@angular/platform-browser';
-import { provideAutoSpy } from 'jest-auto-spies';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { ClickService } from '../../core/click-service/click.service';
 import { FullscreenService } from '../../core/fullscreen-service/fullscreen.service';
@@ -18,7 +16,7 @@ import { ViewerLayoutService } from '../../core/viewer-layout-service/viewer-lay
 import { ViewerService } from '../../core/viewer-service/viewer.service';
 import { CanvasServiceStub } from '../../test/canvas-service-stub';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
-import { MockBreakpointObserver } from '../../test/mock-breakpoint-observer';
+import { ViewerLayoutServiceStub } from '../../test/viewer-layout-service-stub';
 import { ViewerServiceStub } from '../../test/viewer-service-stub';
 import { OsdToolbarComponent } from './osd-toolbar.component';
 
@@ -26,7 +24,6 @@ describe('OsdToolbarComponent', () => {
   let component: OsdToolbarComponent;
   let fixture: ComponentFixture<OsdToolbarComponent>;
   let spy: any;
-  let breakpointObserver: MockBreakpointObserver;
   let intl: MimeViewerIntl;
   let canvasService: CanvasServiceStub;
   let viewerService: ViewerServiceStub;
@@ -41,27 +38,25 @@ describe('OsdToolbarComponent', () => {
         { provide: ViewerService, useClass: ViewerServiceStub },
         { provide: CanvasService, useClass: CanvasServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
-        { provide: BreakpointObserver, useClass: MockBreakpointObserver },
         ClickService,
         ModeService,
         MimeDomHelper,
         FullscreenService,
         StyleService,
-        provideAutoSpy(ViewerLayoutService),
+        {
+          provide: ViewerLayoutService,
+          useClass: ViewerLayoutServiceStub,
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OsdToolbarComponent);
     harnessLoader = TestbedHarnessEnvironment.loader(fixture);
     intl = TestBed.inject(MimeViewerIntl);
-    breakpointObserver = TestBed.inject(
-      BreakpointObserver,
-    ) as MockBreakpointObserver;
     canvasService = TestBed.inject<any>(CanvasService);
     viewerService = TestBed.inject<any>(ViewerService);
     component = fixture.componentInstance;
 
-    breakpointObserver.setMatches(true);
     await fixture.whenStable();
   });
 

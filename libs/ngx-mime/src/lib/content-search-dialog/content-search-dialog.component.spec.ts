@@ -1,4 +1,3 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
@@ -9,7 +8,6 @@ import { MatButtonHarness } from '@angular/material/button/testing';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatInputHarness } from '@angular/material/input/testing';
 import { By } from '@angular/platform-browser';
-import { provideAutoSpy } from 'jest-auto-spies';
 import { CanvasService } from '../core/canvas-service/canvas-service';
 import { FullscreenService } from '../core/fullscreen-service/fullscreen.service';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
@@ -25,8 +23,8 @@ import { ViewerService } from '../core/viewer-service/viewer.service';
 import { IiifContentSearchServiceStub } from '../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../test/iiif-manifest-service-stub';
 import { MatDialogRefStub } from '../test/mat-dialog-ref-stub';
-import { MockBreakpointObserver } from '../test/mock-breakpoint-observer';
 import { testManifest } from '../test/testManifest';
+import { ViewerLayoutServiceStub } from '../test/viewer-layout-service-stub';
 import { ViewerServiceStub } from '../test/viewer-service-stub';
 import { ContentSearchDialogComponent } from './content-search-dialog.component';
 
@@ -37,7 +35,7 @@ describe('ContentSearchDialogComponent', () => {
 
   let iiifContentSearchServiceStub: IiifContentSearchServiceStub;
   let iiifManifestServiceStub: IiifManifestServiceStub;
-  let breakpointObserver: MockBreakpointObserver;
+  let viewerLayoutServiceStub: ViewerLayoutServiceStub;
   let dialogRef: any;
 
   beforeEach(async () => {
@@ -59,8 +57,10 @@ describe('ContentSearchDialogComponent', () => {
           provide: IiifContentSearchService,
           useClass: IiifContentSearchServiceStub,
         },
-        { provide: BreakpointObserver, useClass: MockBreakpointObserver },
-        provideAutoSpy(ViewerLayoutService),
+        {
+          provide: ViewerLayoutService,
+          useClass: ViewerLayoutServiceStub,
+        },
       ],
     }).compileComponents();
 
@@ -71,9 +71,7 @@ describe('ContentSearchDialogComponent', () => {
       IiifContentSearchService,
     );
     iiifManifestServiceStub = TestBed.inject<any>(IiifManifestService);
-    breakpointObserver = TestBed.inject(
-      BreakpointObserver,
-    ) as MockBreakpointObserver;
+    viewerLayoutServiceStub = TestBed.inject<any>(ViewerLayoutService);
     dialogRef = TestBed.inject(MatDialogRef);
     await fixture.whenStable();
   });
@@ -92,7 +90,6 @@ describe('ContentSearchDialogComponent', () => {
   });
 
   it('should display desktop toolbar', async () => {
-    breakpointObserver.setMatches(false);
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -102,7 +99,7 @@ describe('ContentSearchDialogComponent', () => {
   });
 
   it('should display mobile toolbar', async () => {
-    breakpointObserver.setMatches(true);
+    viewerLayoutServiceStub.useMobileViewport();
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -125,7 +122,9 @@ describe('ContentSearchDialogComponent', () => {
   ])(
     'should select a hit and $behavior',
     async ({ isMobile, shouldCloseDialog }) => {
-      breakpointObserver.setMatches(isMobile);
+      if (isMobile) {
+        viewerLayoutServiceStub.useMobileViewport();
+      }
       jest.spyOn(iiifContentSearchServiceStub, 'selected');
       jest.spyOn(dialogRef, 'close');
       iiifContentSearchServiceStub.setSearchResult(

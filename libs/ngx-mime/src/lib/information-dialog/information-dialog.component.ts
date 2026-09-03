@@ -1,4 +1,3 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgStyle } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -23,6 +22,7 @@ import { map } from 'rxjs';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
+import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 import { MetadataComponent } from './metadata/metadata.component';
 import { TocComponent } from './table-of-contents/table-of-contents.component';
 
@@ -49,18 +49,14 @@ import { TocComponent } from './table-of-contents/table-of-contents.component';
 export class InformationDialogComponent {
   private readonly dialogRef =
     inject<MatDialogRef<InformationDialogComponent>>(MatDialogRef);
-  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly mimeResizeService = inject(MimeResizeService);
   readonly intl = injectMimeViewerIntlSignal();
 
   readonly selectedIndex = signal(0);
-  readonly isHandsetOrTabletInPortrait = toSignal(
-    this.breakpointObserver
-      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
-      .pipe(map(({ matches }) => matches)),
-    { initialValue: false },
-  );
+  readonly isHandsetOrTabletInPortrait =
+    this.viewerLayoutService.isHandsetOrTabletInPortrait;
   readonly manifest = this.iiifManifestService.manifest;
   readonly showToc = computed(() =>
     Boolean(this.manifest()?.structures?.length),

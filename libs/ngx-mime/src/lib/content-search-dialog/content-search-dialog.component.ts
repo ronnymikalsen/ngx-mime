@@ -1,4 +1,3 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { NgStyle } from '@angular/common';
 import {
   afterRenderEffect,
@@ -37,6 +36,7 @@ import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { Hit } from '../core/models/hit';
 import { ContentSearchNavigationService } from '../core/navigation/content-search-navigation-service/content-search-navigation.service';
+import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 
 @Component({
   selector: 'mime-search',
@@ -65,7 +65,7 @@ import { ContentSearchNavigationService } from '../core/navigation/content-searc
 export class ContentSearchDialogComponent {
   readonly dialogRef =
     inject<MatDialogRef<ContentSearchDialogComponent>>(MatDialogRef);
-  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly mimeResizeService = inject(MimeResizeService);
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
@@ -81,12 +81,8 @@ export class ContentSearchDialogComponent {
   readonly hitList = viewChildren('hitButton', {
     read: ElementRef,
   });
-  readonly isHandsetOrTabletInPortrait = toSignal(
-    this.breakpointObserver
-      .observe([Breakpoints.Handset, Breakpoints.TabletPortrait])
-      .pipe(map(({ matches }) => matches)),
-    { initialValue: false },
-  );
+  readonly isHandsetOrTabletInPortrait =
+    this.viewerLayoutService.isHandsetOrTabletInPortrait;
   readonly mimeHeight = toSignal(
     this.mimeResizeService.onResize.pipe(map(({ height }) => height)),
     { initialValue: 0 },

@@ -1,4 +1,3 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import {
@@ -40,7 +39,7 @@ import { InformationDialogService } from '../../information-dialog/information-d
 import { FullscreenServiceStub } from '../../test/fullscreen-service-stub';
 import { IiifContentSearchServiceStub } from '../../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
-import { MockBreakpointObserver } from '../../test/mock-breakpoint-observer';
+import { ViewerLayoutServiceStub } from '../../test/viewer-layout-service-stub';
 import { ViewDialogConfigStrategyFactory } from '../../view-dialog/view-dialog-config-strategy-factory';
 import { ViewDialogComponent } from '../../view-dialog/view-dialog.component';
 import { ViewDialogService } from '../../view-dialog/view-dialog.service';
@@ -68,7 +67,7 @@ describe('ViewerHeaderComponent', () => {
   >;
   let iiifManifestServiceStub: IiifManifestServiceStub;
   let intl: MimeViewerIntl;
-  let breakpointObserver: MockBreakpointObserver;
+  let viewerLayoutServiceStub: ViewerLayoutServiceStub;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -98,14 +97,16 @@ describe('ViewerHeaderComponent', () => {
           observablePropsToSpyOn: ['onResize'],
         }),
         provideAutoSpy(MimeDomHelper),
-        ViewerLayoutService,
+        {
+          provide: ViewerLayoutService,
+          useClass: ViewerLayoutServiceStub,
+        },
         provideAutoSpy(AltoService),
         {
           provide: IiifContentSearchService,
           useClass: IiifContentSearchServiceStub,
         },
         provideAutoSpy(ContentSearchNavigationService),
-        { provide: BreakpointObserver, useClass: MockBreakpointObserver },
       ],
     }).compileComponents();
 
@@ -122,10 +123,8 @@ describe('ViewerHeaderComponent', () => {
     rootLoader = TestbedHarnessEnvironment.documentRootLoader(testHostFixture);
     intl = TestBed.inject(MimeViewerIntl);
     iiifManifestServiceStub = TestBed.inject<any>(IiifManifestService);
-    breakpointObserver = TestBed.inject(
-      BreakpointObserver,
-    ) as MockBreakpointObserver;
-    breakpointObserver.setMatches(true);
+    viewerLayoutServiceStub = TestBed.inject<any>(ViewerLayoutService);
+    viewerLayoutServiceStub.useMobileViewport();
 
     setupViewDialogService();
     setupInformationDialogService();

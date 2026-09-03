@@ -1,4 +1,3 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { provideHttpClient } from '@angular/common/http';
@@ -26,7 +25,7 @@ import { ViewerService } from '../core/viewer-service/viewer.service';
 import { AltoServiceStub } from '../test/alto-service-stub';
 import { IiifManifestServiceStub } from '../test/iiif-manifest-service-stub';
 import { MatDialogRefStub } from '../test/mat-dialog-ref-stub';
-import { MockBreakpointObserver } from '../test/mock-breakpoint-observer';
+import { ViewerLayoutServiceStub } from '../test/viewer-layout-service-stub';
 import { InformationDialogComponent } from './information-dialog.component';
 import { MetadataComponent } from './metadata/metadata.component';
 import { TocComponent } from './table-of-contents/table-of-contents.component';
@@ -35,7 +34,7 @@ describe('InformationDialogComponent', () => {
   let component: InformationDialogComponent;
   let fixture: ComponentFixture<InformationDialogComponent>;
   let loader: HarnessLoader;
-  let breakpointObserver: MockBreakpointObserver;
+  let viewerLayoutServiceStub: ViewerLayoutServiceStub;
   let iiifManifestService: IiifManifestServiceStub;
   let intl: MimeViewerIntl;
   let dialogRef: MatDialogRef<InformationDialogComponent>;
@@ -56,23 +55,23 @@ describe('InformationDialogComponent', () => {
         MimeResizeService,
         MimeDomHelper,
         FullscreenService,
-        ViewerLayoutService,
         IiifContentSearchService,
         StyleService,
         HighlightService,
         { provide: AltoService, useClass: AltoServiceStub },
         { provide: IiifManifestService, useClass: IiifManifestServiceStub },
         { provide: MatDialogRef, useClass: MatDialogRefStub },
-        { provide: BreakpointObserver, useClass: MockBreakpointObserver },
+        {
+          provide: ViewerLayoutService,
+          useClass: ViewerLayoutServiceStub,
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InformationDialogComponent);
     component = fixture.componentInstance;
     loader = TestbedHarnessEnvironment.loader(fixture);
-    breakpointObserver = TestBed.inject(
-      BreakpointObserver,
-    ) as MockBreakpointObserver;
+    viewerLayoutServiceStub = TestBed.inject<any>(ViewerLayoutService);
     viewerService = TestBed.inject(ViewerService);
     iiifManifestService = TestBed.inject<any>(IiifManifestService);
     intl = TestBed.inject(MimeViewerIntl);
@@ -84,7 +83,6 @@ describe('InformationDialogComponent', () => {
   });
 
   it('should display desktop toolbar', async () => {
-    breakpointObserver.setMatches(false);
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -94,7 +92,7 @@ describe('InformationDialogComponent', () => {
   });
 
   it('should display mobile toolbar', async () => {
-    breakpointObserver.setMatches(true);
+    viewerLayoutServiceStub.useMobileViewport();
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(
@@ -125,7 +123,7 @@ describe('InformationDialogComponent', () => {
   });
 
   it('should close information dialog when selecting a canvas group in TOC when on mobile', async () => {
-    breakpointObserver.setMatches(true);
+    viewerLayoutServiceStub.useMobileViewport();
     jest.spyOn(viewerService, 'goToCanvas').mockImplementation(() => {});
     jest.spyOn(dialogRef, 'close');
 

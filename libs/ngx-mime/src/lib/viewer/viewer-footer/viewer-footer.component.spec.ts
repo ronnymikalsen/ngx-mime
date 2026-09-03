@@ -1,4 +1,3 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CanvasGroupDialogService } from '../../canvas-group-dialog/canvas-group-dialog.service';
@@ -14,13 +13,13 @@ import { ViewerService } from '../../core/viewer-service/viewer.service';
 import { CanvasServiceStub } from '../../test/canvas-service-stub';
 import { IiifContentSearchServiceStub } from '../../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
-import { MockBreakpointObserver } from '../../test/mock-breakpoint-observer';
+import { ViewerLayoutServiceStub } from '../../test/viewer-layout-service-stub';
 import { ViewerServiceStub } from '../../test/viewer-service-stub';
 import { ViewerFooterComponent } from './viewer-footer.component';
 
 describe('ViewerFooterComponent', () => {
   let cmp: ViewerFooterComponent;
-  let breakpointObserver: MockBreakpointObserver;
+  let viewerLayoutServiceStub: ViewerLayoutServiceStub;
   let iiifContentSearchServiceStub: IiifContentSearchServiceStub;
   let fixture: ComponentFixture<ViewerFooterComponent>;
 
@@ -42,22 +41,22 @@ describe('ViewerFooterComponent', () => {
           provide: IiifManifestService,
           useClass: IiifManifestServiceStub,
         },
-        ViewerLayoutService,
         CanvasGroupDialogService,
         ContentSearchNavigationService,
         {
           provide: IiifContentSearchService,
           useClass: IiifContentSearchServiceStub,
         },
-        { provide: BreakpointObserver, useClass: MockBreakpointObserver },
+        {
+          provide: ViewerLayoutService,
+          useClass: ViewerLayoutServiceStub,
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ViewerFooterComponent);
     cmp = fixture.componentInstance;
-    breakpointObserver = TestBed.inject(
-      BreakpointObserver,
-    ) as MockBreakpointObserver;
+    viewerLayoutServiceStub = TestBed.inject<any>(ViewerLayoutService);
     iiifContentSearchServiceStub = TestBed.inject<any>(
       IiifContentSearchService,
     );
@@ -69,7 +68,6 @@ describe('ViewerFooterComponent', () => {
   });
 
   it('should always show pageNavigator in desktop size', async () => {
-    breakpointObserver.setMatches(false);
     await fixture.whenStable();
 
     expect(cmp.showPageNavigator()).toBeTruthy();
@@ -79,7 +77,6 @@ describe('ViewerFooterComponent', () => {
     const sr = new SearchResult();
     sr.add(new Hit());
 
-    breakpointObserver.setMatches(false);
     iiifContentSearchServiceStub.setSearchResult(sr);
     await fixture.whenStable();
 
@@ -92,7 +89,7 @@ describe('ViewerFooterComponent', () => {
     sr.add(new Hit());
 
     iiifContentSearchServiceStub.setSearchResult(sr);
-    breakpointObserver.setMatches(true);
+    viewerLayoutServiceStub.useMobileViewport();
     await fixture.whenStable();
 
     expect(cmp.showPageNavigator()).toBeFalsy();
