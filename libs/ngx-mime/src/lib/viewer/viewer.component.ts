@@ -151,6 +151,15 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       this.viewerService.highlight(searchResult);
     });
     effect(() => {
+      const canvasGroupIndex = this.canvasService.canvasGroupIndex();
+      const canvasIndex =
+        this.canvasService.findCanvasByCanvasIndex(canvasGroupIndex);
+
+      if (canvasIndex !== -1) {
+        this.canvasChanged.emit(canvasIndex);
+      }
+    });
+    effect(() => {
       const mode = this.recognizedTextContentMode();
 
       this.emitRecognizedTextContentMode(mode);
@@ -252,18 +261,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       }),
     );
     this.handleModeChange({ currentValue: this.modeService.mode() });
-
-    this.subscriptions.add(
-      this.canvasService.onCanvasGroupIndexChange.subscribe(
-        (canvasGroupIndex: number) => {
-          const canvasIndex =
-            this.canvasService.findCanvasByCanvasIndex(canvasGroupIndex);
-          if (canvasIndex !== -1) {
-            this.canvasChanged.emit(canvasIndex);
-          }
-        },
-      ),
-    );
 
     this.subscriptions.add(
       this.resizeService.onResize
