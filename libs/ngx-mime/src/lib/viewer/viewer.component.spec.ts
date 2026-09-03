@@ -456,6 +456,22 @@ describe('ViewerComponent', () => {
     iiifContentSearchServiceStub.setQuery('dummyquery');
   });
 
+  it('should search when q input changes', async () => {
+    testHostFixture.detectChanges();
+    iiifManifestServiceStub.setManifest(new Manifest({ id: 'dummyid' }));
+    await testHostFixture.whenStable();
+    const search = jest.spyOn(iiifContentSearchServiceStub, 'search');
+
+    testHostComponent.q = 'dummyquery';
+    testHostFixture.changeDetectorRef.markForCheck();
+    await testHostFixture.whenStable();
+
+    expect(search).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'dummyid' }),
+      'dummyquery',
+    );
+  });
+
   it('should update highlights when search result changes', async () => {
     const searchResult = new SearchResult({});
     testHostFixture.detectChanges();

@@ -8,6 +8,7 @@ import { ViewerComponent } from './viewer.component';
   template: `
     <mime-viewer
       [manifestUri]="manifestUri"
+      [q]="q"
       [canvasIndex]="canvasIndex"
       [config]="config"
       [tabIndex]="tabIndex"
@@ -19,6 +20,7 @@ export class TestHostComponent {
   @ViewChild(ViewerComponent, { static: true })
   viewerComponent!: ViewerComponent;
   manifestUri: string | null = null;
+  q?: string;
   canvasIndex = 0;
   tabIndex = 0;
   config = new MimeViewerConfig({

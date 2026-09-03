@@ -10,12 +10,10 @@ import {
   inject,
   input,
   linkedSignal,
-  OnChanges,
   OnDestroy,
   OnInit,
   output,
   signal,
-  SimpleChanges,
   untracked,
   viewChild,
   ViewContainerRef,
@@ -71,7 +69,7 @@ import { VIEWER_PROVIDERS } from './viewer.providers';
   ],
   providers: VIEWER_PROVIDERS,
 })
-export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
+export class ViewerComponent implements OnInit, OnDestroy {
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly viewDialogService = inject(ViewDialogService);
   private readonly informationDialogService = inject(InformationDialogService);
@@ -141,6 +139,45 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.helpDialogService.viewContainerRef = this.viewContainerRef;
     this.canvasGroupDialogService.viewContainerRef = this.viewContainerRef;
     this.resizeService.el = this.el;
+    effect(() => {
+      const config = this.config();
+
+      untracked(() => {
+        this.viewerService.setConfig(config);
+        this.viewerLayoutService.setConfig(config);
+        this.iiifContentSearchService.setConfig(config);
+        this.altoService.setConfig(config);
+        this.modeService.setConfig(config);
+        this.modeService.initialize();
+      });
+    });
+    effect(() => {
+      this.manifestUri();
+
+      untracked(() => {
+        this.cleanup();
+        this.modeService.setMode(this.config().initViewerMode);
+        this.loadManifest();
+      });
+    });
+    effect(() => {
+      const q = this.q();
+
+      untracked(() => {
+        if (this.currentManifest && q !== undefined) {
+          this.iiifContentSearchService.search(this.currentManifest, q);
+        }
+      });
+    });
+    effect(() => {
+      const canvasIndex = this.canvasIndex();
+
+      untracked(() => {
+        if (this.currentManifest) {
+          this.viewerService.goToCanvas(canvasIndex, true);
+        }
+      });
+    });
     effect(() => {
       this.qChanged.emit(this.iiifContentSearchService.query());
     });
@@ -271,38 +308,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
           }, ViewerOptions.transitions.OSDAnimationTime);
         }),
     );
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['config']) {
-      const config = this.config();
-      this.viewerService.setConfig(config);
-      this.viewerLayoutService.setConfig(config);
-      this.iiifContentSearchService.setConfig(config);
-      this.altoService.setConfig(config);
-      this.modeService.setConfig(config);
-      this.modeService.initialize();
-    }
-
-    if (changes['manifestUri']) {
-      this.cleanup();
-      this.modeService.setMode(this.config().initViewerMode);
-      this.loadManifest();
-    }
-
-    if (changes['q']) {
-      const q = this.q();
-      if (this.currentManifest && q !== undefined) {
-        this.iiifContentSearchService.search(this.currentManifest, q);
-      }
-    }
-
-    if (changes['canvasIndex']) {
-      const canvasIndex = this.canvasIndex();
-      if (this.currentManifest) {
-        this.viewerService.goToCanvas(canvasIndex, true);
-      }
-    }
   }
 
   ngOnDestroy(): void {
