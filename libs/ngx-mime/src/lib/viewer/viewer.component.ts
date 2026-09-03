@@ -160,6 +160,11 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       }
     });
     effect(() => {
+      const modeChange = this.modeService.modeChange();
+
+      untracked(() => this.handleModeChange(modeChange));
+    });
+    effect(() => {
       const mode = this.recognizedTextContentMode();
 
       this.emitRecognizedTextContentMode(mode);
@@ -254,13 +259,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     this.styleService.initialize();
-
-    this.subscriptions.add(
-      this.modeService.onChange.subscribe((mode: ModeChanges) => {
-        this.handleModeChange(mode);
-      }),
-    );
-    this.handleModeChange({ currentValue: this.modeService.mode() });
 
     this.subscriptions.add(
       this.resizeService.onResize

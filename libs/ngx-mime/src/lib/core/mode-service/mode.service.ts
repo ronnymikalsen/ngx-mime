@@ -6,14 +6,21 @@ import { ModeChanges, ViewerMode } from '../models';
 @Injectable()
 export class ModeService {
   readonly mode: Signal<ViewerMode>;
+  readonly modeChange: Signal<ModeChanges>;
   readonly isPageZoomed: Signal<boolean>;
   readonly onChange: Observable<ModeChanges>;
   private config = new MimeViewerConfig();
-  private readonly modeState = signal(this.config.initViewerMode);
+  private readonly modeChangeState = signal<ModeChanges>({
+    currentValue: this.config.initViewerMode,
+    previousValue: undefined,
+  });
   private readonly modeChangesSubject = new Subject<ModeChanges>();
 
   constructor() {
-    this.mode = this.modeState.asReadonly();
+    this.modeChange = this.modeChangeState.asReadonly();
+    this.mode = computed(
+      () => this.modeChange().currentValue ?? this.config.initViewerMode,
+    );
     this.isPageZoomed = computed(() => this.mode() === ViewerMode.PAGE_ZOOMED);
     this.onChange = this.modeChangesSubject.asObservable();
   }
@@ -31,12 +38,12 @@ export class ModeService {
   }
 
   setMode(mode: ViewerMode): void {
-    const previousValue = this.mode();
-    this.modeState.set(mode);
-    this.modeChangesSubject.next({
+    const modeChange = {
       currentValue: mode,
-      previousValue,
-    });
+      previousValue: this.mode(),
+    };
+    this.modeChangeState.set(modeChange);
+    this.modeChangesSubject.next(modeChange);
   }
 
   toggleMode(): void {

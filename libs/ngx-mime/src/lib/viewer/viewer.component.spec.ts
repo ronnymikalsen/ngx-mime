@@ -402,7 +402,7 @@ describe('ViewerComponent', () => {
   // expect(pageNumber).toBe(10);
   it.todo('should change canvas group when swipeing to left');
 
-  it('should emit when canvas group mode changes', () => {
+  it('should emit when canvas group mode changes', async () => {
     testHostFixture.detectChanges();
     let selectedMode: ViewerMode | undefined;
     comp.viewerModeChanged.subscribe(
@@ -410,6 +410,8 @@ describe('ViewerComponent', () => {
     );
 
     modeService.setMode(ViewerMode.DASHBOARD);
+    await testHostFixture.whenStable();
+
     expect(selectedMode).toEqual(ViewerMode.DASHBOARD);
   });
 
@@ -506,7 +508,7 @@ describe('ViewerComponent', () => {
       done();
     });
 
-    it('should not be visible when state is changed to hide', (done) => {
+    it('should not be visible when state is changed to hide', async () => {
       testHostComponent.config = new MimeViewerConfig({
         initViewerMode: ViewerMode.DASHBOARD,
       });
@@ -514,19 +516,19 @@ describe('ViewerComponent', () => {
       expectHeaderToBeVisible();
 
       modeService.toggleMode();
+      await testHostFixture.whenStable();
 
       expectHeaderToBeHidden();
-      done();
     });
 
-    it('should be visible when state is changed to show', (done) => {
+    it('should be visible when state is changed to show', async () => {
       testHostFixture.detectChanges();
       expectHeaderToBeHidden();
 
       modeService.toggleMode();
+      await testHostFixture.whenStable();
 
       expectHeaderToBeVisible();
-      done();
     });
 
     it('should create dynamic component to start of header', () => {
@@ -558,7 +560,7 @@ describe('ViewerComponent', () => {
       done();
     });
 
-    it('should not be visible when state is changed to hide', (done) => {
+    it('should not be visible when state is changed to hide', async () => {
       testHostComponent.config = new MimeViewerConfig({
         initViewerMode: ViewerMode.DASHBOARD,
       });
@@ -566,19 +568,19 @@ describe('ViewerComponent', () => {
       expectFooterToBeVisible();
 
       modeService.toggleMode();
+      await testHostFixture.whenStable();
 
       expectFooterToBeHidden();
-      done();
     });
 
-    it('should be visible when state is changed to show', (done) => {
+    it('should be visible when state is changed to show', async () => {
       testHostFixture.detectChanges();
       expectFooterToBeHidden();
 
       modeService.toggleMode();
+      await testHostFixture.whenStable();
 
       expectFooterToBeVisible();
-      done();
     });
 
     it('should create dynamic component to start of footer', () => {
@@ -618,17 +620,17 @@ describe('ViewerComponent', () => {
   });
 
   describe('Fab button for toggling OSD controls', () => {
-    it("should not be visible when state is changed to 'hide'", (done) => {
+    it("should not be visible when state is changed to 'hide'", async () => {
       testHostFixture.detectChanges();
       expectOsdToolbarToBeVisible();
 
       modeService.toggleMode();
+      await testHostFixture.whenStable();
 
       expectOsdToolbarToBeHidden();
-      done();
     });
 
-    it("should be visible when state is changed to 'show'", (done) => {
+    it("should be visible when state is changed to 'show'", async () => {
       testHostComponent.config = new MimeViewerConfig({
         initViewerMode: ViewerMode.DASHBOARD,
       });
@@ -636,9 +638,9 @@ describe('ViewerComponent', () => {
       expectOsdToolbarToBeHidden();
 
       modeService.toggleMode();
+      await testHostFixture.whenStable();
 
       expectOsdToolbarToBeVisible();
-      done();
     });
   });
 

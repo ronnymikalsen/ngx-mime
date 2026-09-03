@@ -29,6 +29,18 @@ describe('ModeService', () => {
     expect(selectedMode).toEqual(ViewerMode.DASHBOARD);
   });
 
+  it('should expose the current and previous mode', () => {
+    const initialMode = service.mode();
+
+    service.setMode(ViewerMode.DASHBOARD);
+
+    expect(service.modeChange()).toEqual({
+      currentValue: ViewerMode.DASHBOARD,
+      previousValue: initialMode,
+    });
+    expect(service.mode()).toBe(ViewerMode.DASHBOARD);
+  });
+
   it('should change mode when toggled', () => {
     service.setMode(ViewerMode.DASHBOARD.valueOf());
 
