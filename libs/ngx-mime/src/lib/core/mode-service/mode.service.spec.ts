@@ -31,15 +31,21 @@ describe('ModeService', () => {
 
   it('should change mode when toggled', () => {
     service.setMode(ViewerMode.DASHBOARD.valueOf());
+
     service.toggleMode();
+
     expect(service.mode()).toEqual(ViewerMode.PAGE);
+
     service.toggleMode();
+
     expect(service.mode()).toEqual(ViewerMode.DASHBOARD);
   });
 
   it('should change mode to DASHBOARD when toggled in PAGE_ZOOMED', () => {
     service.setMode(ViewerMode.PAGE_ZOOMED.valueOf());
+
     service.toggleMode();
+
     expect(service.mode()).toEqual(ViewerMode.DASHBOARD);
   });
 
@@ -49,7 +55,9 @@ describe('ModeService', () => {
       (mode: ModeChanges) => (selectedMode = mode.currentValue),
     );
     service.setMode(ViewerMode.DASHBOARD);
+
     service.toggleMode();
+
     expect(selectedMode).toEqual(ViewerMode.PAGE);
   });
 });
