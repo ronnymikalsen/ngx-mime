@@ -85,14 +85,8 @@ describe('ContentSearchDialogComponent', () => {
   it('should search the current manifest for the entered query on submit', async () => {
     iiifManifestServiceStub.setManifest(testManifest);
     const search = jest.spyOn(iiifContentSearchServiceStub, 'search');
-    const input = await getSearchInput();
-    const submitButton = await loader.getHarness(
-      MatButtonHarness.with({ buttonType: 'submit' }),
-    );
 
-    await input.setValue('dummysearch');
-    await submitButton.click();
-    await fixture.whenStable();
+    await submitSearch('dummysearch');
 
     expect(search).toHaveBeenCalledWith(testManifest, 'dummysearch');
   });
