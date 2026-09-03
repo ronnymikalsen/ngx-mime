@@ -199,7 +199,7 @@ describe('ViewerComponent', () => {
     testHostFixture.changeDetectorRef.markForCheck();
     await testHostFixture.whenStable();
 
-    expect(modeService.mode().valueOf()).toBe(config.initViewerMode.valueOf());
+    expect(modeService.mode()).toBe(config.initViewerMode);
   });
 
   it('svgOverlay-plugin should be defined', () => {
