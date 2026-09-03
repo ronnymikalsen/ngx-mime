@@ -39,7 +39,6 @@ import { MimeViewerConfig } from '../core/mime-viewer-config';
 import { ModeService } from '../core/mode-service/mode.service';
 import { ModeChanges, RecognizedTextMode, ViewerMode } from '../core/models';
 import { Manifest } from '../core/models/manifest';
-import { SearchResult } from '../core/models/search-result';
 import { ViewerLayout } from '../core/models/viewer-layout';
 import { ViewerOptions } from '../core/models/viewer-options';
 import { ViewerState } from '../core/models/viewerState';
@@ -146,6 +145,12 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
       this.qChanged.emit(this.iiifContentSearchService.query());
     });
     effect(() => {
+      const searchResult = this.iiifContentSearchService.searchResult();
+
+      this.altoService.setHits(searchResult.hits);
+      this.viewerService.highlight(searchResult);
+    });
+    effect(() => {
       const mode = this.recognizedTextContentMode();
 
       this.emitRecognizedTextContentMode(mode);
@@ -240,13 +245,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     this.styleService.initialize();
-
-    this.subscriptions.add(
-      this.iiifContentSearchService.onChange.subscribe((sr: SearchResult) => {
-        this.altoService.setHits(sr.hits);
-        this.viewerService.highlight(sr);
-      }),
-    );
 
     this.subscriptions.add(
       this.modeService.onChange.subscribe((mode: ModeChanges) => {

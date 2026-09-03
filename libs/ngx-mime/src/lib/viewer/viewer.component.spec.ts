@@ -19,6 +19,7 @@ import { MimeViewerConfig } from '../core/mime-viewer-config';
 import { ModeService } from '../core/mode-service/mode.service';
 import { ViewerMode } from '../core/models';
 import { Manifest } from '../core/models/manifest';
+import { SearchResult } from '../core/models/search-result';
 import { ViewerLayout } from '../core/models/viewer-layout';
 import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 import { ViewerService } from '../core/viewer-service/viewer.service';
@@ -413,18 +414,16 @@ describe('ViewerComponent', () => {
   });
 
   it('should emit when canvas group number changes', async () => {
+    const canvasChanged = jest.fn();
     testHostFixture.detectChanges();
-    let currentCanvasIndex: number;
-    comp.canvasChanged.subscribe(
-      (canvasIndex: number) => (currentCanvasIndex = canvasIndex),
-    );
+    comp.canvasChanged.subscribe(canvasChanged);
     await waitForViewerReady();
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     viewerService.goToCanvasGroup(1, false);
     await new Promise((resolve) => setTimeout(resolve, osdAnimationTime));
 
-    expect(currentCanvasIndex).toEqual(1);
+    expect(canvasChanged).toHaveBeenLastCalledWith(1);
   });
 
   it('should stay on same tile after a ViewerLayout change', async () => {
@@ -453,6 +452,19 @@ describe('ViewerComponent', () => {
     comp.qChanged.subscribe((q: string) => expect(q).toEqual('dummyquery'));
 
     iiifContentSearchServiceStub.setQuery('dummyquery');
+  });
+
+  it('should update highlights when search result changes', async () => {
+    const searchResult = new SearchResult({});
+    testHostFixture.detectChanges();
+    const setHits = jest.spyOn(altoService, 'setHits');
+    const highlight = jest.spyOn(viewerService, 'highlight');
+
+    iiifContentSearchServiceStub.setSearchResult(searchResult);
+    await testHostFixture.whenStable();
+
+    expect(setHits).toHaveBeenCalledWith(searchResult.hits);
+    expect(highlight).toHaveBeenCalledWith(searchResult);
   });
 
   it('should emit when manifest changes', () => {
