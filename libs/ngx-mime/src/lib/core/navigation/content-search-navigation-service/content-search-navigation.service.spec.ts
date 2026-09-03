@@ -2,10 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideAutoSpy, Spy } from 'jest-auto-spies';
-import { testManifest } from '../../../test/testManifest';
 import { CanvasService } from '../../canvas-service/canvas-service';
 import { IiifContentSearchService } from '../../iiif-content-search-service/iiif-content-search.service';
-import { IiifManifestService } from '../../iiif-manifest-service/iiif-manifest-service';
 import { Hit } from '../../models/hit';
 import { SearchResult } from '../../models/search-result';
 import { ContentSearchNavigationService } from './content-search-navigation.service';
@@ -14,7 +12,6 @@ describe('ContentSearchNavigationService', () => {
   let contentSearchNavigationService: ContentSearchNavigationService;
   let canvasServiceSpy: Spy<CanvasService>;
   let iiifContentSearchServiceSpy: Spy<IiifContentSearchService>;
-  let iiifManifestServiceSpy: Spy<IiifManifestService>;
   let defaultSearchResult = createSearchResult();
 
   beforeEach(() => {
@@ -25,19 +22,12 @@ describe('ContentSearchNavigationService', () => {
         provideHttpClientTesting(),
         ContentSearchNavigationService,
         provideAutoSpy(CanvasService),
-        provideAutoSpy(IiifManifestService, {
-          observablePropsToSpyOn: ['currentManifest'],
-        }),
         provideAutoSpy(IiifContentSearchService, {
           observablePropsToSpyOn: ['onChange'],
         }),
       ],
     });
     jest.clearAllMocks();
-    iiifManifestServiceSpy = TestBed.inject(
-      IiifManifestService,
-    ) as Spy<IiifManifestService>;
-    iiifManifestServiceSpy.currentManifest.nextWith(testManifest);
     iiifContentSearchServiceSpy = TestBed.inject(
       IiifContentSearchService,
     ) as Spy<IiifContentSearchService>;

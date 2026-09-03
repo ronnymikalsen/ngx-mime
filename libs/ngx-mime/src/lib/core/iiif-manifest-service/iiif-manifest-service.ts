@@ -1,6 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, signal, Signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { finalize, take } from 'rxjs/operators';
 import { ManifestBuilder as IiifV2ManifestBuilder } from '../builders/iiif/v2/manifest.builder';
@@ -14,8 +13,6 @@ export class IiifManifestService {
   intl = inject(MimeViewerIntl);
   readonly manifest: Signal<Manifest | null>;
   readonly error: Signal<string | null>;
-  readonly currentManifest: Observable<Manifest | null>;
-  readonly errorMessage: Observable<string | null>;
   private readonly http = inject(HttpClient);
   private readonly spinnerService = inject(SpinnerService);
   private readonly manifestState = signal<Manifest | null>(null);
@@ -26,8 +23,6 @@ export class IiifManifestService {
   constructor() {
     this.manifest = this.manifestState.asReadonly();
     this.error = this.errorState.asReadonly();
-    this.currentManifest = toObservable(this.manifest);
-    this.errorMessage = toObservable(this.error);
   }
 
   load(manifestUri: string | null): Observable<boolean> {

@@ -1,5 +1,5 @@
 import { signal, Signal } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { ManifestBuilder } from '../core/builders/iiif/v2/manifest.builder';
 import { Manifest } from './../core/models/manifest';
 import { testManifest } from './testManifest';
@@ -7,22 +7,12 @@ import { testManifest } from './testManifest';
 export class IiifManifestServiceStub {
   readonly manifest: Signal<Manifest | null>;
   readonly error: Signal<string | null>;
-  readonly currentManifest: Observable<Manifest | null>;
-  readonly errorMessage: Observable<string | null>;
   private readonly manifestSignal = signal<Manifest | null>(new Manifest());
   private readonly errorSignal = signal<string | null>(null);
-  private readonly currentManifestState = new BehaviorSubject<Manifest | null>(
-    this.manifestSignal(),
-  );
-  private readonly errorMessageState = new BehaviorSubject<string | null>(
-    this.errorSignal(),
-  );
 
   constructor() {
     this.manifest = this.manifestSignal.asReadonly();
     this.error = this.errorSignal.asReadonly();
-    this.currentManifest = this.currentManifestState.asObservable();
-    this.errorMessage = this.errorMessageState.asObservable();
   }
 
   load(manifestUri: string): Observable<boolean> {
@@ -58,11 +48,9 @@ export class IiifManifestServiceStub {
 
   setManifest(manifest: Manifest | null): void {
     this.manifestSignal.set(manifest);
-    this.currentManifestState.next(manifest);
   }
 
   setError(error: string | null): void {
     this.errorSignal.set(error);
-    this.errorMessageState.next(error);
   }
 }

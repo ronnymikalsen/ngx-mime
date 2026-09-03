@@ -1,5 +1,13 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable, signal, Signal } from '@angular/core';
+import {
+  effect,
+  EffectRef,
+  inject,
+  Injectable,
+  Injector,
+  signal,
+  Signal,
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
   combineLatest,
@@ -41,6 +49,7 @@ export class AltoService {
   private readonly canvasService = inject(CanvasService);
   private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly injector = inject(Injector);
   private config!: MimeViewerConfig;
   private altos: string[] = [];
   private readonly recognizedTextContentModeState = signal(
@@ -59,6 +68,7 @@ export class AltoService {
   private htmlFormatter!: HtmlFormatter;
   private hits: Hit[] | undefined;
   private initialized = false;
+  private manifestEffect?: EffectRef;
 
   constructor() {
     this.recognizedTextContentMode =
@@ -80,15 +90,14 @@ export class AltoService {
     this.htmlFormatter = new HtmlFormatter();
     this.subscriptions = new Subscription();
 
-    this.subscriptions.add(
-      this.iiifManifestService.currentManifest.subscribe(
-        (manifest: Manifest | null) => {
-          this.manifest = manifest;
-          this.errorState.set(undefined);
-          this.currentCanvasGroupHasTextSourceState.set(undefined);
-          this.clearCache();
-        },
-      ),
+    this.manifestEffect = effect(
+      () => {
+        this.manifest = this.iiifManifestService.manifest();
+        this.errorState.set(undefined);
+        this.currentCanvasGroupHasTextSourceState.set(undefined);
+        this.clearCache();
+      },
+      { injector: this.injector },
     );
 
     this.subscriptions.add(
@@ -125,6 +134,8 @@ export class AltoService {
     );
 
     this.subscriptions.unsubscribe();
+    this.manifestEffect?.destroy();
+    this.manifestEffect = undefined;
     this.initialized = false;
     this.errorState.set(undefined);
     this.currentCanvasGroupHasTextSourceState.set(undefined);

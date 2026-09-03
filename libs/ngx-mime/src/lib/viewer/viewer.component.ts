@@ -160,6 +160,20 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
         currentCanvasGroupIndex,
       );
     });
+    effect(() => {
+      const manifest = this.iiifManifestService.manifest();
+
+      if (manifest) {
+        untracked(() => this.handleManifestChange(manifest));
+      }
+    });
+    effect(() => {
+      const error = this.iiifManifestService.error();
+
+      if (error !== null) {
+        this.resetCurrentManifest();
+      }
+    });
   }
 
   get mimeHeaderBeforeRef(): ViewContainerRef {
@@ -223,43 +237,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     this.styleService.initialize();
-
-    this.subscriptions.add(
-      this.iiifManifestService.currentManifest.subscribe(
-        (manifest: Manifest | null) => {
-          if (manifest) {
-            this.initialize();
-            this.currentManifest = manifest;
-            this.manifestChanged.emit(manifest);
-            this.goToPendingStartCanvas(manifest);
-            this.viewerLayoutService.init(
-              ManifestUtils.isManifestPaged(manifest),
-            );
-            // OpenSeadragon needs its host element to exist before setup.
-            this.changeDetectorRef.detectChanges();
-            const config = this.config();
-            this.viewerService.setUpViewer(manifest, config);
-            this.altoService.initialize();
-            if (config.attributionDialogEnabled && manifest.attribution) {
-              this.attributionDialogService.open(
-                config.attributionDialogHideTimeout,
-              );
-            }
-
-            const q = this.q();
-            if (q) {
-              this.iiifContentSearchService.search(manifest, q);
-            }
-          }
-        },
-      ),
-    );
-
-    this.subscriptions.add(
-      this.iiifManifestService.errorMessage.subscribe(() => {
-        this.resetCurrentManifest();
-      }),
-    );
 
     this.subscriptions.add(
       this.iiifContentSearchService.onQChange.subscribe((q: string) => {
@@ -460,6 +437,27 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.helpDialogService.initialize();
     this.viewerService.initialize();
     this.resizeService.initialize();
+  }
+
+  private handleManifestChange(manifest: Manifest): void {
+    this.initialize();
+    this.currentManifest = manifest;
+    this.manifestChanged.emit(manifest);
+    this.goToPendingStartCanvas(manifest);
+    this.viewerLayoutService.init(ManifestUtils.isManifestPaged(manifest));
+    // OpenSeadragon needs its host element to exist before setup.
+    this.changeDetectorRef.detectChanges();
+    const config = this.config();
+    this.viewerService.setUpViewer(manifest, config);
+    this.altoService.initialize();
+    if (config.attributionDialogEnabled && manifest.attribution) {
+      this.attributionDialogService.open(config.attributionDialogHideTimeout);
+    }
+
+    const q = this.q();
+    if (q) {
+      this.iiifContentSearchService.search(manifest, q);
+    }
   }
 
   private emitRecognizedTextContentMode(mode: RecognizedTextMode): void {
