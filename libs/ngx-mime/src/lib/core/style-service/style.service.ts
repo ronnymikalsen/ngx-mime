@@ -24,10 +24,6 @@ export class StyleService {
     this.subscriptions.unsubscribe();
   }
 
-  public convertToRgba(rgbColor: string, opacity: number) {
-    return rgbColor.replace(/rgb/i, 'rgba').replace(/\)/i, `,${opacity})`);
-  }
-
   private getComputedBackgroundColor(): string | undefined {
     const matAppBackground =
       document.getElementsByClassName('mat-app-background');

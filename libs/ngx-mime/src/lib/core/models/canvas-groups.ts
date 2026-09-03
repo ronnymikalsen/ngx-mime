@@ -21,10 +21,6 @@ export class CanvasGroups {
     }
   }
 
-  public addRange(canvasGroups: ReadonlyArray<CanvasGroup>): void {
-    this.canvasGroups = [...canvasGroups];
-  }
-
   public get(index: number): CanvasGroup {
     return { ...this.canvasGroups[index] };
   }

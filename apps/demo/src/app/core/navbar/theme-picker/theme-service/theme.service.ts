@@ -72,12 +72,6 @@ export class ThemeService {
     }
   }
 
-  clearStorage() {
-    try {
-      window.localStorage.removeItem(ThemeService.storageKey);
-    } catch {}
-  }
-
   private getDefaultTheme() {
     return this.themes.filter((t) => t.isDefault)[0];
   }
