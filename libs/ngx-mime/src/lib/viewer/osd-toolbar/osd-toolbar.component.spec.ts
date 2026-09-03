@@ -110,6 +110,7 @@ describe('OsdToolbarComponent', () => {
       await fixture.whenStable();
 
       await toggleOsdControls();
+
       const previousButton = await getPreviousButton();
       expect(await previousButton.isDisabled()).toBe(true);
     });
@@ -119,9 +120,9 @@ describe('OsdToolbarComponent', () => {
       await fixture.whenStable();
 
       await toggleOsdControls();
+
       const previousButton = await getPreviousButton();
       const nextButton = await getNextButton();
-
       expect(await previousButton.isDisabled()).toBe(false);
       expect(await nextButton.isDisabled()).toBe(false);
     });
@@ -130,16 +131,18 @@ describe('OsdToolbarComponent', () => {
       canvasService.setCanvasGroupCount(10);
       viewerService.setCanvasGroupIndexChange(9);
       await fixture.whenStable();
+
       await toggleOsdControls();
+
       const nextButton = await getNextButton();
       expect(await nextButton.isDisabled()).toBe(true);
     });
 
     it('should display next canvas group', async () => {
       spy = jest.spyOn(viewerService, 'goToNextCanvasGroup');
-
       await toggleOsdControls();
       const nextButton = await getNextButton();
+
       await nextButton.click();
       await fixture.whenStable();
 
@@ -150,9 +153,9 @@ describe('OsdToolbarComponent', () => {
       spy = jest.spyOn(component, 'goToPreviousCanvasGroup');
       viewerService.setCanvasGroupIndexChange(1);
       await fixture.whenStable();
-
       await toggleOsdControls();
       const previousButton = await getPreviousButton();
+
       await previousButton.click();
       await fixture.whenStable();
 
@@ -161,15 +164,15 @@ describe('OsdToolbarComponent', () => {
 
     it('should disable home zoom button when zoom level is home', async () => {
       await toggleOsdControls();
-      const homeButton = await getHomeButton();
 
+      const homeButton = await getHomeButton();
       expect(await homeButton.isDisabled()).toBe(true);
     });
 
     it('should enable home zoom button when page is zoomed in', async () => {
       await toggleOsdControls();
-
       const zoomInButton = await getZoomInButton();
+
       await zoomInButton.click();
 
       const homeButton = await getHomeButton();
