@@ -128,6 +128,7 @@ describe('RecognizedTextContentComponent', () => {
   it('should show recognized text that was loaded before initialization', async () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0]);
     altoService.getHtml.calledWith(0).mockReturnValue('cachedTextContent');
+
     await fixture.whenStable();
 
     expect(component.firstCanvasRecognizedTextContent()).toBe(
@@ -193,6 +194,7 @@ describe('RecognizedTextContentComponent', () => {
     await fixture.whenStable();
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([4]);
     altoService.getHtml.calledWith(4).mockReturnValue('updatedTextContent');
+
     incrementTextContentRevision();
     await fixture.whenStable();
 
@@ -208,6 +210,7 @@ describe('RecognizedTextContentComponent', () => {
     await fixture.whenStable();
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([3, 4]);
     altoService.getHtml.mockReturnValue('updatedTextContent');
+
     incrementTextContentRevision();
     await fixture.whenStable();
 
@@ -224,6 +227,7 @@ describe('RecognizedTextContentComponent', () => {
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([3, 4]);
     altoService.getHtml.calledWith(3).mockReturnValue(undefined);
     altoService.getHtml.calledWith(4).mockReturnValue('updatedTextContent');
+
     incrementTextContentRevision();
     await fixture.whenStable();
 
@@ -302,6 +306,7 @@ describe('RecognizedTextContentComponent', () => {
   it('should highlight the selected search hit', async () => {
     await fixture.whenStable();
     canvasService.getCanvasesPerCanvasGroup.calledWith(0).nextWith([0, 1]);
+
     iiifContentSearchService.setSelected(createMockHit(1, 'test '));
     await fixture.whenStable();
 
@@ -318,6 +323,7 @@ describe('RecognizedTextContentComponent', () => {
     highlightService.highlightSelectedHit.mockClear();
     canvasService.getCanvasesPerCanvasGroup.mockReturnValue([0]);
     altoService.getHtml.calledWith(0).mockReturnValue('fakeTextContent');
+
     incrementTextContentRevision();
     await fixture.whenStable();
 
