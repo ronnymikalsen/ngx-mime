@@ -143,6 +143,9 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
     this.canvasGroupDialogService.viewContainerRef = this.viewContainerRef;
     this.resizeService.el = this.el;
     effect(() => {
+      this.qChanged.emit(this.iiifContentSearchService.query());
+    });
+    effect(() => {
       const mode = this.recognizedTextContentMode();
 
       this.emitRecognizedTextContentMode(mode);
@@ -237,12 +240,6 @@ export class ViewerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnInit(): void {
     this.styleService.initialize();
-
-    this.subscriptions.add(
-      this.iiifContentSearchService.onQChange.subscribe((q: string) => {
-        this.qChanged.emit(q);
-      }),
-    );
 
     this.subscriptions.add(
       this.iiifContentSearchService.onChange.subscribe((sr: SearchResult) => {

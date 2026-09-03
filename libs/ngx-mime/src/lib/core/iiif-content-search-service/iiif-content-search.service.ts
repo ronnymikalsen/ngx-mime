@@ -16,7 +16,6 @@ export class IiifContentSearchService {
   readonly searchResult: Signal<SearchResult>;
   readonly searching: Signal<boolean>;
   readonly selectedHit: Signal<Hit | null>;
-  readonly onQChange: Observable<string>;
   readonly onChange: Observable<SearchResult>;
   readonly onSelected: Observable<Hit | null>;
   private readonly http = inject(HttpClient);
@@ -31,7 +30,6 @@ export class IiifContentSearchService {
     this.searchResult = this.searchResultState.asReadonly();
     this.searching = this.searchingState.asReadonly();
     this.selectedHit = this.selectedHitState.asReadonly();
-    this.onQChange = toObservable(this.query);
     this.onChange = toObservable(this.searchResult);
     this.onSelected = toObservable(this.selectedHit);
   }
