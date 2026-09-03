@@ -142,6 +142,7 @@ describe('OsdToolbarComponent', () => {
       const nextButton = await getNextButton();
       await nextButton.click();
       await fixture.whenStable();
+
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
@@ -154,6 +155,7 @@ describe('OsdToolbarComponent', () => {
       const previousButton = await getPreviousButton();
       await previousButton.click();
       await fixture.whenStable();
+
       expect(spy).toHaveBeenCalledTimes(1);
     });
 

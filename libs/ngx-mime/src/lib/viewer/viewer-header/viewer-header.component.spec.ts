@@ -141,6 +141,7 @@ describe('ViewerHeaderComponent', () => {
     intl.informationLabel = 'Metadata of the publication';
     intl.changes.next();
     await testHostFixture.whenStable();
+
     const informationDialogButton = await getInformationDialogButton();
     const ariaLabel = await getAriaLabel(informationDialogButton);
     expect(ariaLabel).toEqual('Metadata of the publication');

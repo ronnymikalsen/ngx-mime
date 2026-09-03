@@ -152,6 +152,7 @@ describe('ContentSearchDialogComponent', () => {
       );
       hits[0].triggerEventHandler('click', null);
       await fixture.whenStable();
+
       expect(iiifContentSearchServiceStub.selected).toHaveBeenCalled();
       if (shouldCloseDialog) {
         expect(dialogRef.close).toHaveBeenCalled();

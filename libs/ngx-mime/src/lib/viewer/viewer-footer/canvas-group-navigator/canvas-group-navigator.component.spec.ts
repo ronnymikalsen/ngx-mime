@@ -125,8 +125,8 @@ describe('CanvasGroupNavigatorComponent', () => {
 
     canvasService.setCanvasGroupIndexChange(9);
     await testHostFixture.whenStable();
-    const nextButton = await getNextButton();
 
+    const nextButton = await getNextButton();
     expect(await nextButton?.isDisabled()).toBeTruthy();
   });
 
@@ -159,15 +159,16 @@ describe('CanvasGroupNavigatorComponent', () => {
 
     await previousButton?.click();
     await testHostFixture.whenStable();
+
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('should disable previous and next button if there is only one canvas', async () => {
     canvasService.setCanvasGroupCount(1);
     await testHostFixture.whenStable();
+
     const previousButton = await getPreviousButton();
     const nextButton = await getNextButton();
-
     expect(await nextButton?.isDisabled()).toBe(true);
     expect(await previousButton?.isDisabled()).toBe(true);
   });

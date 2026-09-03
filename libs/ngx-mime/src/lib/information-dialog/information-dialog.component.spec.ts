@@ -119,6 +119,7 @@ describe('InformationDialogComponent', () => {
     const manifest = new Manifest();
     iiifManifestService.setManifest(manifest);
     await fixture.whenStable();
+
     const tabGroup = await loader.getHarness(MatTabGroupHarness);
     expect(await tabGroup.getTabs({ label: intl.tocLabel })).toHaveLength(0);
   });
