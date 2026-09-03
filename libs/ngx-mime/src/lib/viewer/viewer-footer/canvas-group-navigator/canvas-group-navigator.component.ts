@@ -47,12 +47,8 @@ export class CanvasGroupNavigatorComponent {
   readonly canvasGroupLabel = computed(() =>
     this.canvasService.getCanvasGroupLabel(this.currentCanvasGroupIndex()),
   );
-  readonly isFirstCanvasGroup = computed(
-    () => this.currentCanvasGroupIndex() === 0,
-  );
-  readonly isLastCanvasGroup = computed(
-    () => this.currentCanvasGroupIndex() === this.canvasGroupCount() - 1,
-  );
+  readonly isFirstCanvasGroup = this.canvasService.isFirstCanvasGroup;
+  readonly isLastCanvasGroup = this.canvasService.isLastCanvasGroup;
   readonly ViewingDirection = ViewingDirection;
 
   goToPreviousCanvasGroup(): void {

@@ -37,14 +37,8 @@ export class OsdToolbarComponent {
   readonly invert = computed(
     () => this.manifest()?.viewingDirection === ViewingDirection.LTR,
   );
-  readonly currentCanvasGroupIndex = this.viewerService.currentCanvasGroupIndex;
-  readonly canvasGroupCount = this.canvasService.canvasGroupCount;
-  readonly isFirstCanvasGroup = computed(
-    () => this.currentCanvasGroupIndex() === 0,
-  );
-  readonly isLastCanvasGroup = computed(
-    () => this.currentCanvasGroupIndex() === this.canvasGroupCount() - 1,
-  );
+  readonly isFirstCanvasGroup = this.canvasService.isFirstCanvasGroup;
+  readonly isLastCanvasGroup = this.canvasService.isLastCanvasGroup;
   readonly fabState = signal<'closed' | 'open'>('closed');
   readonly fabIcon = computed(() =>
     this.fabState() === 'closed' ? 'menu' : 'clear',

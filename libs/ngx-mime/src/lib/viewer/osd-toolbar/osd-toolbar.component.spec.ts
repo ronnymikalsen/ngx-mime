@@ -101,7 +101,7 @@ describe('OsdToolbarComponent', () => {
     });
 
     it('should disable previous button when viewer is on first canvas group', async () => {
-      viewerService.setCanvasGroupIndexChange(0);
+      canvasService.setCanvasGroupIndexChange(0);
       await fixture.whenStable();
 
       await toggleOsdControls();
@@ -111,7 +111,7 @@ describe('OsdToolbarComponent', () => {
     });
 
     it('should enable both navigation buttons when viewer is on second canvas group', async () => {
-      viewerService.setCanvasGroupIndexChange(1);
+      canvasService.setCanvasGroupIndexChange(1);
       await fixture.whenStable();
 
       await toggleOsdControls();
@@ -124,7 +124,7 @@ describe('OsdToolbarComponent', () => {
 
     it('should disable next button when viewer is on last canvas group', async () => {
       canvasService.setCanvasGroupCount(10);
-      viewerService.setCanvasGroupIndexChange(9);
+      canvasService.setCanvasGroupIndexChange(9);
       await fixture.whenStable();
 
       await toggleOsdControls();
@@ -146,7 +146,7 @@ describe('OsdToolbarComponent', () => {
 
     it('should display previous canvas group', async () => {
       spy = jest.spyOn(component, 'goToPreviousCanvasGroup');
-      viewerService.setCanvasGroupIndexChange(1);
+      canvasService.setCanvasGroupIndexChange(1);
       await fixture.whenStable();
       await toggleOsdControls();
       const previousButton = await getPreviousButton();

@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, Signal } from '@angular/core';
+import { computed, inject, Injectable, signal, Signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import * as OpenSeadragon from 'openseadragon';
 import { Viewer } from 'openseadragon';
@@ -20,6 +20,8 @@ export class CanvasService {
   readonly canvasGroupCount: Signal<number>;
   readonly canvasGroupIndex: Signal<number>;
   readonly canvasCount: Signal<number>;
+  readonly isFirstCanvasGroup: Signal<boolean>;
+  readonly isLastCanvasGroup: Signal<boolean>;
   readonly onCanvasGroupIndexChange: Observable<number>;
   protected readonly canvasGroupCountState = signal(0);
   protected readonly canvasGroupIndexState = signal(0);
@@ -38,6 +40,10 @@ export class CanvasService {
     this.canvasGroupCount = this.canvasGroupCountState.asReadonly();
     this.canvasGroupIndex = this.canvasGroupIndexState.asReadonly();
     this.canvasCount = this.canvasCountState.asReadonly();
+    this.isFirstCanvasGroup = computed(() => this.canvasGroupIndex() === 0);
+    this.isLastCanvasGroup = computed(
+      () => this.canvasGroupIndex() === this.canvasGroupCount() - 1,
+    );
     this.onCanvasGroupIndexChange = toObservable(this.canvasGroupIndex);
   }
 
