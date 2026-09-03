@@ -165,7 +165,6 @@ describe('ContentSearchDialogComponent', () => {
     await fixture.whenStable();
 
     await submitSearch('dummyvalue');
-
     iiifContentSearchServiceStub.setSearchResult(new SearchResult());
     await fixture.whenStable();
 
@@ -181,7 +180,6 @@ describe('ContentSearchDialogComponent', () => {
     await fixture.whenStable();
 
     await submitSearch('dummyvalue');
-
     iiifContentSearchServiceStub.setSearchResult(
       new SearchResult({
         hits: [new Hit({ id: 1 }), new Hit({ id: 2 })],
