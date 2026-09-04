@@ -81,7 +81,7 @@ describe('ContentSearchNavigatorComponent', () => {
     expect(text.nativeElement.getAttribute('aria-label')).toContain(`Next Hit`);
 
     intl.nextHitLabel = 'New test string';
-    intl.changes.next();
+    intl.notifyChanges();
     await fixture.whenStable();
 
     expect(text.nativeElement.getAttribute('aria-label')).toContain(

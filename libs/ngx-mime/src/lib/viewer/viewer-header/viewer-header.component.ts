@@ -14,7 +14,7 @@ import { ContentSearchDialogService } from '../../content-search-dialog/content-
 import { FullscreenService } from '../../core/fullscreen-service/fullscreen.service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../../core/iiif-manifest-service/iiif-manifest-utils';
-import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../../core/intl/viewer-intl';
 import { MimeDomHelper } from '../../core/mime-dom-helper';
 import { HelpDialogService } from '../../help-dialog/help-dialog.service';
 import { InformationDialogService } from '../../information-dialog/information-dialog.service';
@@ -37,7 +37,7 @@ export class ViewerHeaderComponent {
   private readonly viewDialogService = inject(ViewDialogService);
   private readonly helpDialogService = inject(HelpDialogService);
   private readonly mimeDomHelper = inject(MimeDomHelper);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly mimeHeaderBefore = viewChild.required('mimeHeaderBefore', {
     read: ViewContainerRef,

@@ -92,7 +92,7 @@ describe('OsdToolbarComponent', () => {
       const homeButton = await getHomeButton();
       intl.resetZoomLabel = 'Go home button';
 
-      intl.changes.next();
+      intl.notifyChanges();
       await fixture.whenStable();
 
       expect(await (await homeButton.host())?.getAttribute('aria-label')).toBe(

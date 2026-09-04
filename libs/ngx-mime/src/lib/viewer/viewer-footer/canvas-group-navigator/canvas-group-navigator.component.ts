@@ -10,7 +10,7 @@ import { IiifManifestService } from '../../../core/iiif-manifest-service/iiif-ma
 import { AccessKeys } from '../../../core/models/AccessKeys';
 import { ViewingDirection } from '../../../core/models/viewing-direction';
 import { CanvasService } from './../../../core/canvas-service/canvas-service';
-import { injectMimeViewerIntlSignal } from './../../../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from './../../../core/intl/viewer-intl';
 import { SearchResult } from './../../../core/models/search-result';
 import { ViewerService } from './../../../core/viewer-service/viewer.service';
 
@@ -34,7 +34,7 @@ export class CanvasGroupNavigatorComponent {
   private readonly viewerService = inject(ViewerService);
   private readonly canvasService = inject(CanvasService);
   private readonly canvasGroupDialogService = inject(CanvasGroupDialogService);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly searchResult = input.required<SearchResult>();
   readonly manifest = this.iiifManifestService.manifest;

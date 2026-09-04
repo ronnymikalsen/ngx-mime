@@ -28,7 +28,7 @@ import {
   MatLabel,
 } from '@angular/material/input';
 import { CanvasService } from '../core/canvas-service/canvas-service';
-import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { ViewerService } from '../core/viewer-service/viewer.service';
 
 @Component({
@@ -54,7 +54,7 @@ export class CanvasGroupDialogComponent {
     inject<MatDialogRef<CanvasGroupDialogComponent>>(MatDialogRef);
   private readonly viewerService = inject(ViewerService);
   private readonly canvasService = inject(CanvasService);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly canvasCount = this.canvasService.canvasCount;
   readonly canvasGroupModel = signal(Number.NaN);

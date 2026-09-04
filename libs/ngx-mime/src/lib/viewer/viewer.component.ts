@@ -30,7 +30,7 @@ import { CanvasService } from '../core/canvas-service/canvas-service';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../core/iiif-manifest-service/iiif-manifest-utils';
-import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { MimeViewerConfig } from '../core/mime-viewer-config';
 import { ModeService } from '../core/mode-service/mode.service';
@@ -92,7 +92,7 @@ export class ViewerComponent implements OnInit, OnDestroy {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly platform = inject(Platform);
   private readonly snackBar = inject(MatSnackBar);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
   readonly manifestUri = input<string | null>(null);
   readonly q = input<string>();
   readonly canvasIndex = input(0);

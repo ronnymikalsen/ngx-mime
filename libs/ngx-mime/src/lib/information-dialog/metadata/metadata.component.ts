@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
-import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../../core/intl/viewer-intl';
 
 @Component({
   selector: 'mime-metadata',
@@ -11,6 +11,6 @@ import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
 export class MetadataComponent {
   private readonly iiifManifestService = inject(IiifManifestService);
 
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
   readonly manifest = this.iiifManifestService.manifest;
 }

@@ -83,7 +83,7 @@ describe('RecognizedTextContentComponent', () => {
     await fixture.whenStable();
     intl.digitalTextLabel = 'Recognized text';
 
-    intl.changes.next();
+    intl.notifyChanges();
     await fixture.whenStable();
 
     const region: HTMLElement = fixture.nativeElement.querySelector(

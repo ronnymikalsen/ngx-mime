@@ -108,7 +108,7 @@ describe('CanvasGroupDialogComponent', () => {
     );
 
     intl.goToPageLabel = 'Testlabel';
-    intl.changes.next();
+    intl.notifyChanges();
     await fixture.whenStable();
 
     expect(title.nativeElement.innerHTML).toBe('Testlabel');

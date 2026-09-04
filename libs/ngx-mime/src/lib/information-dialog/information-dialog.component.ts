@@ -18,7 +18,7 @@ import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
-import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 import { MetadataComponent } from './metadata/metadata.component';
@@ -50,7 +50,7 @@ export class InformationDialogComponent {
   private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly mimeResizeService = inject(MimeResizeService);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly selectedIndex = signal(0);
   readonly isHandsetOrTabletInPortrait =

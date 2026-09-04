@@ -16,7 +16,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { AccessKeysService } from '../core/access-keys-handler-service/access-keys.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
-import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { AttributionDialogResizeService } from './attribution-dialog-resize.service';
 
 @Component({
@@ -37,7 +37,7 @@ export class AttributionDialogComponent {
     AttributionDialogResizeService,
   );
   private readonly accessKeysHandlerService = inject(AccessKeysService);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly container = viewChild.required<ElementRef<HTMLElement>>('container');
   readonly manifest = this.iiifManifestService.manifest;

@@ -15,7 +15,7 @@ import { HighlightService } from '../../core/highlight-service/highlight.service
 import { IiifContentSearchService } from '../../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../../core/iiif-manifest-service/iiif-manifest-utils';
-import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../../core/intl/viewer-intl';
 import {
   PreviousRecognizedTextState,
   RecognizedTextSource,
@@ -34,7 +34,7 @@ export class RecognizedTextContentComponent {
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
   private readonly highlightService = inject(HighlightService);
   private readonly canvasService = inject(CanvasService);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly viewerId = input.required<string>();
   readonly recognizedTextContentContainer = viewChild.required<

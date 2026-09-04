@@ -95,7 +95,7 @@ describe('CanvasGroupNavigatorComponent', () => {
     expect(ariaLabel).toEqual(`Next Page`);
 
     intl.nextPageLabel = 'New test string';
-    intl.changes.next();
+    intl.notifyChanges();
     await testHostFixture.whenStable();
 
     ariaLabel = await getAriaLabel(nextButton);

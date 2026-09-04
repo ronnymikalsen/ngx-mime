@@ -16,7 +16,7 @@ import { map } from 'rxjs';
 import { CanvasService } from '../../../core/canvas-service/canvas-service';
 import { IiifContentSearchService } from '../../../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../../../core/iiif-manifest-service/iiif-manifest-service';
-import { injectMimeViewerIntlSignal } from '../../../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../../../core/intl/viewer-intl';
 import { SearchResult } from '../../../core/models/search-result';
 import { ViewingDirection } from '../../../core/models/viewing-direction';
 import { ContentSearchNavigationService } from '../../../core/navigation/content-search-navigation-service/content-search-navigation.service';
@@ -36,7 +36,7 @@ export class ContentSearchNavigatorComponent {
   private readonly canvasService = inject(CanvasService);
   private readonly iiifContentSearchService = inject(IiifContentSearchService);
   private readonly destroyRef = inject(DestroyRef);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly searchResult = input.required<SearchResult>();
   readonly currentHit = this.contentSearchNavigationService.currentHitCounter;

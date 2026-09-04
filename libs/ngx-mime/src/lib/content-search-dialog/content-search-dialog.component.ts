@@ -30,7 +30,7 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
-import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { Hit } from '../core/models/hit';
 import { ContentSearchNavigationService } from '../core/navigation/content-search-navigation-service/content-search-navigation.service';
@@ -70,7 +70,7 @@ export class ContentSearchDialogComponent {
   private readonly contentSearchNavigationService = inject(
     ContentSearchNavigationService,
   );
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly resultContainer = viewChild.required<ElementRef<HTMLElement>>(
     'contentSearchResult',

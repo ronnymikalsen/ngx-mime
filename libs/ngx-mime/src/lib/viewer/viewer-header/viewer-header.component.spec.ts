@@ -137,7 +137,7 @@ describe('ViewerHeaderComponent', () => {
 
   it('should re-render when the i18n labels have changed', async () => {
     intl.informationLabel = 'Metadata of the publication';
-    intl.changes.next();
+    intl.notifyChanges();
     await testHostFixture.whenStable();
 
     const informationDialogButton = await getInformationDialogButton();

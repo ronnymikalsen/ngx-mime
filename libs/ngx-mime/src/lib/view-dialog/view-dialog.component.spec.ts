@@ -140,7 +140,7 @@ describe('ViewDialogComponent', () => {
     const intl = TestBed.inject(MimeViewerIntl);
     intl.layoutMenuLabel = 'Updated view label';
 
-    intl.changes.next();
+    intl.notifyChanges();
     await fixture.whenStable();
 
     const heading: DebugElement = fixture.debugElement.query(

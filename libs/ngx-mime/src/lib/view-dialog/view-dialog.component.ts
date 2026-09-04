@@ -14,7 +14,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { AltoService } from '../core/alto-service/alto.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../core/iiif-manifest-service/iiif-manifest-utils';
-import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { RecognizedTextMode } from '../core/models';
 import { ViewerLayout } from '../core/models/viewer-layout';
@@ -44,7 +44,7 @@ export class ViewDialogComponent {
   private readonly altoService = inject(AltoService);
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly mimeResizeService = inject(MimeResizeService);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   ViewerLayout: typeof ViewerLayout = ViewerLayout;
   readonly RecognizedTextMode = RecognizedTextMode;

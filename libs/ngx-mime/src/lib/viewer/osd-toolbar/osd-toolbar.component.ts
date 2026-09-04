@@ -10,7 +10,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { CanvasService } from '../../core/canvas-service/canvas-service';
 import { IiifManifestService } from '../../core/iiif-manifest-service/iiif-manifest-service';
-import { injectMimeViewerIntlSignal } from '../../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../../core/intl/viewer-intl';
 import { ModeService } from '../../core/mode-service/mode.service';
 import { ViewingDirection } from '../../core/models/viewing-direction';
 import { ViewerLayoutService } from '../../core/viewer-layout-service/viewer-layout-service';
@@ -29,7 +29,7 @@ export class OsdToolbarComponent {
   private readonly iiifManifestService = inject(IiifManifestService);
   private readonly viewerService = inject(ViewerService);
   private readonly canvasService = inject(CanvasService);
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
 
   readonly isZoomed = this.modeService.isPageZoomed;
   readonly isWeb = this.viewerLayoutService.isWeb;

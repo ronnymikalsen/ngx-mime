@@ -9,7 +9,7 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
+import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
 
@@ -32,7 +32,7 @@ export class HelpDialogComponent {
   private readonly viewerLayoutService = inject(ViewerLayoutService);
   private readonly mimeResizeService = inject(MimeResizeService);
 
-  readonly intl = injectMimeViewerIntlSignal();
+  readonly intl = inject(MimeViewerIntl).value;
   readonly isHandsetOrTabletInPortrait =
     this.viewerLayoutService.isHandsetOrTabletInPortrait;
   readonly mimeHeight = computed(
