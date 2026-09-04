@@ -11,6 +11,7 @@ import { FullscreenService } from '../core/fullscreen-service/fullscreen.service
 import { HighlightService } from '../core/highlight-service/highlight.service';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
+import { MIME_VIEWER_INTL_PROVIDER } from '../core/intl/viewer-intl.provider';
 import { MimeDomHelper } from '../core/mime-dom-helper';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { ModeService } from '../core/mode-service/mode.service';
@@ -45,6 +46,7 @@ export const VIEWER_PROVIDERS = [
   IiifManifestService,
   InformationDialogConfigStrategyFactory,
   InformationDialogService,
+  MIME_VIEWER_INTL_PROVIDER,
   MimeDomHelper,
   MimeResizeService,
   ModeService,
