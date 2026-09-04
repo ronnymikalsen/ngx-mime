@@ -1,6 +1,5 @@
 import { NgStyle } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import { MatButtonToggle } from '@angular/material/button-toggle';
 import {
@@ -12,7 +11,6 @@ import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { map } from 'rxjs';
 import { AltoService } from '../core/alto-service/alto.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { ManifestUtils } from '../core/iiif-manifest-service/iiif-manifest-utils';
@@ -59,11 +57,8 @@ export class ViewDialogComponent {
   readonly hasRecognizedTextContent = computed(() =>
     this.currentManifestHasRecognizedTextContent(),
   );
-  readonly mimeHeight = toSignal(
-    this.mimeResizeService.onResize.pipe(
-      map((dimensions) => dimensions.height),
-    ),
-    { initialValue: 0 },
+  readonly mimeHeight = computed(
+    () => this.mimeResizeService.dimensions()?.height ?? 0,
   );
   readonly tabHeight = computed(() => this.getTabHeight());
 

@@ -39,6 +39,7 @@ import { InformationDialogService } from '../../information-dialog/information-d
 import { FullscreenServiceStub } from '../../test/fullscreen-service-stub';
 import { IiifContentSearchServiceStub } from '../../test/iiif-content-search-service-stub';
 import { IiifManifestServiceStub } from '../../test/iiif-manifest-service-stub';
+import { MimeResizeServiceStub } from '../../test/mime-resize-service-stub';
 import { ViewerLayoutServiceStub } from '../../test/viewer-layout-service-stub';
 import { ViewDialogConfigStrategyFactory } from '../../view-dialog/view-dialog-config-strategy-factory';
 import { ViewDialogComponent } from '../../view-dialog/view-dialog.component';
@@ -93,9 +94,7 @@ describe('ViewerHeaderComponent', () => {
         HelpDialogService,
         provideAutoSpy(ElementRef),
         { provide: FullscreenService, useClass: FullscreenServiceStub },
-        provideAutoSpy(MimeResizeService, {
-          observablePropsToSpyOn: ['onResize'],
-        }),
+        { provide: MimeResizeService, useClass: MimeResizeServiceStub },
         provideAutoSpy(MimeDomHelper),
         {
           provide: ViewerLayoutService,

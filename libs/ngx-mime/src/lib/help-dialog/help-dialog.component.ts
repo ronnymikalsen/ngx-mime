@@ -1,6 +1,5 @@
 import { NgStyle } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatIconButton } from '@angular/material/button';
 import {
   MatDialogClose,
@@ -10,7 +9,6 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { map } from 'rxjs';
 import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
@@ -37,11 +35,8 @@ export class HelpDialogComponent {
   readonly intl = injectMimeViewerIntlSignal();
   readonly isHandsetOrTabletInPortrait =
     this.viewerLayoutService.isHandsetOrTabletInPortrait;
-  readonly mimeHeight = toSignal(
-    this.mimeResizeService.onResize.pipe(
-      map((dimensions) => dimensions.height),
-    ),
-    { initialValue: 0 },
+  readonly mimeHeight = computed(
+    () => this.mimeResizeService.dimensions()?.height ?? 0,
   );
   readonly tabHeight = computed(() => this.getTabHeight());
 

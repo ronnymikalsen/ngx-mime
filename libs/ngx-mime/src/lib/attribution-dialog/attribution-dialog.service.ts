@@ -1,7 +1,9 @@
 import {
   ElementRef,
+  effect,
   inject,
   Injectable,
+  untracked,
   ViewContainerRef,
 } from '@angular/core';
 import {
@@ -31,6 +33,17 @@ export class AttributionDialogService {
   private _viewContainerRef: ViewContainerRef | undefined;
   private attributionDialogHeight = 0;
   private subscriptions!: Subscription;
+  private initialized = false;
+
+  constructor() {
+    effect(() => {
+      const dimensions = this.mimeResizeService.dimensions();
+
+      if (dimensions && this.initialized) {
+        untracked(() => this.updateDialogPosition());
+      }
+    });
+  }
 
   set el(el: ElementRef) {
     this._el = el;
@@ -41,15 +54,8 @@ export class AttributionDialogService {
   }
 
   public initialize(): void {
+    this.initialized = true;
     this.subscriptions = new Subscription();
-    this.subscriptions.add(
-      this.mimeResizeService.onResize.subscribe(() => {
-        if (this.isOpen()) {
-          const config = this.getDialogConfig();
-          this.dialogRef?.updatePosition(config.position);
-        }
-      }),
-    );
     this.subscriptions.add(
       this.attributionDialogResizeService.onResize.subscribe(
         (dimensions: Dimensions) => {
@@ -65,6 +71,7 @@ export class AttributionDialogService {
 
   public destroy(): void {
     this.close();
+    this.initialized = false;
     this.unsubscribe();
   }
 
@@ -139,6 +146,13 @@ export class AttributionDialogService {
         dimensions.top + dimensions.height - this.attributionDialogHeight - 80,
       left: dimensions.left + padding,
     });
+  }
+
+  private updateDialogPosition(): void {
+    if (this.isOpen()) {
+      const config = this.getDialogConfig();
+      this.dialogRef?.updatePosition(config.position);
+    }
   }
 
   private unsubscribe() {

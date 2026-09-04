@@ -1,10 +1,10 @@
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { provideAutoSpy } from 'jest-auto-spies';
 import { MimeViewerIntl } from '../core/intl/viewer-intl';
 import { MimeResizeService } from '../core/mime-resize-service/mime-resize.service';
 import { ViewerLayoutService } from '../core/viewer-layout-service/viewer-layout-service';
+import { MimeResizeServiceStub } from '../test/mime-resize-service-stub';
 import { ViewerLayoutServiceStub } from '../test/viewer-layout-service-stub';
 import { HelpDialogComponent } from './help-dialog.component';
 
@@ -18,9 +18,7 @@ describe('HelpDialogComponent', () => {
       imports: [HelpDialogComponent],
       providers: [
         MimeViewerIntl,
-        provideAutoSpy(MimeResizeService, {
-          observablePropsToSpyOn: ['onResize'],
-        }),
+        { provide: MimeResizeService, useClass: MimeResizeServiceStub },
         {
           provide: ViewerLayoutService,
           useClass: ViewerLayoutServiceStub,

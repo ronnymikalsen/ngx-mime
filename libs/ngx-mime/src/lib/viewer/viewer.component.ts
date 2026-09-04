@@ -20,8 +20,7 @@ import {
 } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { interval, Subscription } from 'rxjs';
-import { take, throttle } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
 import { CanvasGroupDialogService } from '../canvas-group-dialog/canvas-group-dialog.service';
 import { ContentSearchDialogService } from '../content-search-dialog/content-search-dialog.service';
@@ -116,7 +115,7 @@ export class ViewerComponent implements OnInit, OnDestroy {
     viewChild.required<ViewerHeaderComponent>('mimeHeader');
   private readonly footer =
     viewChild.required<ViewerFooterComponent>('mimeFooter');
-  private readonly subscriptions = new Subscription();
+  private resizeTimeout?: ReturnType<typeof setTimeout>;
   private readonly isCanvasPressed = this.viewerService.isCanvasPressed;
   private readonly activeManifestUri = linkedSignal(() => this.manifestUri());
   private currentManifest!: Manifest | null;
@@ -177,6 +176,16 @@ export class ViewerComponent implements OnInit, OnDestroy {
           this.viewerService.goToCanvas(canvasIndex, true);
         }
       });
+    });
+    effect(() => {
+      const dimensions = this.resizeService.dimensions();
+
+      if (dimensions && !this.resizeTimeout) {
+        this.resizeTimeout = setTimeout(() => {
+          this.viewerService.home();
+          this.resizeTimeout = undefined;
+        }, ViewerOptions.transitions.OSDAnimationTime);
+      }
     });
     effect(() => {
       this.qChanged.emit(this.iiifContentSearchService.query());
@@ -296,22 +305,10 @@ export class ViewerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.styleService.initialize();
-
-    this.subscriptions.add(
-      this.resizeService.onResize
-        .pipe(
-          throttle(() => interval(ViewerOptions.transitions.OSDAnimationTime)),
-        )
-        .subscribe(() => {
-          setTimeout(() => {
-            this.viewerService.home();
-          }, ViewerOptions.transitions.OSDAnimationTime);
-        }),
-    );
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+    clearTimeout(this.resizeTimeout);
     this.cleanup();
     this.iiifManifestService.destroy();
     this.iiifContentSearchService.destroy();

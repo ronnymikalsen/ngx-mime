@@ -9,7 +9,6 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { MatIconButton } from '@angular/material/button';
 import { MatCard, MatCardContent } from '@angular/material/card';
@@ -29,7 +28,6 @@ import {
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { map } from 'rxjs';
 import { IiifContentSearchService } from '../core/iiif-content-search-service/iiif-content-search.service';
 import { IiifManifestService } from '../core/iiif-manifest-service/iiif-manifest-service';
 import { injectMimeViewerIntlSignal } from '../core/intl/viewer-intl.signal';
@@ -83,9 +81,8 @@ export class ContentSearchDialogComponent {
   });
   readonly isHandsetOrTabletInPortrait =
     this.viewerLayoutService.isHandsetOrTabletInPortrait;
-  readonly mimeHeight = toSignal(
-    this.mimeResizeService.onResize.pipe(map(({ height }) => height)),
-    { initialValue: 0 },
+  readonly mimeHeight = computed(
+    () => this.mimeResizeService.dimensions()?.height ?? 0,
   );
   readonly manifest = this.iiifManifestService.manifest;
   readonly searchResult = this.iiifContentSearchService.searchResult;
