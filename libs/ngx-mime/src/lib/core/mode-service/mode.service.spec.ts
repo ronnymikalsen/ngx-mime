@@ -54,7 +54,7 @@ describe('ModeService', () => {
   });
 
   it('should change mode to DASHBOARD when toggled in PAGE_ZOOMED', () => {
-    service.setMode(ViewerMode.PAGE_ZOOMED.valueOf());
+    service.setMode(ViewerMode.PAGE_ZOOMED);
 
     service.toggleMode();
 
