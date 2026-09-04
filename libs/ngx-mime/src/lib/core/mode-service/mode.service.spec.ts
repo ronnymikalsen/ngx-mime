@@ -42,7 +42,7 @@ describe('ModeService', () => {
   });
 
   it('should change mode when toggled', () => {
-    service.setMode(ViewerMode.DASHBOARD.valueOf());
+    service.setMode(ViewerMode.DASHBOARD);
 
     service.toggleMode();
 
