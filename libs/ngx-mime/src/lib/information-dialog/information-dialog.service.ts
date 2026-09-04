@@ -79,7 +79,7 @@ export class InformationDialogService {
   }
 
   public getSelectedIndex(): number {
-    return this.dialogRef?.componentInstance.selectedIndex() ?? 0;
+    return this.dialogRef?.componentInstance?.selectedIndex() ?? 0;
   }
 
   private getDialogConfig(): MatDialogConfig {

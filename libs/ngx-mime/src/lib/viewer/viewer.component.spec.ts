@@ -4,7 +4,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { provideAutoSpy } from 'jest-auto-spies';
+import { provideAutoSpy, Spy } from 'jest-auto-spies';
 import 'openseadragon';
 import { filter, firstValueFrom } from 'rxjs';
 import { AttributionDialogService } from '../attribution-dialog/attribution-dialog.service';
@@ -54,8 +54,8 @@ describe('ViewerComponent', () => {
   let accessKeysService: AccessKeysService;
   let attributionDialogService: AttributionDialogService;
   let viewDialogService: ViewDialogService;
-  let informationDialogService: InformationDialogService;
-  let contentSearchDialogService: ContentSearchDialogService;
+  let informationDialogService: Spy<InformationDialogService>;
+  let contentSearchDialogService: Spy<ContentSearchDialogService>;
   let helpDialogService: HelpDialogService;
   let resizeService: MimeResizeService;
   let altoService: AltoService;
@@ -116,8 +116,12 @@ describe('ViewerComponent', () => {
     accessKeysService = TestBed.inject(AccessKeysService);
     attributionDialogService = TestBed.inject(AttributionDialogService);
     viewDialogService = TestBed.inject(ViewDialogService);
-    informationDialogService = TestBed.inject(InformationDialogService);
-    contentSearchDialogService = TestBed.inject(ContentSearchDialogService);
+    informationDialogService = TestBed.inject(
+      InformationDialogService,
+    ) as Spy<InformationDialogService>;
+    contentSearchDialogService = TestBed.inject(
+      ContentSearchDialogService,
+    ) as Spy<ContentSearchDialogService>;
     helpDialogService = TestBed.inject(HelpDialogService);
     resizeService = TestBed.inject(MimeResizeService);
     altoService = TestBed.inject(AltoService);
@@ -413,6 +417,21 @@ describe('ViewerComponent', () => {
     await testHostFixture.whenStable();
 
     expect(selectedMode).toEqual(ViewerMode.DASHBOARD);
+  });
+
+  it('should not restore a saved dialog when another dialog is already open', async () => {
+    testHostFixture.detectChanges();
+    await testHostFixture.whenStable();
+    await setViewerMode(ViewerMode.DASHBOARD);
+    contentSearchDialogService.isOpen.mockReturnValue(true);
+
+    await setViewerMode(ViewerMode.PAGE);
+    informationDialogService.isOpen.mockReturnValue(true);
+    contentSearchDialogService.isOpen.mockReturnValue(false);
+
+    await setViewerMode(ViewerMode.DASHBOARD);
+
+    expect(contentSearchDialogService.open).not.toHaveBeenCalled();
   });
 
   it('should emit when canvas group number changes', async () => {
@@ -711,6 +730,11 @@ describe('ViewerComponent', () => {
         filter((isReady) => isReady),
       ),
     );
+  }
+
+  async function setViewerMode(mode: ViewerMode): Promise<void> {
+    modeService.setMode(mode);
+    await testHostFixture.whenStable();
   }
 
   function getAttributeAsInt(

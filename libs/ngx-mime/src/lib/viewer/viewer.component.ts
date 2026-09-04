@@ -396,19 +396,27 @@ export class ViewerComponent implements OnInit, OnDestroy {
       this.helpDialogService.close();
     }
     if (currentMode === ViewerMode.DASHBOARD) {
-      if (this.viewerState.viewDialogState.isOpen) {
-        this.viewDialogService.open();
-      }
-      if (this.viewerState.contentDialogState.isOpen) {
-        this.informationDialogService.open(
-          this.viewerState.contentDialogState.selectedIndex,
-        );
-      }
-      if (this.viewerState.contentsSearchDialogState.isOpen) {
-        this.contentSearchDialogService.open();
-      }
-      if (this.viewerState.helpDialogState.isOpen) {
-        this.helpDialogService.open();
+      const hasOpenDialog =
+        this.viewDialogService.isOpen() ||
+        this.informationDialogService.isOpen() ||
+        this.contentSearchDialogService.isOpen() ||
+        this.helpDialogService.isOpen();
+
+      if (!hasOpenDialog) {
+        if (this.viewerState.viewDialogState.isOpen) {
+          this.viewDialogService.open();
+        }
+        if (this.viewerState.contentDialogState.isOpen) {
+          this.informationDialogService.open(
+            this.viewerState.contentDialogState.selectedIndex,
+          );
+        }
+        if (this.viewerState.contentsSearchDialogState.isOpen) {
+          this.contentSearchDialogService.open();
+        }
+        if (this.viewerState.helpDialogState.isOpen) {
+          this.helpDialogService.open();
+        }
       }
     }
     if (currentMode !== undefined) {
