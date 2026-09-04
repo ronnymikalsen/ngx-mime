@@ -44,6 +44,12 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
+Supported locales:
+
+- English (`Locales.ENGLISH`, default)
+- Norwegian Bokmål (`Locales.NORWEGIAN`)
+- Lithuanian (`Locales.LITHUANIAN`)
+
 The configured locale applies to every viewer in the application, while each
 viewer receives its own `MimeViewerIntl` instance. Runtime label changes in one
 viewer therefore do not affect other viewers.
