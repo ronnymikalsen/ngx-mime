@@ -3,7 +3,6 @@ import {
   effect,
   inject,
   Injectable,
-  untracked,
   ViewContainerRef,
 } from '@angular/core';
 import {
@@ -40,7 +39,7 @@ export class AttributionDialogService {
       const dimensions = this.mimeResizeService.dimensions();
 
       if (dimensions && this.initialized) {
-        untracked(() => this.updateDialogPosition());
+        this.updateDialogPosition();
       }
     });
   }
